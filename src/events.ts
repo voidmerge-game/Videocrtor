@@ -1,4 +1,5 @@
 /** All visual events of the film, anchored to narration words. Times in seconds (absolute). */
+import LABEL_POS from './label_pos.json';
 import {Power} from './theme';
 import {T, E, P, SCENE_START, FIRST_VO, COLD_OPEN, END_VO, OUTRO} from './timeline';
 import type {CamKey} from './lib/anim';
@@ -377,14 +378,34 @@ const ZOOM = (k: CamKey): CamKey => {
 };
 export const CAM3: CamKey[] = CAM.map(ZOOM);
 
-export type BigEv = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number};
+export type LabelFit = {lon: number; lat: number; th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number};
+export type BigEv = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number; fit?: LabelFit};
+const LP = LABEL_POS as Record<string, Record<string, LabelFit>>;
+/** which polygon a label belongs to (era dataset, feature NAME); labels not listed keep their manual placement */
+const FIT_OF: Record<string, [string, string]> = {
+  'Sokoto Caliphate': ['1880', 'Sokoto Caliphate'], Asante: ['1880', 'Asante'], Buganda: ['1880', 'Buganda'], Zulu: ['1880', 'Zululand'], Zululand: ['1880', 'Zululand'],
+  Transvaal: ['1880', 'Transvaal'], 'Orange Free State': ['1880', 'Orange Free State'],
+  Tunisia: ['1914', 'Tunisia'], 'German S.W. Africa': ['1914', 'German South-West Africa'], 'German South-West Africa': ['1914', 'German South-West Africa'],
+  Togo: ['1914', 'Togoland'], Kamerun: ['1914', 'Kamerun'], 'German East Africa': ['1914', 'German E. Africa (Tanganyika)'], Nigeria: ['1914', 'Nigeria'],
+  'Gold Coast': ['1914', 'Gold Coast'], Rhodesia: ['1914', 'Rhodesia'], 'South Africa': ['1914', 'South Africa'], 'British East Africa': ['1914', 'British East Africa'],
+  'French West Africa': ['1914', 'French West Africa'], Algeria: ['1914', 'Algeria'], Madagascar: ['1914', 'Madagascar (France)'], Eritrea: ['1914', 'Eritrea'],
+  'Italian Somaliland': ['1914', 'Italian Somaliland'], Angola: ['1914', 'Angola'], Mozambique: ['1914', 'Mozambique'], 'Río de Oro': ['1914', 'Rio De Oro'],
+  Sudan: ['1914', 'Anglo-Egyptian Sudan'], 'Mahdist Sudan': ['1914', 'Anglo-Egyptian Sudan'], 'Congo Free State': ['1914', 'Belgian Congo'], Libya: ['1914', 'Libya'],
+  Morocco: ['1914', 'Morocco'],
+};
+const ETH14: [string, string] = ['1914', 'Abyssinia'], ETH80: [string, string] = ['1880', 'Ethiopia'];
+const withFit = (e: BigEv): BigEv => {
+  const key = e.text === 'Ethiopia' ? (e.t < T('S5_01') ? ETH80 : ETH14) : FIT_OF[e.text];
+  const f = key ? LP[key[0]]?.[key[1]] : undefined;
+  return f ? {...e, lon: f.lon, lat: f.lat, fit: f} : e;
+};
 const S5e = E('S5_07') + 1.0; // partition labels stay until the 1900 summary ends
 const S8a = T('S8_02', 'By'), S8b = T('S8_03', 'borders') + 1.5;
 const both = (lon: number, lat: number, text: string, t: number, size = 40, rot = 0): BigEv[] => [
   {lon, lat, text, t: t + 0.6, until: S5e, size, rot},
   {lon, lat, text, t: S8a, until: S8b, size, rot},
 ];
-export const BIG: BigEv[] = [
+export const BIG: BigEv[] = ([
   // 1870 — African powers
   {lon: 6.5, lat: 12.5, text: 'Sokoto Caliphate', t: T('S1_01', 'Sokoto'), until: E('S1_03') + 1, size: 40},
   {lon: 31.2, lat: -28.2, text: 'Zulu', t: T('S1_01', 'Zulu'), until: E('S1_03') + 1, size: 34},
@@ -419,7 +440,7 @@ export const BIG: BigEv[] = [
   ...both(38.0, 1.0, 'British East Africa', T('S5_03', 'Cairo'), 24, -25),
   ...both(-4.0, 17.5, 'French West Africa', T('S5_04', 'Senegal'), 40),
   ...both(3.0, 27.5, 'Algeria', T('S5_04', 'Algeria'), 36),
-  ...both(19.0, 8.5, 'French Equatorial Africa', T('S5_04', 'Congo'), 26, -62),
+  ...both(18.6, 7.0, 'French Equatorial Africa', T('S5_04', 'Congo'), 26, -62).map((e) => ({...e, fit: {lon: 18.6, lat: 7.0, th: 62, L0: 9, Lv: 9, La: 24, Lp: 7, ratio: 2}})),
   ...both(46.8, -19.5, 'Madagascar', T('S5_04', 'Congo') + 1.2, 24, -75),
   ...both(38.2, 14.9, 'Eritrea', T('S5_06', 'Eritrea'), 18, -30),
   ...both(46.0, 4.5, 'Italian Somaliland', T('S5_06', 'Somalia'), 20, -55),
@@ -438,7 +459,7 @@ export const BIG: BigEv[] = [
   {lon: 26.5, lat: -29.0, text: 'Orange Free State', t: T('S7_04', 'Boer'), until: E('S7_04') + 1, size: 20},
   {lon: -6.0, lat: 32.0, text: 'Morocco', t: T('S8_01', 'Morocco'), until: S8b, size: 30},
   {lon: 18.0, lat: 27.0, text: 'Libya', t: T('S8_02', 'Libya'), until: S8b, size: 36},
-];
+] as BigEv[]).map(withFit);
 
 export type CityEv = {lon: number; lat: number; name: string; minScale?: number; capital?: boolean; side?: 'r' | 'l' | 'b' | 't'; t?: number; until?: number};
 const AF0 = FIRST_VO + 2, AF1 = T('S8_03', 'borders');

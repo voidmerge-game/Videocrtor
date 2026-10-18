@@ -201,7 +201,7 @@ export const Main: React.FC = () => {
           <MapLabel key={i} lon={l.lon} lat={l.lat} text={l.text} at={Math.round(l.t * fps)} until={l.until ? Math.round(l.until * fps) : undefined} kind={l.kind ?? 'city'} size={l.size ?? 26} />
         ))}
         {BIG.map((b, i) => (
-          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} tone={LIGHT_LABELS.has(b.text) ? 'light' : 'dark'} />
+          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} fit={b.fit} tone={LIGHT_LABELS.has(b.text) ? 'light' : 'dark'} />
         ))}
         {ROUTES.map((r, i) => (
           <Route key={`r${i}`} pts={r.pts} at={Math.round(r.t * fps)} until={Math.round(r.until * fps)} color={r.color} width={r.width} dashed={r.dashed} drawDur={r.drawDur} head={r.head} />

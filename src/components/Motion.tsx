@@ -16,30 +16,46 @@ const fadeIO = (f: number, len: number, a = 10, b = 12) => Math.min(clamp01(f / 
 /* ---------- Big region label (printed on the map: dark on light terrain, white on dark fills) ---------- */
 export const BigLabel: React.FC<{
   lon: number; lat: number; text: string; at: number; until?: number; size?: number; rot?: number; tone?: 'dark' | 'light'; minScale?: number;
-}> = ({lon, lat, text, at, until, size = 60, rot = 0, tone = 'dark', minScale = 0}) => {
+  fit?: {th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number};
+}> = ({lon, lat, text, at, until, size = 40, rot = 0, tone = 'dark', minScale = 0, fit}) => {
   const frame = useCurrentFrame();
   const {cam} = useMap();
   const f = frame - at;
   if (f < 0 || (until !== undefined && frame > until) || cam.scale < minScale) return null;
   const op = until !== undefined ? fadeIO(f, until - at, 14, 14) : clamp01(f / 14);
-  // label grows with zoom so it sits on the land like print
-  const k = 1.7 * Math.pow(cam.scale / 2400, 0.6);
   const light = tone === 'light';
-  // v5: heavy geometric caps, wide tracking (0.28em), soft shadow — white over dark fills, near-black ink over light terrain
+  const label = text.toUpperCase();
+  // v5: labels are anchored to the map (grow 1:1 with the zoom). When a polygon fit is known, the font is sized so the
+  // name spans ~78% of the free length of its territory (reference: dominant names ~115-130 px, small ones ~20 px).
+  const ppd = (cam.scale * Math.PI) / 180; // px per degree
+  const chars = Math.max(3, label.length);
+  let fontPx: number, rotDeg: number;
+  if (fit) {
+    const sc = (L: number, Wd: number) => Math.min((0.95 * L * ppd) / chars, 1.0 * Wd * ppd);
+    const h = sc(fit.L0, fit.Lv), a = sc(fit.La, fit.Lp);
+    const useAxis = a > 1.5 * h && fit.ratio > 1.4 && Math.abs(fit.th) > 12;
+    fontPx = Math.min(120, useAxis ? a : h);
+    rotDeg = useAxis ? -fit.th : 0;
+    if (fontPx < 22) fontPx = 22;                       // small territories: the name may overrun the border (as in the reference)
+  } else {
+    fontPx = Math.min(120, size * 1.2 * Math.pow(cam.scale / 2400, 0.7));
+    rotDeg = rot;
+  }
+  const track = 0.28;
   return (
     <Marker lon={lon} lat={lat}>
       <div
         style={{
-          opacity: op, transform: `rotate(${rot}deg) scale(${k})`, transformOrigin: '50% 50%', whiteSpace: 'nowrap',
-          fontFamily: FONT.map, fontWeight: 700, fontSize: size, letterSpacing: size * 0.28, textTransform: 'uppercase',
+          opacity: op, transform: `rotate(${rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap',
+          fontFamily: FONT.map, fontWeight: 700, fontSize: fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: 1,
           color: light ? 'rgba(246,243,238,0.97)' : 'rgba(14,10,8,0.9)',
           textShadow: light
             ? '0 2px 2px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.5)'
             : '0 1px 0 rgba(255,255,255,0.25), 0 0 10px rgba(255,240,225,0.35)',
-          paddingLeft: size * 0.28,
+          paddingLeft: `${track}em`,
         }}
       >
-        {text}
+        {label}
       </div>
     </Marker>
   );
