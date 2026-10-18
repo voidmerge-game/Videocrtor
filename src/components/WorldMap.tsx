@@ -7,7 +7,7 @@ import type {Feature, Geometry} from 'geojson';
 import {RasterGlobe} from './RasterGlobe';
 
 export type Cam = {lon: number; lat: number; scale: number};
-const AFRICA_HD = {lon0: -30, lon1: 65, lat0: -42, lat1: 50};
+const AFRICA_HD = {lon0: -30, lon1: 65, lat0: -42, lat1: 58};
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
 export type Layer = {
@@ -29,6 +29,10 @@ export type Layer = {
   blend?: string;
   /** draw all strokes in a second pass above every fill of this layer */
   strokeOnTop?: boolean;
+  /** paper-cutout drop shadow under each feature (v4 look) */
+  shadow?: boolean;
+  /** per-feature extra emphasis 0..1: darker outline + stronger shadow (recently acquired) */
+  emphasis?: (f: Feature<Geometry, any>) => number;
 };
 
 type Ctx = {projection: GeoProjection; cam: Cam; visible: (lon: number, lat: number) => boolean};
@@ -78,41 +82,10 @@ export const WorldMap: React.FC<{
       <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, ${C.oceanLight} 0%, ${C.ocean} 55%, #050d16 100%)`}}>
         {/* ---- satellite globe (fades out as atlas mixes in) ---- */}
         {raster && atlas < 1 && <RasterGlobe cam={cam} opacity={1 - atlas} />}
-        {/* ---- atlas: vector ocean + coastal glow ---- */}
-        {atlas > 0 && (
-          <svg width={W} height={H} style={{position: 'absolute', inset: 0, opacity: atlas}}>
-            <defs>
-              <radialGradient id="oceanA" cx="42%" cy="36%" r="70%">
-                <stop offset="0%" stopColor="#2b6a95" />
-                <stop offset="55%" stopColor="#1a4a70" />
-                <stop offset="100%" stopColor="#0b2235" />
-              </radialGradient>
-              <filter id="oceanNoise" x="0" y="0" width="100%" height="100%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.10 0" />
-              </filter>
-              <filter id="coastGlow" x="-10%" y="-10%" width="120%" height="120%">
-                <feGaussianBlur stdDeviation="9" />
-              </filter>
-              <clipPath id="sphereClipA"><path d={sphere} /></clipPath>
-            </defs>
-            <path d={sphere} fill="url(#oceanA)" />
-            <g clipPath="url(#sphereClipA)">
-              <rect width={W} height={H} filter="url(#oceanNoise)" opacity={0.5} />
-              {showGraticule && <path d={graticule} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth={1} />}
-              {/* lighter water hugging the coast, like a printed atlas */}
-              <path d={bigLandPath} fill="rgba(150,205,235,0.55)" stroke="rgba(150,205,235,0.9)" strokeWidth={22} filter="url(#coastGlow)" />
-              <path d={bigLandPath} fill="rgba(170,215,240,0.35)" stroke="rgba(170,215,240,0.8)" strokeWidth={7} filter="url(#coastGlow)" />
-              {/* parchment land base under the relief */}
-              <path d={landPath} fill="#e6d9b8" />
-            </g>
-          </svg>
-        )}
-        {raster && atlas > 0 && (
-          <RasterGlobe cam={cam} src="data/relief_4k.png" tint={[0.98, 0.93, 0.82]} light={0.35} opacity={atlas} blend="multiply" />
-        )}
-        {raster && atlas > 0 && cam.scale > 1150 && (
-          <RasterGlobe cam={cam} src="data/relief_africa_hd.png" tint={[0.98, 0.93, 0.82]} light={0.35} opacity={atlas * clamp01((cam.scale - 1150) / 300)} blend="multiply" bounds={AFRICA_HD} />
+        {/* ---- v4 terrain: baked terracotta relief + ocean (world, then HD Africa/Europe tile) ---- */}
+        {raster && atlas > 0 && <RasterGlobe cam={cam} src="data/terrain_world.jpg" light={0.25} opacity={atlas} />}
+        {raster && atlas > 0 && cam.scale > 800 && (
+          <RasterGlobe cam={cam} src="data/terrain_africa.jpg" light={0.25} opacity={atlas * clamp01((cam.scale - 800) / 400)} bounds={AFRICA_HD} />
         )}
         <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
           <defs>
@@ -140,6 +113,13 @@ export const WorldMap: React.FC<{
             </filter>
             <filter id="innerShadow">
               <feGaussianBlur stdDeviation="2.5" />
+            </filter>
+            <filter id="cutShadow" x="-10%" y="-10%" width="130%" height="130%">
+              <feGaussianBlur stdDeviation="5" />
+            </filter>
+            <filter id="flagWave" x="-10%" y="-20%" width="120%" height="140%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035 0.08" numOctaves="2" seed="3" result="n" />
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
             </filter>
             <clipPath id="sphereClip"><path d={sphere} /></clipPath>
             <pattern id="paperNoise" width="6" height="6" patternUnits="userSpaceOnUse">
@@ -194,10 +174,16 @@ export const WorldMap: React.FC<{
                   );
                 }
                 const stroke = (L.strokeFn && L.strokeFn(f)) ?? L.stroke ?? 'none';
-                return {i, d, fill, op, clip, clipEl, stroke};
-              }).filter(Boolean) as {i: number; d: string; fill: string | null; op: number; clip?: string; clipEl: React.ReactNode; stroke: string}[];
+                const em = L.emphasis ? L.emphasis(f) : 0;
+                return {i, d, fill, op, clip, clipEl, stroke, em};
+              }).filter(Boolean) as {i: number; d: string; fill: string | null; op: number; clip?: string; clipEl: React.ReactNode; stroke: string; em: number}[];
               return (
                 <g key={L.id} filter={L.glow ? 'url(#softGlow)' : undefined}>
+                  {L.shadow && items.map((it) => (
+                    <g key={`sh${it.i}`} opacity={it.op * (0.38 + 0.4 * it.em)} clipPath={it.clip}>
+                      <path d={it.d} fill="#000" transform={`translate(${4 + 4 * it.em},${6 + 5 * it.em})`} filter="url(#cutShadow)" />
+                    </g>
+                  ))}
                   <g style={{mixBlendMode: (L.blend as any) ?? 'normal'}}>
                     {items.map((it) => (
                       <g key={it.i} opacity={it.op} clipPath={it.clip}>
@@ -209,15 +195,16 @@ export const WorldMap: React.FC<{
                   {L.strokeOnTop && items.map((it) => (
                     <g key={`s${it.i}`} opacity={it.op} clipPath={it.clip}>
                       <path d={it.d} fill="none" stroke={it.stroke} strokeWidth={L.strokeWidth ?? 1} strokeLinejoin="round" strokeLinecap="round" />
+                      {it.em > 0 && <path d={it.d} fill="none" stroke="#1a110c" strokeWidth={(L.strokeWidth ?? 1) + 1.6} strokeLinejoin="round" strokeLinecap="round" opacity={it.em} />}
                     </g>
                   ))}
                 </g>
               );
             })}
             {/* crisp coastline in atlas mode */}
-            {atlas > 0 && <path d={landPath} fill="none" stroke="#1d130a" strokeWidth={1.5} opacity={0.85 * atlas} />}
+            {atlas > 0 && <path d={landPath} fill="none" stroke="rgba(255,240,225,0.55)" strokeWidth={1.2} opacity={atlas} />}
             {/* lighting */}
-            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 - 0.25 * atlas : 1} />
+            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 - 0.35 * atlas : 1} />
           </g>
           {/* limb */}
           <path d={sphere} fill="none" stroke="rgba(160,200,255,0.35)" strokeWidth={2} />

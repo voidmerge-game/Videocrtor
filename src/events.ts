@@ -92,30 +92,32 @@ export const FLAGS_RAW: FlagEv[] = [
   // Scene 4
   {lon: 23.0, lat: -3.0, power: 'belgium', t: T('S4_02', 'Leopold'), label: 'CONGO FREE STATE', w: 70},
   // Scene 5
-  {lon: 9.6, lat: 34.2, power: 'france', t: T('S5_01', 'Tunisia'), label: 'TUNISIA'},
-  {lon: 30.5, lat: 27.5, power: 'britain', t: T('S5_01', 'Egypt'), label: 'EGYPT'},
-  {lon: 17.5, lat: -22.0, power: 'germany', t: T('S5_02', 'South'), label: 'SOUTH-WEST AFRICA'},
+  {lon: 10.2, lat: 33.0, power: 'france', t: T('S5_01', 'Tunisia'), label: 'TUNISIA'},
+  {lon: 31.8, lat: 29.6, power: 'britain', t: T('S5_01', 'Egypt'), label: 'EGYPT'},
+  {lon: 16.3, lat: -24.8, power: 'germany', t: T('S5_02', 'South'), label: 'SOUTH-WEST AFRICA'},
   {lon: 0.9, lat: 8.5, power: 'germany', t: T('S5_02', 'Togoland'), label: 'TOGOLAND'},
-  {lon: 13.0, lat: 6.0, power: 'germany', t: T('S5_02', 'Kamerun'), label: 'KAMERUN'},
-  {lon: 34.8, lat: -6.5, power: 'germany', t: T('S5_02', 'East'), label: 'EAST AFRICA'},
-  {lon: 8.0, lat: 10.0, power: 'britain', t: T('S5_03', 'Niger'), label: 'NIGERIA'},
-  {lon: 29.0, lat: -17.5, power: 'britain', t: T('S5_03', 'Rhodes'), label: 'RHODESIA'},
+  {lon: 14.6, lat: 3.6, power: 'germany', t: T('S5_02', 'Kamerun'), label: 'KAMERUN'},
+  {lon: 37.2, lat: -4.3, power: 'germany', t: T('S5_02', 'East'), label: 'EAST AFRICA'},
+  {lon: 9.8, lat: 7.6, power: 'britain', t: T('S5_03', 'Niger'), label: 'NIGERIA'},
+  {lon: 30.2, lat: -15.6, power: 'britain', t: T('S5_03', 'Rhodes'), label: 'RHODESIA'},
   {lon: 37.5, lat: 1.0, power: 'britain', t: T('S5_03', 'Cairo'), label: 'BRITISH EAST AFRICA'},
   {lon: -6.5, lat: 12.0, power: 'france', t: T('S5_04', 'Senegal') + 1.5, label: 'FRENCH WEST AFRICA', w: 70},
   {lon: 18.0, lat: 3.0, power: 'france', t: T('S5_04', 'Congo'), label: 'FRENCH EQUATORIAL AFRICA'},
   {lon: 46.8, lat: -19.5, power: 'france', t: T('S5_04', 'Congo') + 1.4, label: 'MADAGASCAR'},
-  {lon: 39.2, lat: 15.8, power: 'italy', t: T('S5_06', 'Eritrea'), label: 'ERITREA'},
-  {lon: 46.5, lat: 4.5, power: 'italy', t: T('S5_06', 'Somalia'), label: 'SOMALILAND'},
-  {lon: 17.5, lat: -13.0, power: 'portugal', t: T('S5_06', 'Portugal'), label: 'ANGOLA'},
-  {lon: 36.5, lat: -15.5, power: 'portugal', t: T('S5_06', 'Portugal') + 0.4, label: 'MOZAMBIQUE'},
-  {lon: -13.5, lat: 25.0, power: 'spain', t: T('S5_06', 'Sahara'), label: 'RÍO DE ORO'},
+  {lon: 40.2, lat: 16.3, power: 'italy', t: T('S5_06', 'Eritrea'), label: 'ERITREA'},
+  {lon: 48.2, lat: 7.6, power: 'italy', t: T('S5_06', 'Somalia'), label: 'SOMALILAND'},
+  {lon: 15.3, lat: -10.3, power: 'portugal', t: T('S5_06', 'Portugal'), label: 'ANGOLA'},
+  {lon: 38.6, lat: -14.4, power: 'portugal', t: T('S5_06', 'Portugal') + 0.4, label: 'MOZAMBIQUE'},
+  {lon: -14.6, lat: 22.4, power: 'spain', t: T('S5_06', 'Sahara'), label: 'RÍO DE ORO'},
   // Scene 6
-  {lon: 30.5, lat: 14.0, power: 'britain', t: T('S6_03', 'Omdurman') + 0.8, label: 'ANGLO-EGYPTIAN SUDAN'},
+  {lon: 32.8, lat: 12.6, power: 'britain', t: T('S6_03', 'Omdurman') + 0.8, label: 'ANGLO-EGYPTIAN SUDAN'},
   // Scene 8
-  {lon: -6.5, lat: 31.5, power: 'france', t: T('S8_02', 'Morocco'), label: 'MOROCCO'},
-  {lon: 17.0, lat: 27.5, power: 'italy', t: T('S8_02', 'Libya'), label: 'LIBYA'},
+  {lon: -7.8, lat: 29.8, power: 'france', t: T('S8_02', 'Morocco'), label: 'MOROCCO'},
+  {lon: 15.5, lat: 30.3, power: 'italy', t: T('S8_02', 'Libya'), label: 'LIBYA'},
 ];
-export const FLAGS: FlagEv[] = FLAGS_RAW.map((f) => {
+export const FLAGS: FlagEv[] = FLAGS_RAW.map((f0) => {
+  // v4: big printed names replace the flag labels after scene 3 (reference style: flags carry no text)
+  const f = f0.t >= T('S4_01') ? {...f0, label: undefined} : f0;
   if (f.until) return f;
   const u = f.t < T('S2_01') ? U1 : f.t < T('S4_01') ? U3 : f.t < T('S6_01') ? U5 : f.t < T('S7_01') ? U6 : U8;
   return {...f, until: u};
@@ -311,8 +313,8 @@ export const CAM: CamKey[] = [
   {t: T('S6_03'), lon: 28, lat: 16, scale: 1200},
   {t: T('S6_03', 'Khartoum'), lon: 32, lat: 15, scale: 1700},
   {t: T('S6_04'), lon: 30, lat: 10, scale: 1200},
-  {t: T('S6_04', 'Adwa'), lon: 31.5, lat: 12.5, scale: 1600},
-  {t: T('S6_04', 'Ethiopia', 2), lon: 32, lat: 11, scale: 1500},
+  {t: T('S6_04', 'Adwa'), lon: 32.5, lat: 15.5, scale: 1600},
+  {t: T('S6_04', 'Ethiopia', 2), lon: 33, lat: 13.5, scale: 1500},
   {t: T('S6_04', 'Liberia'), lon: 18, lat: 6, scale: 900},
   // Scene 7 — the price
   {t: T('S7_01'), lon: 30, lat: -2, scale: 1100},
@@ -386,7 +388,7 @@ export const BIG: BigEv[] = [
   // 1870 — African powers
   {lon: 6.5, lat: 12.5, text: 'Sokoto Caliphate', t: T('S1_01', 'Sokoto'), until: E('S1_03') + 1, size: 40},
   {lon: 31.2, lat: -28.2, text: 'Zulu', t: T('S1_01', 'Zulu'), until: E('S1_03') + 1, size: 34},
-  {lon: -1.5, lat: 7.2, text: 'Asante', t: T('S1_01', 'Asante'), until: E('S1_03') + 1, size: 30},
+  {lon: -2.6, lat: 8.3, text: 'Asante', t: T('S1_01', 'Asante'), until: E('S1_03') + 1, size: 30},
   {lon: 39.0, lat: 9.5, text: 'Ethiopia', t: T('S1_01', 'Ethiopians'), until: E('S1_03') + 1, size: 40},
   {lon: 32.3, lat: 0.8, text: 'Buganda', t: T('S1_01', 'Ethiopians') + 1, until: E('S1_03') + 1, size: 26},
   {lon: 29.5, lat: 27.0, text: 'Egypt', t: T('S1_02', 'Europeans'), until: E('S1_03') + 1, size: 36},
@@ -419,7 +421,7 @@ export const BIG: BigEv[] = [
   ...both(3.0, 27.5, 'Algeria', T('S5_04', 'Algeria'), 36),
   ...both(19.0, 8.5, 'French Equatorial Africa', T('S5_04', 'Congo'), 26, -62),
   ...both(46.8, -19.5, 'Madagascar', T('S5_04', 'Congo') + 1.2, 24, -75),
-  ...both(38.8, 15.5, 'Eritrea', T('S5_06', 'Eritrea'), 20, -30),
+  ...both(38.2, 14.9, 'Eritrea', T('S5_06', 'Eritrea'), 18, -30),
   ...both(46.0, 4.5, 'Italian Somaliland', T('S5_06', 'Somalia'), 20, -55),
   ...both(17.5, -12.0, 'Angola', T('S5_06', 'Portugal'), 30),
   ...both(36.0, -16.5, 'Mozambique', T('S5_06', 'Portugal') + 0.3, 24, -70),
@@ -541,4 +543,33 @@ export const PULSES: PulseEv[] = [
   {lon: 32.1, lat: 9.9, t: T('S5_05', 'Fashoda'), until: E('S5_05') + 0.5, color: '#ffd166'},
   {lon: 13.4, lat: 52.52, t: T('S4_01', 'Berlin'), until: E('S4_01') + 0.5, color: '#ffd166'},
   {lon: -9.6, lat: 30.42, t: T('S8_01', 'Agadir'), until: E('S8_01') + 0.5},
+];
+
+/* ======================= v4: closer camera (reference-style framing), extra flags, label tones ======================= */
+const ZOOM4 = (k: CamKey): CamKey => {
+  const s = k.scale;
+  const f = s < 500 ? 1 : s <= 960 ? 1.32 : s <= 1150 ? 1.8 : s <= 1450 ? 2.05 : 2.25;
+  return {...k, scale: Math.round(s * f)};
+};
+export const CAM4: CamKey[] = CAM.map(ZOOM4);
+
+/** labels printed in white (over dark fills) — everything else is dark ink on the light terrain */
+export const LIGHT_LABELS = new Set(['German S.W. Africa', 'German East Africa', 'Kamerun', 'Togo', 'German South-West Africa', 'Eritrea', 'Italian Somaliland', 'Libya',
+  'French West Africa', 'French Equatorial Africa', 'Algeria', 'Tunisia', 'Madagascar', 'French Congo', 'Morocco', 'Mahdist Sudan', 'Zululand', 'Zulu']);
+
+/** additional small flags scattered over the large territories (no label) */
+const X = (lon: number, lat: number, power: Power, t: number, until: number): FlagEv => ({lon, lat, power, t, until, w: 62});
+export const FLAGS_EXTRA: FlagEv[] = [
+  X(-12.5, 18.5, 'france', T('S5_04', 'Senegal') + 2.0, U5), X(1.5, 14.5, 'france', T('S5_04', 'Senegal') + 2.3, U5), X(-6.0, 20.5, 'france', T('S5_04', 'desert') + 0.5, U5),
+  X(6.5, 31.0, 'france', T('S5_04', 'Algeria') + 0.4, U5), X(0.5, 24.0, 'france', T('S5_04', 'Algeria') + 0.8, U5),
+  X(21.0, 7.5, 'france', T('S5_04', 'Congo') + 0.6, U5), X(15.5, -1.0, 'france', T('S5_04', 'Congo') + 0.9, U5),
+  X(20.5, 0.5, 'belgium', T('S4_02', 'Leopold') + 0.5, U5), X(26.0, -8.0, 'belgium', T('S4_02', 'Leopold') + 0.8, U5),
+  X(32.5, -3.5, 'germany', T('S5_02', 'East') + 0.5, U5), X(37.0, -9.5, 'germany', T('S5_02', 'East') + 0.8, U5),
+  X(18.5, -26.0, 'germany', T('S5_02', 'South') + 0.5, U5),
+  X(6.0, 7.0, 'britain', T('S5_03', 'Niger') + 0.5, U5), X(11.5, 11.5, 'britain', T('S5_03', 'Niger') + 0.8, U5),
+  X(26.0, -14.5, 'britain', T('S5_03', 'Rhodes') + 0.5, U5), X(24.0, -28.5, 'britain', T('S5_03', 'Cape') + 0.4, U5),
+  X(33.5, 11.5, 'britain', T('S6_03', 'Omdurman') + 1.2, U6), X(27.5, 18.0, 'britain', T('S6_03', 'Omdurman') + 1.5, U6),
+  X(26.5, 25.0, 'britain', T('S5_01', 'Egypt') + 0.5, U5),
+  X(14.5, -16.5, 'portugal', T('S5_06', 'Portugal') + 0.5, U5), X(38.0, -13.0, 'portugal', T('S5_06', 'Portugal') + 0.8, U5),
+  X(21.0, 24.0, 'italy', T('S8_02', 'Libya') + 0.4, U8), X(13.0, 30.5, 'italy', T('S8_02', 'Libya') + 0.7, U8),
 ];

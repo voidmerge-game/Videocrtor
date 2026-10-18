@@ -42,6 +42,7 @@ export const POWER_NAME: Record<Power, string> = {
 export const FONT = {
   title: 'Cinzel',
   label: 'Barlow Condensed',
+  map: 'Montserrat',
   type: 'Special Elite',
   body: 'Barlow',
 };

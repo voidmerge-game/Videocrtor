@@ -27,10 +27,7 @@ export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: num
         <div
           style={{
             transform: `translateY(${y}px) scale(${scale})`,
-            filter: `drop-shadow(0 ${8 + shadowBlur / 2}px ${shadowBlur}px rgba(0,0,0,0.6))`,
-            border: '2px solid rgba(255,255,255,0.85)',
-            borderRadius: 2,
-            overflow: 'hidden',
+            filter: `url(#flagWave) drop-shadow(0 ${6 + shadowBlur / 2}px ${shadowBlur}px rgba(0,0,0,0.65))`,
           }}
         >
           <FlagSvg power={power} width={width} />
@@ -38,8 +35,8 @@ export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: num
         {label && (
           <div
             style={{
-              marginTop: 6, opacity: labelOp, fontFamily: FONT.label, fontWeight: 600, fontSize: 22,
-              letterSpacing: 2, color: C.white, textShadow: '0 2px 6px rgba(0,0,0,0.9)', whiteSpace: 'nowrap',
+              marginTop: 6, opacity: labelOp, fontFamily: FONT.map, fontWeight: 600, fontSize: 18,
+              letterSpacing: 1.5, color: C.white, textShadow: '0 1px 2px #000, 0 2px 8px rgba(0,0,0,0.9)', whiteSpace: 'nowrap',
             }}
           >
             {label}
@@ -92,8 +89,8 @@ export const MapLabel: React.FC<{
 export const YearBadge: React.FC<{year: string}> = ({year}) => (
   <div
     style={{
-      position: 'absolute', top: 44, right: 64, fontFamily: FONT.title, fontSize: 54, fontWeight: 700,
-      color: C.white, letterSpacing: 4, textShadow: '0 2px 10px rgba(0,0,0,0.9)',
+      position: 'absolute', top: 40, right: 72, fontFamily: FONT.map, fontSize: 64, fontWeight: 600,
+      color: C.white, letterSpacing: 2, textShadow: '0 3px 4px rgba(0,0,0,0.85), 0 0 20px rgba(0,0,0,0.5)',
     }}
   >
     {year}
@@ -110,10 +107,10 @@ export const Caption: React.FC<{text: string; sub?: string; at: number; until: n
   return (
     <div style={{position: 'absolute', left: 96, bottom: 96, opacity: op}}>
       <div style={{height: 4, width: `${w * 100}%`, background: C.gold, marginBottom: 10, minWidth: 2}} />
-      <div style={{fontFamily: FONT.label, fontWeight: 700, fontSize: 40, letterSpacing: 3, color: C.white, textShadow: '0 2px 8px rgba(0,0,0,0.9)', textTransform: 'uppercase'}}>
+      <div style={{fontFamily: FONT.map, fontWeight: 700, fontSize: 36, letterSpacing: 2, color: C.white, textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 0 16px rgba(0,0,0,0.6)', textTransform: 'uppercase'}}>
         {text}
       </div>
-      {sub && <div style={{fontFamily: FONT.label, fontSize: 28, letterSpacing: 2, color: C.gold, marginTop: 2}}>{sub}</div>}
+      {sub && <div style={{fontFamily: FONT.map, fontWeight: 500, fontSize: 24, letterSpacing: 1.5, color: '#f3dcc8', marginTop: 4, textShadow: '0 1px 3px #000'}}>{sub}</div>}
     </div>
   );
 };
@@ -165,6 +162,64 @@ export const ArchiveFrame: React.FC<{
         </div>
       )}
     </div>
+  );
+};
+
+
+/* ---------- Archive on a brick wall: spotlight, soft-edged photo, posters in perspective ---------- */
+export const WallArchive: React.FC<{
+  src: string; caption?: string; at: number; until: number; sides?: [string, string]; sepia?: number; w?: number; h?: number;
+}> = ({src, caption, at, until, sides, sepia = 0.25, w = 1180, h = 660}) => {
+  const frame = useCurrentFrame();
+  if (frame < at || frame > until) return null;
+  const f = frame - at;
+  const len = until - at;
+  const op = fadeInOut(f, len, 12, 14);
+  const push = 1 + 0.07 * (f / Math.max(1, len));           // slow dolly-in on the wall
+  const kb = 1.04 + 0.08 * (f / Math.max(1, len));          // Ken Burns on the photo
+  const e = easeOutCubic(clamp01(f / 20));
+  const feather = `linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 6%, #000 94%, transparent 100%)`;
+  const poster = (p: string, side: -1 | 1) => (
+    <div
+      style={{
+        position: 'absolute', top: 250, left: side < 0 ? 120 : undefined, right: side > 0 ? 120 : undefined, width: 330, height: 440,
+        transform: `perspective(1200px) rotateY(${side * 38}deg)`, transformOrigin: side < 0 ? 'left center' : 'right center',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.75)', background: '#111', opacity: 0.85,
+      }}
+    >
+      <Img src={staticFile(p)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(0.45) brightness(0.72) contrast(1.05)'}} />
+    </div>
+  );
+  return (
+    <AbsoluteFill style={{opacity: op, overflow: 'hidden', background: '#000'}}>
+      <div style={{position: 'absolute', inset: 0, transform: `scale(${push})`, transformOrigin: '50% 50%'}}>
+        <Img src={staticFile('tex/brick_wall.jpg')} style={{position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
+        {sides && poster(sides[0], -1)}
+        {sides && poster(sides[1], 1)}
+        {/* soft shadow behind the photo */}
+        <div style={{position: 'absolute', left: (1920 - w) / 2 - 20, top: (1080 - h) / 2 - 10, width: w + 40, height: h + 50, background: 'rgba(0,0,0,0.55)', filter: 'blur(28px)', borderRadius: 40}} />
+        <div
+          style={{
+            position: 'absolute', left: (1920 - w) / 2, top: (1080 - h) / 2 - 10, width: w, height: h, overflow: 'hidden',
+            transform: `translateY(${(1 - e) * 24}px) scale(${0.96 + 0.04 * e})`,
+            WebkitMaskImage: feather, maskImage: feather, WebkitMaskComposite: 'source-in', maskComposite: 'intersect',
+          }}
+        >
+          <Img
+            src={src.startsWith('http') ? src : staticFile(src)}
+            style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${kb})`, transformOrigin: '50% 45%', filter: `sepia(${sepia}) contrast(1.06) saturate(0.85) brightness(0.96)`}}
+          />
+          <div style={{position: 'absolute', inset: 0, boxShadow: 'inset 0 0 90px rgba(0,0,0,0.55)'}} />
+        </div>
+        {/* light falloff */}
+        <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 48%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.9) 100%)'}} />
+      </div>
+      {caption && (
+        <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, textAlign: 'center', fontFamily: FONT.map, fontWeight: 600, fontSize: 22, letterSpacing: 2, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', textShadow: '0 2px 6px #000'}}>
+          {caption}
+        </div>
+      )}
+    </AbsoluteFill>
   );
 };
 

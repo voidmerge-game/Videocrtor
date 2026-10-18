@@ -4,10 +4,10 @@ import {WorldMap, Layer} from './components/WorldMap';
 import {useTopo} from './lib/geo';
 import {camAt, prog, clamp01, easeOutCubic} from './lib/anim';
 import {C, FONT, Power} from './theme';
-import {FlagDrop, MapLabel, YearBadge, Caption, TitleCard, Grain, PowerChip, ArchiveFrame, QuoteCard} from './components/Ui';
+import {FlagDrop, MapLabel, YearBadge, Caption, TitleCard, Grain, PowerChip, WallArchive, QuoteCard} from './components/Ui';
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
-import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, CAPTIONS, ARCHIVE, QUOTES, yearAt, CHIPS, CHIPS_UNTIL, CAM3, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES} from './events';
+import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, CAPTIONS, ARCHIVE, QUOTES, yearAt, CHIPS, CHIPS_UNTIL, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
 import {BigLabel, City, Callout, Route, Pulse} from './components/Motion';
 
 export const MAIN_DURATION_SEC = TOTAL;
@@ -26,8 +26,12 @@ const DUP_LABELS = new Set(['Léopoldville', 'Stanley Falls', 'Boma', 'Cairo', '
   'Khartoum', 'Omdurman', 'Isandlwana', 'Fashoda', 'Adwa', 'Agadir', 'Ouargla', 'Suez Canal', 'Brazzaville', 'Upper Nile', 'Wassoulou Empire of Samori Touré', 'Bloemfontein', 'Pretoria', 'Fez', 'Liberia']);
 // atlas palette: printed with 'multiply' over the shaded relief
 const POWER_FILL: Record<Power, string> = {
-  britain: '#e2604c', france: '#4f7fc4', germany: '#8d8a6e', belgium: '#ecb43c', portugal: '#4a9c68',
-  italy: '#93bf5e', spain: '#ea9440', ottoman: '#a284b8', independent: '#e8c98a',
+  britain: '#f0a08e', france: '#8ea8cc', germany: '#a3a497', belgium: '#e6c47a', portugal: '#a9c69a',
+  italy: '#86956a', spain: '#ecbd90', ottoman: '#c0aed2', independent: '#e8d2b4',
+};
+const STATE_FILL4: Record<string, string> = {
+  'Sokoto Caliphate': '#b9c49a', Ethiopia: '#c9a98a', Zululand: '#c49a90', Asante: '#d2c08c', Buganda: '#aebcc4', Morocco: '#cdb0a4',
+  'Sultanate of Zanzibar': '#bfb0c8', Dahomey: '#cdb49c', Imerina: '#c8aeb4', Transvaal: '#cfc4a8', 'Orange Free State': '#d4cab0', Liberia: '#ccbc98',
 };
 
 /* ---------- percentage counter ---------- */
@@ -92,7 +96,7 @@ export const Main: React.FC = () => {
   const af1914 = useTopo('colonies_1914');
   const modern = useTopo('countries_world');
 
-  const cam = camAt(CAM3, t);
+  const cam = camAt(CAM4, t);
 
   // ----- layer opacities over time -----
   const pre1880On = prog(frame, (FIRST_VO + 1.5) * fps, (FIRST_VO + 4.5) * fps); // fade in during S1
@@ -113,20 +117,25 @@ export const Main: React.FC = () => {
       fill: (f) => {
         const p = OWNER_1880[f.properties.NAME];
         if (p === 'ottoman') return 'rgba(175,150,195,0.5)';
-        return p ? POWER_FILL[p] : STATE_FILL[f.properties.NAME] ?? 'rgba(150,115,70,0.30)';
+        return p ? POWER_FILL[p] : STATE_FILL4[f.properties.NAME] ?? '#d8c8ac';
       },
-      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(40,25,10,0.8)' : 'rgba(90,60,25,0.8)'),
-      strokeWidth: 1.4,
-      blend: 'multiply', strokeOnTop: true,
-      opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.95 : 1) * pre1880On * preFadeOut,
+      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(255,240,225,0.9)' : 'rgba(255,240,225,0.75)'),
+      strokeWidth: 1.6,
+      blend: 'multiply', strokeOnTop: true, shadow: true,
+      opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.9 : 0.8) * pre1880On * preFadeOut,
     });
     // 1914 territories revealed over time
     L.push({
       id: 'post', fc: af1914,
       filter: (f) => AFRICA_1914.has(f.properties.NAME),
       fill: (f) => POWER_FILL[OWNER_1914[f.properties.NAME]],
-      stroke: 'rgba(30,18,8,0.85)', strokeWidth: 2.0,
-      blend: 'multiply', strokeOnTop: true,
+      stroke: 'rgba(255,240,225,0.9)', strokeWidth: 1.8,
+      blend: 'multiply', strokeOnTop: true, shadow: true,
+      emphasis: (f) => {
+        const a = acqOf(f.properties.NAME);
+        if (!a) return 0;
+        return 1 - prog(frame, (a.t + 5) * fps, (a.t + 8) * fps);
+      },
       opacity: (f) => {
         const p = OWNER_1914[f.properties.NAME];
         if (p === 'independent') {
@@ -148,7 +157,7 @@ export const Main: React.FC = () => {
     L.push({
       id: 'modern', fc: modern,
       filter: (f) => f.properties.CONTINENT === 'Africa',
-      fill: () => 'rgba(255,255,255,0.0)', stroke: 'rgba(20,12,6,0.9)', strokeWidth: 1.4,
+      fill: () => 'rgba(255,255,255,0.0)', stroke: 'rgba(255,245,235,0.95)', strokeWidth: 1.4,
       opacity: () => modernOn,
     });
     return L;
@@ -168,7 +177,7 @@ export const Main: React.FC = () => {
           <MapLabel key={i} lon={l.lon} lat={l.lat} text={l.text} at={Math.round(l.t * fps)} until={l.until ? Math.round(l.until * fps) : undefined} kind={l.kind ?? 'city'} size={l.size ?? 26} />
         ))}
         {BIG.map((b, i) => (
-          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} />
+          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} tone={LIGHT_LABELS.has(b.text) ? 'light' : 'dark'} />
         ))}
         {ROUTES.map((r, i) => (
           <Route key={`r${i}`} pts={r.pts} at={Math.round(r.t * fps)} until={Math.round(r.until * fps)} color={r.color} width={r.width} dashed={r.dashed} drawDur={r.drawDur} head={r.head} />
@@ -176,11 +185,11 @@ export const Main: React.FC = () => {
         {PULSES.map((p, i) => (
           <Pulse key={`p${i}`} lon={p.lon} lat={p.lat} at={Math.round(p.t * fps)} until={Math.round(p.until * fps)} color={p.color} />
         ))}
-        {FLAGS.map((f, i) => (
-          <FlagDrop key={i} lon={f.lon} lat={f.lat} power={f.power} at={Math.round(f.t * fps)} until={f.until ? Math.round(f.until * fps) : undefined} label={f.label} width={f.w ?? 58} />
+        {[...FLAGS, ...FLAGS_EXTRA].map((f, i) => (
+          <FlagDrop key={i} lon={f.lon} lat={f.lat} power={f.power} at={Math.round(f.t * fps)} until={f.until ? Math.round(f.until * fps) : undefined} label={f.label} width={f.w ?? 72} />
         ))}
         {CALLOUTS.map((c, i) => (
-          <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={c.dx} dy={c.dy} />
+          <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={0} dy={-270} />
         ))}
       </WorldMap>
 
@@ -188,9 +197,12 @@ export const Main: React.FC = () => {
       {!quoteOn && t >= FIRST_VO && t < END_VO + 1.5 && <YearBadge year={yearAt(t)} />}
       {CHIPS.map((c, i) => (t < CHIPS_UNTIL && t >= c.t ? <PowerChip key={c.power} power={c.power} at={Math.round(c.t * fps)} index={i} /> : null))}
       {CAPTIONS.map((c, i) => <Caption key={i} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} />)}
-      {ARCHIVE.map((a, i) => (
-        <ArchiveFrame key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} x={a.x} y={a.y} w={a.w} h={a.h} from={a.from} sepia={a.sepia ?? 0.3} />
-      ))}
+      {ARCHIVE.map((a, i) => {
+        const prev = ARCHIVE[(i + ARCHIVE.length - 1) % ARCHIVE.length].src, next = ARCHIVE[(i + 1) % ARCHIVE.length].src;
+        const until = Math.min(a.until, a.t + 7.5);
+        return <WallArchive key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(until * fps)} sides={[prev, next]} sepia={a.sepia ?? 0.25} />;
+      })}
+      {!quoteOn && t >= FIRST_VO && t < END_VO + 1.5 && <YearBadge year={yearAt(t)} />}
       <Counter t={t} />
 
       {/* Title */}

@@ -59,3 +59,9 @@ National flags drawn as vector SVG in code (historical variants: German Empire 1
 
 ## Sources consulted
 T. Pakenham, *The Scramble for Africa* (1991); A. Hochschild, *King Leopold's Ghost* (1998); H. L. Wesseling, *Divide and Rule* (1996); R. Reid, *A History of Modern Africa* (2009).
+
+
+## v4 additions
+- Terrain: Natural Earth I (NE1_50M_SR_W) colour raster + Natural Earth GRAY_HR_SR_OB shaded relief (public domain), re-tinted/combined by us (`public/data/terrain_world.jpg`, `terrain_africa.jpg`).
+- Font: Montserrat (Julieta Ulanovsky et al.), SIL Open Font License 1.1.
+- Brick-wall texture: procedurally generated for this project (no third-party asset).
