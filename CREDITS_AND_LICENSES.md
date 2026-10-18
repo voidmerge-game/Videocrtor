@@ -1,0 +1,61 @@
+# The Scramble for Africa (1870–1914) — Credits & Licenses
+
+Documentary short, 9 min 38 s, 1920×1080, 30 fps. Written, designed and rendered programmatically with Remotion (React) on GitHub Actions.
+
+## Narration
+English (American) voice-over generated with a neural text-to-speech voice; script original (see `script/SCRIPT.md`). Word-level alignment via Whisper.
+
+## Maps & geodata
+- Natural Earth 1:50m land & countries — public domain (https://www.naturalearthdata.com)
+- Historical boundaries 1880 / 1900 / 1914 — *historical-basemaps* (A. Ourednik et al.), CC BY-NC-SA 4.0 (https://github.com/aourednik/historical-basemaps)
+- Earth texture — NASA Blue Marble (Earth Observatory, Dec 2004), public domain
+- Projection & rendering — d3-geo (ISC), Remotion
+
+## Music (Kevin MacLeod — incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)
+- “Virtutes Instrumenti” (opening & closing)
+- “Lightless Dawn” / “Long Note Two” (scenes 1–4, 6)
+- “Impact Lento” (scene 5 — The Partition)
+- “Dark Times” (scene 7 — The Cost)
+- “Private Reflection” (scene 8 — Legacy)
+
+Credit line: *Music: Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License.*
+
+## Sound effects
+All SFX (whoosh, thud, key-click, hit, tick, ink, drone) were synthesised procedurally for this film — no third-party rights.
+
+## Archive images (Wikimedia Commons)
+| # | Image | License | Source |
+|---|---|---|---|
+| 1 | Leopold II, King of the Belgians — Alexander Bassano, 1889 | Public domain | https://upload.wikimedia.org/wikipedia/commons/c/cf/Leopold_II%2C_King_of_the_Belgians_by_Alexander_Bassano_%281889%29.jpg |
+| 2 | Henry Morton Stanley — London Stereoscopic & Photographic Co. | Public domain | https://upload.wikimedia.org/wikipedia/commons/d/df/Henry_Morton_Stanley_1.jpg |
+| 3 | “The Rhodes Colossus” — Punch, E. L. Sambourne, 1892 | Public domain | https://upload.wikimedia.org/wikipedia/commons/e/ec/Punch_Rhodes_Colossus.png |
+| 4 | The Battle of Isandlwana — Charles Edwin Fripp, 1885 | Public domain | https://upload.wikimedia.org/wikipedia/commons/3/34/Isandhlwana.jpg |
+| 5 | Nsala of Wala, Congo Free State, 1904 — Alice Seeley Harris | Public domain | https://upload.wikimedia.org/wikipedia/commons/f/f7/Nsala_of_Wala_in_Congo_looks_at_the_severed_hand_and_foot_of_his_five-year_old_daughter%2C_1904.jpg |
+| 6 | The Maxim gun, c. 1884 | Public domain | https://upload.wikimedia.org/wikipedia/commons/1/12/Maximgun.jpg |
+| 7 | The Berlin Conference (Kongokonferenz) — Adalbert von Rößler, 1884 | Public domain | https://upload.wikimedia.org/wikipedia/commons/6/6b/Kongokonferenz.jpg |
+| 8 | Emperor Menelik II of Ethiopia | Public domain | https://upload.wikimedia.org/wikipedia/commons/3/37/Emperor_Menelik_II.png |
+| 9 | Otto von Bismarck — Bundesarchiv Bild 146-2005-0057 | Public domain | https://upload.wikimedia.org/wikipedia/commons/1/10/Bundesarchiv_Bild_146-2005-0057%2C_Otto_von_Bismarck.jpg |
+| 10 | David Livingstone — Thomas Annan | Public domain | https://upload.wikimedia.org/wikipedia/commons/f/f2/David_Livingstone_by_Thomas_Annan.jpg |
+| 11 | Herero prisoners in chains, c. 1904 | Public domain | https://upload.wikimedia.org/wikipedia/commons/e/e2/Herero_chained.jpg |
+| 12 | Charge of the 21st Lancers at Omdurman — R. Caton Woodville, 1898 | Public domain | https://upload.wikimedia.org/wikipedia/commons/4/43/RCWoodvilleJr_21Lancers_Omdurman_%28cropped_1to1_portrait%29.jpg |
+| 13 | E. D. Morel, c. 1905 — LSE Library | No restrictions | https://upload.wikimedia.org/wikipedia/commons/6/67/E._D._Morel%2C_c1905.jpg |
+| 14 | SMS Panther, 1901 | Public domain | https://upload.wikimedia.org/wikipedia/commons/2/2f/SMS_Panther_%281901%29.jpg |
+| 15 | The Marchand mission in Cairo, 1898 — E. Lauro | Public domain | https://upload.wikimedia.org/wikipedia/commons/d/db/Groupe_de_la_mission_Marchand_au_Caire_1898.jpg |
+| 16 | Inauguration of the Suez Canal, 1869 — Édouard Riou | Public domain | https://upload.wikimedia.org/wikipedia/commons/0/0e/L%27inauguration_du_canal_de_Suez%2C_17_November_1869_Gal18_riou_001f.jpg |
+| 17 | Bloemfontein concentration camp, c. 1901 — National Archives UK | No restrictions | https://upload.wikimedia.org/wikipedia/commons/8/8a/Bloemfontein_Camp%2C_c.1901._%2822988954815%29.jpg |
+
+## Fonts
+Cinzel, Barlow, Barlow Condensed — SIL Open Font License 1.1; Special Elite — Apache License 2.0 (all via Google Fonts).
+
+## Flags
+National flags drawn as vector SVG in code (historical variants: German Empire 1871–1918, Congo Free State, Kingdom of Italy, Spain 1875–1931, Portugal 1830–1910, Ottoman Empire).
+
+## Quotations
+- Lord Salisbury, speech of 1890 (“We have been engaged in drawing lines upon maps…”).
+- Leopold II, letter to Baron Solvyns, 1877 (“…a slice of this magnificent African cake”).
+- Menelik II, circular letter to the European powers, April 1891.
+- Other quotations are from contemporary public documents.
+
+## Sources consulted
+T. Pakenham, *The Scramble for Africa* (1991); A. Hochschild, *King Leopold's Ghost* (1998); H. L. Wesseling, *Divide and Rule* (1996); R. Reid, *A History of Modern Africa* (2009).
