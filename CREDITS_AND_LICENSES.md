@@ -73,3 +73,20 @@ T. Pakenham, *The Scramble for Africa* (1991); A. Hochschild, *King Leopold's Gh
 - Country-name / caption fonts: Montserrat (SIL OFL 1.1), Barlow (SIL OFL 1.1), Cinzel (SIL OFL 1.1), Special Elite (Apache 2.0).
 - Historical boundaries: 1914 colonial units assembled by us from Natural Earth 1:50m admin-0 (public domain); 1870/1880 African polities drawn by us.
 - Final render: Remotion (company licence not required for individual/non-commercial use — see remotion.dev/license), x264 CRF 18, 1920×1080, 30 fps, 577.6 s. Commit fbfd52e.
+
+## v6 — archive film clips (public/archive/clips)
+All clips are public domain or CC0, obtained from Wikimedia Commons; trimmed to ~8.5 s, 960 px, silent.
+| file | source title (Commons) | author / year | licence |
+|---|---|---|---|
+| caravane_1897.mp4 | Caravane de chameaux - Film 1897 | Lumière operators, 1897 | Public domain |
+| pyramids_1897.mp4 | Les Pyramides, 1897 | Alexandre Promio (Lumière), 1897 | Public domain |
+| kiel_1897.mp4 | Lancement du “Fürst-Bismarck”, Kiel, Allemagne, 1897 | unknown, 1897 | Public domain |
+| istanbul_1897.mp4 | Panorama Golden Horn Instanbul 1897 | Alexandre Promio (Lumière), 1897 | Public domain |
+| paris_1898.mp4 | Street Traffic on the Champs-Élysées, Paris, 1898 | 1898 | Public domain |
+| victoria_1900.mp4 | Queen Victoria In Dublin (Rare archive footage from 1900) | 1900 | Public domain |
+| modder_1899.mp4 | Troops Passing Over Mooder River (John Bennett-Stanford, 1899) | John Bennett-Stanford, 1899 | Public domain |
+| morocco_cavalry_1912.mp4 | Village, campement, charge de cavalerie - AI140609 | Stéphane Passet, Archives de la Planète (Musée Albert-Kahn), 1912 | CC0 |
+| morocco_caravan_1912.mp4 | Voyage du sultan à Marrakech - AI140605 | Stéphane Passet, Archives de la Planète (Musée Albert-Kahn), 1912 | CC0 |
+| force_publique_1916.mp4 | Belgian campaigns in Africa (1914-1918) | Belgian Army film, 1914–18 | Public domain |
+
+Earth textures (v6): NASA Blue Marble Next Generation (July 2004, topography + bathymetry), NASA Black Marble 2016 (night lights), Natural Earth GRAY_HR_SR_OB shaded relief — all public domain.
