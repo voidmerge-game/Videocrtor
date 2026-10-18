@@ -15,3 +15,5 @@ v5.3 labels strictly inside; NO RENDER until user confirms 2026-10-18 14:23:36
 2026-10-18T16:11:30Z run 39139475690 SUCCESS but stitch used only 10 of 12 audio chunks (audio 481 s) and -shortest cut video to 567 s -> fixed stitch; re-stitch only (reuse video 39139475690 + audio 39120070111)
 2026-10-18T16:18:58Z FINAL v5.5 delivered: Drive 1IB48AImVdcXOSRbKjpQyAI1MYj-dMF6t (749.6 MB, 577.63 s, run 39143931349 stitch of video 39139475690 + audio 39120070111)
 Rule: after every turn start: git fetch + git reset FETCH_HEAD + checkout stale files
+2026-10-18T18:41:51Z v6 a40038c — FINAL RENDER dispatched (render_parallel, 20 chunks, crf 18, NO audio reuse) after user 'أكمل'; run 39155327969
+2026-10-18T19:08:03Z run 39155327969 CANCELLED: chunks 15/16 failed — TableArchive side prints referenced missing posters archive/clips/*.jpg (only mp4 existed). Fix: generated 10 poster jpgs from the clips.
