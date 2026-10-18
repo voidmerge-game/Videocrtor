@@ -193,7 +193,7 @@ export const CAPTIONS: CapEv[] = [
 ];
 
 /* ---------------- archive frames ---------------- */
-export type ArcEv = {src: string; caption: string; t: number; until: number; x?: number; y?: number; w?: number; h?: number; from?: 'left' | 'right' | 'bottom'; sepia?: number};
+export type ArcEv = {src: string; caption: string; t: number; until: number; x?: number; y?: number; w?: number; h?: number; from?: 'left' | 'right' | 'bottom'; sepia?: number; wall?: boolean; sign?: string};
 const R = {x: 1110, y: 140, w: 720, h: 560}; // right-side slot
 const Lf = {x: 90, y: 140, w: 720, h: 560}; // left-side slot
 const Pt_ = {x: 1210, y: 120, w: 560, h: 700}; // portrait slot
@@ -210,10 +210,10 @@ export const ARCHIVE: ArcEv[] = [
   {src: 'archive/isandlwana.jpg', caption: 'The Battle of Isandlwana — C. E. Fripp', t: T('S6_01', 'Zulu'), until: E('S6_01') + 0.5, ...Lf, from: 'left', w: 780, h: 500},
   {src: 'archive/omdurman.jpg', caption: 'Omdurman, 1898 — R. Caton Woodville', t: T('S6_03', 'Kitchener'), until: E('S6_03') + 0.3, ...Lf, from: 'left', w: 560, h: 560},
   {src: 'archive/menelik.jpg', caption: 'Emperor Menelik II of Ethiopia', t: T('S6_04', 'Menelik'), until: E('S6_04') + 0.5, x: 90, y: 140, w: 470, h: 560, from: 'left'},
-  {src: 'archive/nsala.jpg', caption: 'Nsala of Wala, Congo Free State, 1904 — A. S. Harris', t: T('S7_01', 'quotas'), until: E('S7_01') + 0.5, ...R, from: 'right', w: 780, h: 480},
-  {src: 'archive/morel.jpg', caption: 'E. D. Morel, Congo Reform Association', t: T('S7_02', 'Morel'), until: E('S7_02') + 0.3, ...Pt_, from: 'right', w: 560, h: 520},
-  {src: 'archive/herero.jpg', caption: 'Herero prisoners, c. 1904', t: T('S7_03', 'Herero'), until: E('S7_03') + 0.3, ...Lf, from: 'left', w: 600, h: 450},
-  {src: 'archive/boer_camp.jpg', caption: 'Bloemfontein concentration camp, c. 1901', t: T('S7_04', 'Boer'), until: E('S7_04') + 0.3, ...R, from: 'right'},
+  {src: 'archive/nsala.jpg', caption: 'Nsala of Wala, Congo Free State, 1904 — A. S. Harris', t: T('S7_01', 'quotas'), until: E('S7_01') + 0.5, ...R, from: 'right', w: 780, h: 480, wall: true},
+  {src: 'archive/morel.jpg', caption: 'E. D. Morel, Congo Reform Association', t: T('S7_02', 'Morel'), until: E('S7_02') + 0.3, ...Pt_, from: 'right', w: 560, h: 520, wall: true},
+  {src: 'archive/herero.jpg', caption: 'Herero prisoners, c. 1904', t: T('S7_03', 'Herero'), until: E('S7_03') + 0.3, ...Lf, from: 'left', w: 600, h: 450, wall: true, sign: 'DEUTSCH-SÜDWESTAFRIKA'},
+  {src: 'archive/boer_camp.jpg', caption: 'Bloemfontein concentration camp, c. 1901', t: T('S7_04', 'Boer'), until: E('S7_04') + 0.3, ...R, from: 'right', wall: true, sign: 'ORANGE RIVER COLONY'},
   {src: 'archive/panther.jpg', caption: 'SMS Panther', t: T('S8_01', 'gunboat'), until: T('S8_01', 'Twice', 2) + 1.5, ...R, from: 'right'},
 ];
 

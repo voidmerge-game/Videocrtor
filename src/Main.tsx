@@ -4,10 +4,10 @@ import {WorldMap, Layer} from './components/WorldMap';
 import {useTopo} from './lib/geo';
 import {camAt, prog, clamp01, easeOutCubic} from './lib/anim';
 import {C, FONT, Power} from './theme';
-import {FlagDrop, MapLabel, YearBadge, Caption, TitleCard, Grain, PowerChip, WallArchive, QuoteCard} from './components/Ui';
+import {FlagDrop, MapLabel, YearBadge, TitleCard, Grain, WallArchive, QuoteCard, CardPop} from './components/Ui';
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
-import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, CAPTIONS, ARCHIVE, QUOTES, yearAt, CHIPS, CHIPS_UNTIL, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
+import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, ARCHIVE, QUOTES, yearAt, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
 import {BigLabel, City, Callout, Route, Pulse} from './components/Motion';
 
 export const MAIN_DURATION_SEC = TOTAL;
@@ -25,13 +25,23 @@ const STATE_FILL: Record<string, string> = {
 const DUP_LABELS = new Set(['Léopoldville', 'Stanley Falls', 'Boma', 'Cairo', 'Cape Town', 'Dakar', 'Timbuktu', 'Berlin', 'Paris', 'London', 'Brussels',
   'Khartoum', 'Omdurman', 'Isandlwana', 'Fashoda', 'Adwa', 'Agadir', 'Ouargla', 'Suez Canal', 'Brazzaville', 'Upper Nile', 'Wassoulou Empire of Samori Touré', 'Bloemfontein', 'Pretoria', 'Fez', 'Liberia']);
 // atlas palette: printed with 'multiply' over the shaded relief
+// v5 palette measured from the reference (wash + multiply over the relief): British pink, French steel blue, German slate,
+// Belgian ochre, Portuguese moss, Italian dark olive, Spanish red, Ottoman plum
 const POWER_FILL: Record<Power, string> = {
-  britain: '#f0a08e', france: '#8ea8cc', germany: '#a3a497', belgium: '#e6c47a', portugal: '#a9c69a',
-  italy: '#86956a', spain: '#ecbd90', ottoman: '#c0aed2', independent: '#e8d2b4',
+  britain: '#b47a70', france: '#6f93a8', germany: '#8c8a7a', belgium: '#bc965c', portugal: '#86a06c',
+  italy: '#6d7250', spain: '#b8503c', ottoman: '#8e7f98', independent: '#cdb38a',
 };
 const STATE_FILL4: Record<string, string> = {
-  'Sokoto Caliphate': '#b9c49a', Ethiopia: '#c9a98a', Zululand: '#c49a90', Asante: '#d2c08c', Buganda: '#aebcc4', Morocco: '#cdb0a4',
-  'Sultanate of Zanzibar': '#bfb0c8', Dahomey: '#cdb49c', Imerina: '#c8aeb4', Transvaal: '#cfc4a8', 'Orange Free State': '#d4cab0', Liberia: '#ccbc98',
+  'Sokoto Caliphate': '#9aa86e', Ethiopia: '#b88a62', Zululand: '#b07a6a', Asante: '#c0a85c', Buganda: '#8aa0a8', Morocco: '#b08a78',
+  'Sultanate of Zanzibar': '#a090a8', Dahomey: '#b49470', Imerina: '#b08a90', Transvaal: '#b8ac86', 'Orange Free State': '#bfb48e', Liberia: '#b4a070',
+};
+
+const splitCaption = (c: string): [string, string | undefined] => {
+  const i = c.indexOf(' — ');
+  if (i > 0) return [c.slice(0, i), c.slice(i + 3)];
+  const j = c.lastIndexOf(', ');
+  if (j > 0) return [c.slice(0, j), c.slice(j + 2)];
+  return [c, undefined];
 };
 
 /* ---------- percentage counter ---------- */
@@ -96,7 +106,20 @@ export const Main: React.FC = () => {
   const af1914 = useTopo('colonies_1914');
   const modern = useTopo('countries_world');
 
-  const cam = camAt(CAM4, t);
+  // v5: the camera never rests — a slow organic drift (in screen pixels, converted to degrees) on top of the keyframes
+  const cam = (() => {
+    const c = camAt(CAM4, t);
+    const degPerPx = 57.2958 / c.scale;
+    const dz = 1 + 0.012 * Math.sin(t * 0.21) + 0.006 * Math.sin(t * 0.53);
+    return {...c, lon: c.lon + (16 * Math.sin(t * 0.17) + 6 * Math.sin(t * 0.41)) * degPerPx, lat: c.lat + (11 * Math.cos(t * 0.13) + 5 * Math.cos(t * 0.37)) * degPerPx, scale: c.scale * dz};
+  })();
+  // v5: fast camera moves get a motion blur (reference: radial blur on the zoom in/out between regions)
+  const moveBlur = (() => {
+    const a = camAt(CAM4, t - 1 / fps), b = camAt(CAM4, t + 1 / fps);
+    const zoomRate = Math.abs(Math.log(b.scale / a.scale)) / 2;
+    const panPx = (Math.hypot(b.lon - a.lon, b.lat - a.lat) / 2) * (cam.scale / 57.3);
+    return Math.min(9, Math.max(0, zoomRate * 110 + panPx * 0.05 - 0.35));
+  })();
 
   // ----- layer opacities over time -----
   const pre1880On = prog(frame, (FIRST_VO + 1.5) * fps, (FIRST_VO + 4.5) * fps); // fade in during S1
@@ -116,12 +139,12 @@ export const Main: React.FC = () => {
       filter: (f) => !!f.properties.NAME && (!!OWNER_1880[f.properties.NAME] || STATES_1870.has(f.properties.NAME)),
       fill: (f) => {
         const p = OWNER_1880[f.properties.NAME];
-        if (p === 'ottoman') return 'rgba(175,150,195,0.5)';
+        if (p === 'ottoman') return '#8e7f98';
         return p ? POWER_FILL[p] : STATE_FILL4[f.properties.NAME] ?? '#d8c8ac';
       },
-      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(255,240,225,0.9)' : 'rgba(255,240,225,0.75)'),
-      strokeWidth: 1.6,
-      blend: 'multiply', strokeOnTop: true, shadow: true,
+      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(235,220,200,0.8)' : 'rgba(235,220,200,0.6)'),
+      strokeWidth: 1.5,
+      blend: 'multiply', wash: 0.42, strokeOnTop: true, shadow: true,
       opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.9 : 0.8) * pre1880On * preFadeOut,
     });
     // 1914 territories revealed over time
@@ -129,8 +152,8 @@ export const Main: React.FC = () => {
       id: 'post', fc: af1914,
       filter: (f) => AFRICA_1914.has(f.properties.NAME),
       fill: (f) => POWER_FILL[OWNER_1914[f.properties.NAME]],
-      stroke: 'rgba(255,240,225,0.9)', strokeWidth: 1.8,
-      blend: 'multiply', strokeOnTop: true, shadow: true,
+      stroke: 'rgba(235,220,200,0.8)', strokeWidth: 1.5,
+      blend: 'multiply', wash: 0.45, strokeOnTop: true, shadow: true,
       emphasis: (f) => {
         const a = acqOf(f.properties.NAME);
         if (!a) return 0;
@@ -167,7 +190,8 @@ export const Main: React.FC = () => {
 
   return (
     <AbsoluteFill style={{background: '#050a12'}}>
-      <WorldMap cam={cam} land={land} layers={layers} vignette={vignette} atlas={atlas}>
+      <AbsoluteFill style={moveBlur > 0.2 ? {filter: `blur(${moveBlur.toFixed(1)}px)`, transform: `scale(${1 + moveBlur * 0.006})`} : undefined}>
+      <WorldMap cam={cam} land={land} layers={layers} vignette={vignette} atlas={atlas} clouds={atlas} cloudDrift={t * 0.012}>
         {/* city dots (only when the camera is close) */}
         {CITIES.map((c, i) => (
           <City key={`c${i}`} lon={c.lon} lat={c.lat} name={c.name} at={Math.round((c.t ?? 0) * fps)} until={c.until ? Math.round(c.until * fps) : undefined} minScale={c.minScale} capital={c.capital} side={c.side} />
@@ -192,17 +216,19 @@ export const Main: React.FC = () => {
           <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={0} dy={-270} />
         ))}
       </WorldMap>
+      </AbsoluteFill>
 
       {/* HUD */}
       {!quoteOn && t >= FIRST_VO && t < END_VO + 1.5 && <YearBadge year={yearAt(t)} />}
-      {CHIPS.map((c, i) => (t < CHIPS_UNTIL && t >= c.t ? <PowerChip key={c.power} power={c.power} at={Math.round(c.t * fps)} index={i} /> : null))}
-      {CAPTIONS.map((c, i) => <Caption key={i} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} />)}
+      {/* v5: archive = framed cards popping over the map; a few longer segments go to the brick wall */}
       {ARCHIVE.map((a, i) => {
-        const prev = ARCHIVE[(i + ARCHIVE.length - 1) % ARCHIVE.length].src, next = ARCHIVE[(i + 1) % ARCHIVE.length].src;
-        const until = Math.min(a.until, a.t + 7.5);
-        return <WallArchive key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(until * fps)} sides={[prev, next]} sepia={a.sepia ?? 0.25} />;
+        const [cap, sub] = splitCaption(a.caption);
+        if (a.wall) {
+          const prev = ARCHIVE[(i + ARCHIVE.length - 1) % ARCHIVE.length].src, next = ARCHIVE[(i + 1) % ARCHIVE.length].src;
+          return <WallArchive key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} sides={[prev, next]} sepia={a.sepia ?? 0.25} sign={a.sign} />;
+        }
+        return <CardPop key={i} src={a.src} caption={cap} sub={sub} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} x={a.x} y={a.y} w={a.w} h={a.h} sepia={a.sepia ?? 0.25} />;
       })}
-      {!quoteOn && t >= FIRST_VO && t < END_VO + 1.5 && <YearBadge year={yearAt(t)} />}
       <Counter t={t} />
 
       {/* Title */}

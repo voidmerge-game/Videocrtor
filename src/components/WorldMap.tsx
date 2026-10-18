@@ -9,6 +9,7 @@ import {RasterGlobe} from './RasterGlobe';
 export type Cam = {lon: number; lat: number; scale: number};
 const AFRICA_HD = {lon0: -30, lon1: 65, lat0: -42, lat1: 58};
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const cloudBounds = (drift: number, dLon: number, dLat: number) => ({lon0: AFRICA_HD.lon0 + drift + dLon, lon1: AFRICA_HD.lon1 + drift + dLon, lat0: AFRICA_HD.lat0 + dLat, lat1: AFRICA_HD.lat1 + dLat});
 
 export type Layer = {
   id: string;
@@ -33,6 +34,8 @@ export type Layer = {
   shadow?: boolean;
   /** per-feature extra emphasis 0..1: darker outline + stronger shadow (recently acquired) */
   emphasis?: (f: Feature<Geometry, any>) => number;
+  /** v5: opacity of an additional normal-blend colour wash drawn under the blend pass (keeps relief, adds body) */
+  wash?: number;
 };
 
 type Ctx = {projection: GeoProjection; cam: Cam; visible: (lon: number, lat: number) => boolean};
@@ -55,7 +58,11 @@ export const WorldMap: React.FC<{
   raster?: boolean;
   /** 0 = satellite globe, 1 = atlas style (vector ocean + shaded relief + opaque fills) */
   atlas?: number;
-}> = ({cam, land, layers = [], children, showGraticule = true, vignette = 0.55, raster = true, atlas = 0}) => {
+  /** cloud layer opacity 0..1 (v5) */
+  clouds?: number;
+  /** cloud drift in degrees of longitude (v5) */
+  cloudDrift?: number;
+}> = ({cam, land, layers = [], children, showGraticule = true, vignette = 0.55, raster = true, atlas = 0, clouds = 0, cloudDrift = 0}) => {
   const projection = useMemo(
     () =>
       geoOrthographic()
@@ -83,9 +90,19 @@ export const WorldMap: React.FC<{
         {/* ---- satellite globe (fades out as atlas mixes in) ---- */}
         {raster && atlas < 1 && <RasterGlobe cam={cam} opacity={1 - atlas} />}
         {/* ---- v4 terrain: baked terracotta relief + ocean (world, then HD Africa/Europe tile) ---- */}
-        {raster && atlas > 0 && <RasterGlobe cam={cam} src="data/terrain_world.jpg" light={0.25} opacity={atlas} />}
+        {raster && atlas > 0 && <RasterGlobe cam={cam} src="data/terrain_world.jpg" light={0.18} opacity={atlas} />}
         {raster && atlas > 0 && cam.scale > 800 && (
-          <RasterGlobe cam={cam} src="data/terrain_africa.jpg" light={0.25} opacity={atlas * clamp01((cam.scale - 800) / 400)} bounds={AFRICA_HD} />
+          <RasterGlobe cam={cam} src="data/terrain_africa.jpg" light={0.18} opacity={atlas * clamp01((cam.scale - 800) / 400)} bounds={AFRICA_HD} />
+        )}
+        {/* v5: drifting cloud layer with a displaced shadow (reference look) */}
+        {raster && clouds > 0 && cam.scale > 800 && (
+          <>
+            <RasterGlobe cam={cam} src="data/clouds_africa.png" light={0} tint={[0, 0, 0]} opacity={clouds * 0.42 * clamp01((cam.scale - 800) / 400)} bounds={cloudBounds(cloudDrift, 0.22, -0.18)} />
+            <RasterGlobe cam={cam} src="data/clouds_africa.png" light={0} opacity={clouds * 0.92 * clamp01((cam.scale - 800) / 400)} bounds={cloudBounds(cloudDrift, 0, 0)} />
+          </>
+        )}
+        {raster && clouds > 0 && cam.scale <= 800 && (
+          <RasterGlobe cam={cam} src="data/clouds_world.png" light={0.3} opacity={clouds * 0.9} />
         )}
         <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
           <defs>
@@ -117,10 +134,12 @@ export const WorldMap: React.FC<{
             <filter id="cutShadow" x="-10%" y="-10%" width="130%" height="130%">
               <feGaussianBlur stdDeviation="5" />
             </filter>
-            <filter id="flagWave" x="-10%" y="-20%" width="120%" height="140%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.035 0.08" numOctaves="2" seed="3" result="n" />
-              <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
+            {[0, 1, 2].map((i) => (
+              <filter key={i} id={`flagWave${i}`} x="-10%" y="-20%" width="120%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.03 0.07" numOctaves="2" seed={3 + i * 7} result="n" />
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+            ))}
             <clipPath id="sphereClip"><path d={sphere} /></clipPath>
             <pattern id="paperNoise" width="6" height="6" patternUnits="userSpaceOnUse">
               <rect width="6" height="6" fill="rgba(0,0,0,0)" />
@@ -181,9 +200,18 @@ export const WorldMap: React.FC<{
                 <g key={L.id} filter={L.glow ? 'url(#softGlow)' : undefined}>
                   {L.shadow && items.map((it) => (
                     <g key={`sh${it.i}`} opacity={it.op * (0.38 + 0.4 * it.em)} clipPath={it.clip}>
-                      <path d={it.d} fill="#000" transform={`translate(${4 + 4 * it.em},${6 + 5 * it.em})`} filter="url(#cutShadow)" />
+                      <path d={it.d} fill="#000" transform={`translate(${3 + 5 * it.em},${5 + 7 * it.em})`} filter="url(#cutShadow)" />
                     </g>
                   ))}
+                  {L.wash && L.wash > 0 && (
+                    <g>
+                      {items.map((it) => (
+                        <g key={`w${it.i}`} opacity={it.op * (L.wash ?? 0)} clipPath={it.clip}>
+                          <path d={it.d} fill={it.fill ?? 'none'} />
+                        </g>
+                      ))}
+                    </g>
+                  )}
                   <g style={{mixBlendMode: (L.blend as any) ?? 'normal'}}>
                     {items.map((it) => (
                       <g key={it.i} opacity={it.op} clipPath={it.clip}>
@@ -195,16 +223,16 @@ export const WorldMap: React.FC<{
                   {L.strokeOnTop && items.map((it) => (
                     <g key={`s${it.i}`} opacity={it.op} clipPath={it.clip}>
                       <path d={it.d} fill="none" stroke={it.stroke} strokeWidth={L.strokeWidth ?? 1} strokeLinejoin="round" strokeLinecap="round" />
-                      {it.em > 0 && <path d={it.d} fill="none" stroke="#1a110c" strokeWidth={(L.strokeWidth ?? 1) + 1.6} strokeLinejoin="round" strokeLinecap="round" opacity={it.em} />}
+                      {it.em > 0 && <path d={it.d} fill="none" stroke="#231a12" strokeWidth={(L.strokeWidth ?? 1) + 2.2} strokeLinejoin="round" strokeLinecap="round" opacity={it.em} />}
                     </g>
                   ))}
                 </g>
               );
             })}
             {/* crisp coastline in atlas mode */}
-            {atlas > 0 && <path d={landPath} fill="none" stroke="rgba(255,240,225,0.55)" strokeWidth={1.2} opacity={atlas} />}
+            {atlas > 0 && <path d={landPath} fill="none" stroke="rgba(255,240,225,0.18)" strokeWidth={1} opacity={atlas} />}
             {/* lighting */}
-            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 - 0.35 * atlas : 1} />
+            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 - 0.42 * atlas : 1} />
           </g>
           {/* limb */}
           <path d={sphere} fill="none" stroke="rgba(160,200,255,0.35)" strokeWidth={2} />

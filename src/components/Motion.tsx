@@ -23,19 +23,20 @@ export const BigLabel: React.FC<{
   if (f < 0 || (until !== undefined && frame > until) || cam.scale < minScale) return null;
   const op = until !== undefined ? fadeIO(f, until - at, 14, 14) : clamp01(f / 14);
   // label grows with zoom so it sits on the land like print
-  const k = 1.5 * Math.pow(cam.scale / 2400, 0.6);
+  const k = 1.7 * Math.pow(cam.scale / 2400, 0.6);
   const light = tone === 'light';
+  // v5: heavy geometric caps, wide tracking (0.28em), soft shadow — white over dark fills, near-black ink over light terrain
   return (
     <Marker lon={lon} lat={lat}>
       <div
         style={{
           opacity: op, transform: `rotate(${rot}deg) scale(${k})`, transformOrigin: '50% 50%', whiteSpace: 'nowrap',
-          fontFamily: FONT.map, fontWeight: 600, fontSize: size, letterSpacing: size * 0.06, textTransform: 'uppercase',
-          color: light ? 'rgba(255,255,255,0.96)' : 'rgba(32,24,20,0.92)',
+          fontFamily: FONT.map, fontWeight: 700, fontSize: size, letterSpacing: size * 0.28, textTransform: 'uppercase',
+          color: light ? 'rgba(246,243,238,0.97)' : 'rgba(14,10,8,0.9)',
           textShadow: light
-            ? '0 2px 3px rgba(0,0,0,0.8), 0 0 16px rgba(0,0,0,0.45)'
-            : '0 1px 0 rgba(255,255,255,0.35), 0 0 14px rgba(255,235,220,0.45)',
-          paddingLeft: size * 0.06,
+            ? '0 2px 2px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.5)'
+            : '0 1px 0 rgba(255,255,255,0.25), 0 0 10px rgba(255,240,225,0.35)',
+          paddingLeft: size * 0.28,
         }}
       >
         {text}
@@ -54,7 +55,7 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
   const vis = clamp01((cam.scale - minScale) / 250);
   if (vis <= 0) return null;
   const op = vis * (until !== undefined ? fadeIO(frame - at, until - at, 10, 10) : clamp01((frame - at) / 10));
-  const dot = capital ? 11 : 8;
+  const dot = capital ? 16 : 11;
   const pos: React.CSSProperties =
     side === 'r' ? {left: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
     side === 'l' ? {right: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
@@ -62,8 +63,8 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
   return (
     <Marker lon={lon} lat={lat}>
       <div style={{position: 'relative', width: dot, height: dot, opacity: op}}>
-        <div style={{width: dot, height: dot, borderRadius: capital ? 1 : dot, background: '#fff', boxShadow: '0 0 0 2px rgba(0,0,0,0.8), 0 2px 6px rgba(0,0,0,0.6)', border: capital ? '2.5px solid #111' : undefined, boxSizing: 'border-box'}} />
-        <div style={{position: 'absolute', whiteSpace: 'nowrap', fontFamily: FONT.map, fontSize: capital ? 24 : 21, letterSpacing: 1.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 1px 2px #000, 0 0 8px rgba(0,0,0,0.9)', fontWeight: capital ? 700 : 600, ...pos}}>
+        <div style={{width: dot, height: dot, borderRadius: capital ? 1 : dot, background: '#fff', boxShadow: '0 0 0 2.5px rgba(10,8,6,0.9), 0 2px 5px rgba(0,0,0,0.6)', border: capital ? '3px solid #141210' : undefined, boxSizing: 'border-box'}} />
+        <div style={{position: 'absolute', whiteSpace: 'nowrap', fontFamily: FONT.map, fontSize: capital ? 26 : 22, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8)', fontWeight: 600, ...pos}}>
           {name}
         </div>
       </div>
@@ -71,57 +72,66 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
   );
 };
 
-/* ---------- Callout: black box + big arrow pointing at the place ---------- */
+/* ---------- Callout (v5, measured from the reference): box wipes open L→R with motion blur (5 f), the black stem grows
+ *  to the point (4 f), text types in at ~30 chars/s (second line after the first), white pulse rings expand from the point ---------- */
 export const Callout: React.FC<{
   lon: number; lat: number; text: string; sub?: string; at: number; until: number;
   /** offset of the box centre from the point, in px (default: straight above) */
   dx?: number; dy?: number;
-}> = ({lon, lat, text, sub, at, until, dx = 0, dy = -230}) => {
+}> = ({lon, lat, text, sub, at, until, dx = 0, dy = -250}) => {
   const frame = useCurrentFrame();
   const {projection, visible} = useMap();
   if (frame < at || frame > until || !visible(lon, lat)) return null;
   const p = projection([lon, lat]);
   if (!p) return null;
   const f = frame - at;
-  const op = fadeIO(f, until - at, 8, 12);
-  const pop = easeOutCubic(clamp01(f / 14));
-  const grow = easeOutCubic(clamp01((f - 6) / 14));
+  const op = fadeIO(f, until - at, 2, 10);
+  const wipe = easeOutCubic(clamp01(f / 5));                 // box reveal
+  const grow = easeOutCubic(clamp01((f - 4) / 5));           // stem
+  const n1 = Math.min(text.length, Math.max(0, Math.floor((f - 5) * 1.05)));
+  const n2 = sub ? Math.min(sub.length, Math.max(0, Math.floor((f - 5 - text.length / 1.05 - 3) * 1.05))) : 0;
   const [x, y] = p;
-  const boxHalfW = 60 + 12 * Math.max(text.length, (sub ?? '').length * 0.8);
+  const fs1 = 32, fs2 = 26;
+  const boxW = 48 + Math.max(text.length * fs1 * 0.66, (sub ?? '').length * fs2 * 0.62);
+  const boxH = sub ? 104 : 66;
   let bx = x + dx, by = y + dy;
-  if (by < 110) by = y - dy;          // keep the box on screen: flip below the point
-  if (bx < boxHalfW + 40) bx = boxHalfW + 40; else if (bx > W - boxHalfW - 40) bx = W - boxHalfW - 40;
-  // arrow from the box edge to the point
+  if (by - boxH / 2 < 96) by = y - dy;                       // keep on screen: flip below the point
+  if (bx < boxW / 2 + 40) bx = boxW / 2 + 40; else if (bx > W - boxW / 2 - 40) bx = W - boxW / 2 - 40;
+  // stem from the nearest box edge to the point
   const ang = Math.atan2(y - by, x - bx);
-  const boxH = sub ? 128 : 78;
-  const startDist = boxH / 2 + 4;
-  const sx = bx + Math.cos(ang) * startDist, sy = by + Math.sin(ang) * startDist;
+  const edge = Math.min(Math.abs((boxW / 2) / Math.max(1e-3, Math.cos(ang))), Math.abs((boxH / 2) / Math.max(1e-3, Math.sin(ang))));
+  const sx = bx + Math.cos(ang) * (edge - 2), sy = by + Math.sin(ang) * (edge - 2);
   const full = Math.hypot(x - sx, y - sy);
-  const len = Math.max(0, (full - 10) * grow);
-  const shaft = 28, headW = 86, headL = 74;
+  const len = Math.max(0, (full - 12) * grow);
+  const shaft = 18, headW = 64, headL = 54;
   const tipX = sx + Math.cos(ang) * len, tipY = sy + Math.sin(ang) * len;
   const baseL = Math.max(0, len - headL);
   const nx = -Math.sin(ang), ny = Math.cos(ang);
   const P = (dAlong: number, dSide: number) => `${(sx + Math.cos(ang) * dAlong + nx * dSide).toFixed(1)},${(sy + Math.sin(ang) * dAlong + ny * dSide).toFixed(1)}`;
   const poly = `${P(0, -shaft / 2)} ${P(baseL, -shaft / 2)} ${P(baseL, -headW / 2)} ${tipX.toFixed(1)},${tipY.toFixed(1)} ${P(baseL, headW / 2)} ${P(baseL, shaft / 2)} ${P(0, shaft / 2)}`;
+  const rings = f >= 8 ? [0, 7].map((o) => ((f - 8 + o) % 14) / 14) : [];
   return (
     <div style={{position: 'absolute', inset: 0, pointerEvents: 'none', opacity: op}}>
       <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
+        {rings.map((r, i) => (
+          <circle key={i} cx={x} cy={y} r={8 + r * 46} fill="none" stroke="#fff" strokeWidth={2.5 * (1 - r) + 0.5} opacity={0.9 * (1 - r)} />
+        ))}
         {len > 4 && (
-          <g style={{filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.55))'}}>
-            <polygon points={poly} fill="#0a0a0a" stroke="#ffffff" strokeWidth={3} strokeLinejoin="round" />
+          <g style={{filter: 'drop-shadow(0 5px 7px rgba(0,0,0,0.5))'}}>
+            <polygon points={poly} fill="#000" stroke="#ffffff" strokeWidth={2.5} strokeLinejoin="round" />
           </g>
         )}
-        <circle cx={x} cy={y} r={6} fill="#fff" stroke="#000" strokeWidth={2.5} />
+        <circle cx={x} cy={y} r={5.5} fill="#fff" stroke="#000" strokeWidth={2.5} />
       </svg>
       <div
         style={{
-          position: 'absolute', left: bx, top: by, transform: `translate(-50%,-50%) scale(${0.8 + 0.2 * pop})`, opacity: pop,
-          background: '#0a0a0a', padding: sub ? '12px 26px 10px' : '12px 26px', boxShadow: '0 12px 30px rgba(0,0,0,0.6)', whiteSpace: 'nowrap', textAlign: 'center',
+          position: 'absolute', left: bx - boxW / 2, top: by - boxH / 2, width: boxW, height: boxH,
+          clipPath: `inset(0 ${(1 - wipe) * 100}% 0 0)`, filter: wipe < 1 ? `blur(${(1 - wipe) * 7}px)` : undefined,
+          background: '#000', boxShadow: '0 10px 26px rgba(0,0,0,0.55)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
         }}
       >
-        <div style={{fontFamily: FONT.map, fontWeight: 700, fontSize: 42, letterSpacing: 1.5, color: '#fff', textTransform: 'uppercase', lineHeight: 1.15}}>{text}</div>
-        {sub && <div style={{fontFamily: FONT.map, fontWeight: 600, fontSize: 34, letterSpacing: 1, color: '#fff', textTransform: 'uppercase', lineHeight: 1.2, marginTop: 2}}>{sub}</div>}
+        <div style={{fontFamily: FONT.map, fontWeight: 700, fontSize: fs1, letterSpacing: 1, color: '#fff', textTransform: 'uppercase', lineHeight: 1.15, whiteSpace: 'pre'}}>{text.slice(0, n1)}</div>
+        {sub && <div style={{fontFamily: FONT.map, fontWeight: 600, fontSize: fs2, letterSpacing: 1, color: '#fff', textTransform: 'uppercase', lineHeight: 1.2, marginTop: 2, whiteSpace: 'pre', minHeight: fs2 * 1.2}}>{sub.slice(0, n2)}</div>}
       </div>
     </div>
   );
@@ -170,7 +180,7 @@ export const Route: React.FC<{
 };
 
 /* ---------- Pulse marker (battle / event) ---------- */
-export const Pulse: React.FC<{lon: number; lat: number; at: number; until: number; color?: string}> = ({lon, lat, at, until, color = '#ff5a3c'}) => {
+export const Pulse: React.FC<{lon: number; lat: number; at: number; until: number; color?: string}> = ({lon, lat, at, until, color = '#ffffff'}) => {
   const frame = useCurrentFrame();
   const {projection, visible} = useMap();
   if (frame < at || frame > until || !visible(lon, lat)) return null;
