@@ -2,11 +2,26 @@ name: render
 on:
   workflow_dispatch:
     inputs:
-      composition: {description: Composition id, default: Main, required: true}
-      scale: {description: Render scale (1 = 1920x1080), default: "1", required: true}
-      crf: {description: x264 CRF quality (lower=better), default: "18", required: true}
-      drive_file_name: {description: File name in Drive, default: render.mp4, required: true}
-      upload: {description: Upload to Drive (needs DRIVE_UPLOAD_URI secret), default: "true", required: true}
+      composition:
+        description: Composition id
+        default: Main
+        required: true
+      scale:
+        description: Render scale (1 = 1920x1080)
+        default: "1"
+        required: true
+      crf:
+        description: x264 CRF quality (lower = better)
+        default: "18"
+        required: true
+      drive_file_name:
+        description: File name in Drive
+        default: render.mp4
+        required: true
+      upload:
+        description: Upload to Drive (needs DRIVE_UPLOAD_URI secret)
+        default: "true"
+        required: true
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -14,7 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: 20, cache: npm}
+        with:
+          node-version: 20
+          cache: npm
       - run: npm ci
       - run: npx remotion browser ensure
       - name: Render
@@ -25,9 +42,14 @@ jobs:
           ls -la out
       - name: Upload to Google Drive
         if: ${{ inputs.upload == 'true' }}
-        env: {URI: "${{ secrets.DRIVE_UPLOAD_URI }}"}
+        env:
+          URI: ${{ secrets.DRIVE_UPLOAD_URI }}
         run: |
           if [ -z "$URI" ]; then echo "::warning::DRIVE_UPLOAD_URI secret not set, skipping"; exit 0; fi
           python3 scripts/drive_upload.py "out/${{ inputs.drive_file_name }}" "$URI"
       - uses: actions/upload-artifact@v4
-        with: {name: render-${{ github.run_number }}, path: out/*.mp4, retention-days: 14, compression-level: 0}
+        with:
+          name: render-${{ github.run_number }}
+          path: out/*.mp4
+          retention-days: 14
+          compression-level: 0
