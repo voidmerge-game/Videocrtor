@@ -1,1 +1,7 @@
 drive final id 1q2psUEjEG3i606r0KRee6pfoJOhWBhJT; video run 39111203659; audio run 39115510919; stitch run 39116383230
+
+## v3 (2026-10-18)
+- commit a679471; render_parallel run 39120070111 (12 video chunks + 12 audio chunks + stitch) SUCCESS
+- final: The_Scramble_for_Africa_v3_1080p.mp4, 505.7 MB, 9:37.63, 1920x1080 30fps, AAC 252k
+- Drive id 1keZMUoMJwWR-MPw-QqzS3WUhUSaGD7bE (folder Epic-Video-Project)
+- changes: CAM3 (closer camera), BIG spaced labels, CITIES, CALLOUTS, ROUTES (animated arrows), PULSES, HD Africa relief layer
