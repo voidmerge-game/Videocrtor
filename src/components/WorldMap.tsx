@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useMemo} from 'react';
-import {geoOrthographic, geoPath, geoGraticule10, geoDistance, GeoProjection} from 'd3-geo';
+import {geoOrthographic, geoPath, geoGraticule10, geoDistance, geoArea, GeoProjection} from 'd3-geo';
 import {AbsoluteFill} from 'remotion';
 import {C, W, H} from '../theme';
 import type {FC} from '../lib/geo';
@@ -23,6 +23,10 @@ export type Layer = {
   strokeFn?: (f: Feature<Geometry, any>) => string | undefined;
   filter?: (f: Feature<Geometry, any>) => boolean;
   glow?: boolean;
+  /** CSS blend mode for the fill pass (e.g. 'multiply' over the relief) */
+  blend?: string;
+  /** draw all strokes in a second pass above every fill of this layer */
+  strokeOnTop?: boolean;
 };
 
 type Ctx = {projection: GeoProjection; cam: Cam; visible: (lon: number, lat: number) => boolean};
@@ -43,7 +47,9 @@ export const WorldMap: React.FC<{
   vignette?: number;
   /** draw satellite/relief texture (default true) */
   raster?: boolean;
-}> = ({cam, land, layers = [], children, showGraticule = true, vignette = 0.55, raster = true}) => {
+  /** 0 = satellite globe, 1 = atlas style (vector ocean + shaded relief + opaque fills) */
+  atlas?: number;
+}> = ({cam, land, layers = [], children, showGraticule = true, vignette = 0.55, raster = true, atlas = 0}) => {
   const projection = useMemo(
     () =>
       geoOrthographic()
@@ -58,6 +64,9 @@ export const WorldMap: React.FC<{
   const graticule = useMemo(() => path(geoGraticule10()) ?? '', [path]);
   const sphere = path({type: 'Sphere'}) ?? '';
   const landPath = useMemo(() => (land ? path(land) ?? '' : ''), [land, path]);
+  // only sizeable landmasses get the coastal water glow (tiny islands would become blurry dots)
+  const bigLand = useMemo(() => (land ? {type: 'FeatureCollection', features: land.features.filter((f) => geoArea(f as any) > 0.0012)} as FC : null), [land]);
+  const bigLandPath = useMemo(() => (bigLand ? path(bigLand as any) ?? '' : ''), [bigLand, path]);
   const visible = (lon: number, lat: number) => geoDistance([lon, lat], [cam.lon, cam.lat]) < Math.PI / 2 - 0.02;
   const r = cam.scale;
   const cx = W / 2, cy = H / 2;
@@ -65,7 +74,41 @@ export const WorldMap: React.FC<{
   return (
     <MapCtx.Provider value={{projection, cam, visible}}>
       <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, ${C.oceanLight} 0%, ${C.ocean} 55%, #050d16 100%)`}}>
-        {raster && <RasterGlobe cam={cam} />}
+        {/* ---- satellite globe (fades out as atlas mixes in) ---- */}
+        {raster && atlas < 1 && <RasterGlobe cam={cam} opacity={1 - atlas} />}
+        {/* ---- atlas: vector ocean + coastal glow ---- */}
+        {atlas > 0 && (
+          <svg width={W} height={H} style={{position: 'absolute', inset: 0, opacity: atlas}}>
+            <defs>
+              <radialGradient id="oceanA" cx="42%" cy="36%" r="70%">
+                <stop offset="0%" stopColor="#2b6a95" />
+                <stop offset="55%" stopColor="#1a4a70" />
+                <stop offset="100%" stopColor="#0b2235" />
+              </radialGradient>
+              <filter id="oceanNoise" x="0" y="0" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n" />
+                <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.10 0" />
+              </filter>
+              <filter id="coastGlow" x="-10%" y="-10%" width="120%" height="120%">
+                <feGaussianBlur stdDeviation="9" />
+              </filter>
+              <clipPath id="sphereClipA"><path d={sphere} /></clipPath>
+            </defs>
+            <path d={sphere} fill="url(#oceanA)" />
+            <g clipPath="url(#sphereClipA)">
+              <rect width={W} height={H} filter="url(#oceanNoise)" opacity={0.5} />
+              {showGraticule && <path d={graticule} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth={1} />}
+              {/* lighter water hugging the coast, like a printed atlas */}
+              <path d={bigLandPath} fill="rgba(150,205,235,0.55)" stroke="rgba(150,205,235,0.9)" strokeWidth={22} filter="url(#coastGlow)" />
+              <path d={bigLandPath} fill="rgba(170,215,240,0.35)" stroke="rgba(170,215,240,0.8)" strokeWidth={7} filter="url(#coastGlow)" />
+              {/* parchment land base under the relief */}
+              <path d={landPath} fill="#e6d9b8" />
+            </g>
+          </svg>
+        )}
+        {raster && atlas > 0 && (
+          <RasterGlobe cam={cam} src="data/relief_4k.png" tint={[0.98, 0.93, 0.82]} light={0.35} opacity={atlas} blend="multiply" />
+        )}
         <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
           <defs>
             <radialGradient id="atmo" cx="50%" cy="50%" r="50%">
@@ -102,70 +145,74 @@ export const WorldMap: React.FC<{
           </defs>
 
           {/* atmosphere halo */}
-          <circle cx={cx} cy={cy} r={r * 1.06} fill="url(#atmo)" />
+          <circle cx={cx} cy={cy} r={r * 1.06} fill="url(#atmo)" opacity={1 - 0.5 * atlas} />
           {/* ocean sphere (vector fallback when no raster) */}
           {!raster && <path d={sphere} fill="url(#oceanG)" />}
           <g clipPath="url(#sphereClip)">
-            {showGraticule && <path d={graticule} fill="none" stroke={C.graticule} strokeWidth={1} />}
-            {/* land: vector fill only without raster; otherwise just a crisp coastline */}
+            {showGraticule && atlas < 1 && <path d={graticule} fill="none" stroke={C.graticule} strokeWidth={1} opacity={1 - atlas} />}
             {!raster && <path d={landPath} fill="#000" opacity={0.35} transform="translate(3,4)" filter="url(#innerShadow)" />}
             {!raster && <path d={landPath} fill="url(#landG)" stroke={C.landShade} strokeWidth={0.8} />}
             {!raster && <path d={landPath} fill="url(#paperNoise)" />}
-            {raster && <path d={landPath} fill="none" stroke="rgba(255,245,220,0.28)" strokeWidth={1.1} />}
+            {raster && atlas < 1 && <path d={landPath} fill="none" stroke="rgba(255,245,220,0.28)" strokeWidth={1.1} opacity={1 - atlas} />}
 
             {layers.map((L) => {
               if (!L.fc) return null;
+              const items = L.fc.features.map((f, i) => {
+                if (L.filter && !L.filter(f)) return null;
+                const d = path(f);
+                if (!d) return null;
+                const fill = L.fill ? L.fill(f) : null;
+                const op = L.opacity ? L.opacity(f) : 1;
+                if (op <= 0) return null;
+                const rev = L.reveal ? L.reveal(f) : undefined;
+                let clip: string | undefined;
+                let clipEl: React.ReactNode = null;
+                if (rev !== undefined && rev < 1) {
+                  if (rev <= 0) return null;
+                  let [ccx, ccy] = path.centroid(f);
+                  const org = L.revealFrom ? L.revealFrom(f) : undefined;
+                  if (org) {
+                    const pp = projection(org);
+                    if (pp) { ccx = pp[0]; ccy = pp[1]; }
+                  }
+                  const b = path.bounds(f);
+                  const far = Math.max(
+                    Math.hypot(b[0][0] - ccx, b[0][1] - ccy), Math.hypot(b[1][0] - ccx, b[1][1] - ccy),
+                    Math.hypot(b[0][0] - ccx, b[1][1] - ccy), Math.hypot(b[1][0] - ccx, b[0][1] - ccy));
+                  const R = far * rev + 1;
+                  const id = `rv-${L.id}-${i}`;
+                  clip = `url(#${id})`;
+                  clipEl = (
+                    <clipPath id={id}>
+                      <circle cx={ccx} cy={ccy} r={R} />
+                    </clipPath>
+                  );
+                }
+                const stroke = (L.strokeFn && L.strokeFn(f)) ?? L.stroke ?? 'none';
+                return {i, d, fill, op, clip, clipEl, stroke};
+              }).filter(Boolean) as {i: number; d: string; fill: string | null; op: number; clip?: string; clipEl: React.ReactNode; stroke: string}[];
               return (
                 <g key={L.id} filter={L.glow ? 'url(#softGlow)' : undefined}>
-                  {L.fc.features.map((f, i) => {
-                    if (L.filter && !L.filter(f)) return null;
-                    const d = path(f);
-                    if (!d) return null;
-                    const fill = L.fill ? L.fill(f) : null;
-                    const op = L.opacity ? L.opacity(f) : 1;
-                    if (op <= 0) return null;
-                    const rev = L.reveal ? L.reveal(f) : undefined;
-                    let clip: string | undefined;
-                    let clipEl: React.ReactNode = null;
-                    if (rev !== undefined && rev < 1) {
-                      if (rev <= 0) return null;
-                      let [ccx, ccy] = path.centroid(f);
-                      const org = L.revealFrom ? L.revealFrom(f) : undefined;
-                      if (org) {
-                        const pp = projection(org);
-                        if (pp) { ccx = pp[0]; ccy = pp[1]; }
-                      }
-                      const b = path.bounds(f);
-                      const far = Math.max(
-                        Math.hypot(b[0][0] - ccx, b[0][1] - ccy), Math.hypot(b[1][0] - ccx, b[1][1] - ccy),
-                        Math.hypot(b[0][0] - ccx, b[1][1] - ccy), Math.hypot(b[1][0] - ccx, b[0][1] - ccy));
-                      const R = far * rev + 1;
-                      const id = `rv-${L.id}-${i}`;
-                      clip = `url(#${id})`;
-                      clipEl = (
-                        <clipPath id={id}>
-                          <circle cx={ccx} cy={ccy} r={R} />
-                        </clipPath>
-                      );
-                    }
-                    return (
-                      <g key={i} opacity={op} clipPath={clip}>
-                        {clipEl}
-                        <path
-                          d={d}
-                          fill={fill ?? 'none'}
-                          stroke={(L.strokeFn && L.strokeFn(f)) ?? L.stroke ?? 'none'}
-                          strokeWidth={L.strokeWidth ?? 1}
-                          strokeLinejoin="round"
-                        />
+                  <g style={{mixBlendMode: (L.blend as any) ?? 'normal'}}>
+                    {items.map((it) => (
+                      <g key={it.i} opacity={it.op} clipPath={it.clip}>
+                        {it.clipEl}
+                        <path d={it.d} fill={it.fill ?? 'none'} stroke={L.strokeOnTop ? 'none' : it.stroke} strokeWidth={L.strokeWidth ?? 1} strokeLinejoin="round" />
                       </g>
-                    );
-                  })}
+                    ))}
+                  </g>
+                  {L.strokeOnTop && items.map((it) => (
+                    <g key={`s${it.i}`} opacity={it.op} clipPath={it.clip}>
+                      <path d={it.d} fill="none" stroke={it.stroke} strokeWidth={L.strokeWidth ?? 1} strokeLinejoin="round" strokeLinecap="round" />
+                    </g>
+                  ))}
                 </g>
               );
             })}
+            {/* crisp coastline in atlas mode */}
+            {atlas > 0 && <path d={landPath} fill="none" stroke="#1d130a" strokeWidth={1.5} opacity={0.85 * atlas} />}
             {/* lighting */}
-            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 : 1} />
+            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 - 0.25 * atlas : 1} />
           </g>
           {/* limb */}
           <path d={sphere} fill="none" stroke="rgba(160,200,255,0.35)" strokeWidth={2} />

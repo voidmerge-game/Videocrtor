@@ -11,9 +11,19 @@ import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, CAPTIONS, ARC
 
 export const MAIN_DURATION_SEC = TOTAL;
 
+// African states shown on the 1870 map (only the major, named polities — keeps the map legible)
+const STATES_1870 = new Set(['Sokoto Caliphate', 'Ethiopia', 'Zululand', 'Asante', 'Buganda', 'Morocco', 'Egypt', 'Sultanate of Zanzibar',
+  'Dahomey', 'Imerina', 'Transvaal', 'Orange Free State', 'Liberia']);
+const STATE_FILL: Record<string, string> = {
+  'Sokoto Caliphate': 'rgba(120,150,90,0.55)', Ethiopia: 'rgba(170,110,70,0.55)', Zululand: 'rgba(150,80,70,0.55)', Asante: 'rgba(170,140,60,0.55)',
+  Buganda: 'rgba(100,130,150,0.5)', Morocco: 'rgba(150,100,90,0.5)', 'Sultanate of Zanzibar': 'rgba(120,100,140,0.5)', Dahomey: 'rgba(160,120,90,0.5)',
+  'Kanem-Bornu': 'rgba(110,120,150,0.45)', 'Wadai Empire': 'rgba(150,130,100,0.45)', 'Tukular Caliphate': 'rgba(130,140,110,0.5)', Imerina: 'rgba(150,110,120,0.5)',
+  Transvaal: 'rgba(140,130,100,0.45)', 'Orange Free State': 'rgba(150,140,110,0.45)', Liberia: 'rgba(140,120,80,0.45)',
+};
+// atlas palette: printed with 'multiply' over the shaded relief
 const POWER_FILL: Record<Power, string> = {
-  britain: '#c0453f', france: '#3d6cb0', germany: '#5c5c5c', belgium: '#d1a43b', portugal: '#3f8f66',
-  italy: '#67a86a', spain: '#d08a3a', ottoman: '#8a65a8', independent: '#d6b36a',
+  britain: '#e2604c', france: '#4f7fc4', germany: '#8d8a6e', belgium: '#ecb43c', portugal: '#4a9c68',
+  italy: '#93bf5e', spain: '#ea9440', ottoman: '#a284b8', independent: '#e8c98a',
 };
 
 /* ---------- percentage counter ---------- */
@@ -75,50 +85,53 @@ export const Main: React.FC = () => {
 
   const land = useTopo('land_world');
   const af1880 = useTopo('africa_1880');
-  const af1914 = useTopo('africa_1914');
+  const af1914 = useTopo('colonies_1914');
   const modern = useTopo('countries_world');
 
   const cam = camAt(CAM, t);
 
   // ----- layer opacities over time -----
   const pre1880On = prog(frame, (FIRST_VO + 1.5) * fps, (FIRST_VO + 4.5) * fps); // fade in during S1
-  const preFadeOut = 1 - prog(frame, T('S5_07') * fps, (T('S5_07') + 2) * fps); // 1880 polities fade out at 1900 summary
+  const preFadeOut = 1 - prog(frame, T('S5_01') * fps, (T('S5_01') + 4) * fps); // 1870 polities fade out as the partition begins
   const modernOn = prog(frame, T('S8_03', 'borders') * fps, (T('S8_03', 'borders') + 2.5) * fps) * (1 - prog(frame, T('S8_04', 'In') * fps, (T('S8_04', 'In') + 2) * fps));
   const quoteOn = QUOTES.some((q) => t >= q.t && t <= q.until);
   // de-emphasise the partition fills during the resistance scene (1879–1898)
   const postMul = 1 - 0.45 * (prog(frame, (T('S6_01') - 1.5) * fps, (T('S6_01') + 1) * fps) - prog(frame, (T('S7_01') - 2) * fps, T('S7_01') * fps));
   const inTitle = t >= COLD_OPEN.quote && t < FIRST_VO;
+  const atlas = prog(frame, (FIRST_VO - 4) * fps, (FIRST_VO + 0.5) * fps);
 
   const layers: Layer[] = useMemo(() => {
     const L: Layer[] = [];
     // 1880 polities: European enclaves tinted, African states as faint outlines
     L.push({
       id: 'pre', fc: af1880,
-      filter: (f) => !!f.properties.NAME && !['France', 'Portugal', 'Italy', 'Spain', 'Greece', 'Bulgaria', 'Romania', 'Montenegro', 'Austria Hungary', 'Bosnia-Herzegovina', 'Persia', 'Arabia', 'Oman', 'Qatar', 'Russian Empire', 'Bokhara Khanate', 'Malta'].includes(f.properties.NAME),
+      filter: (f) => !!f.properties.NAME && (!!OWNER_1880[f.properties.NAME] || STATES_1870.has(f.properties.NAME)),
       fill: (f) => {
         const p = OWNER_1880[f.properties.NAME];
-        if (p === 'ottoman') return 'rgba(150,120,170,0.55)';
-        return p ? POWER_FILL[p] : 'rgba(255,240,210,0.07)';
+        if (p === 'ottoman') return 'rgba(175,150,195,0.5)';
+        return p ? POWER_FILL[p] : STATE_FILL[f.properties.NAME] ?? 'rgba(150,115,70,0.30)';
       },
-      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(255,255,255,0.55)' : 'rgba(255,235,200,0.45)'),
-      strokeWidth: 1.0,
-      opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.62 : 1) * pre1880On * preFadeOut,
+      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(40,25,10,0.8)' : 'rgba(90,60,25,0.8)'),
+      strokeWidth: 1.4,
+      blend: 'multiply', strokeOnTop: true,
+      opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.95 : 1) * pre1880On * preFadeOut,
     });
     // 1914 territories revealed over time
     L.push({
       id: 'post', fc: af1914,
       filter: (f) => AFRICA_1914.has(f.properties.NAME),
       fill: (f) => POWER_FILL[OWNER_1914[f.properties.NAME]],
-      stroke: 'rgba(255,255,255,0.7)', strokeWidth: 1.3,
+      stroke: 'rgba(30,18,8,0.85)', strokeWidth: 2.0,
+      blend: 'multiply', strokeOnTop: true,
       opacity: (f) => {
         const p = OWNER_1914[f.properties.NAME];
         if (p === 'independent') {
           // Ethiopia & Liberia glow in scene 6 and at the 1914 summary
           const a = prog(frame, T('S6_04', 'Ethiopia') * fps, (T('S6_04', 'Ethiopia') + 1.5) * fps) * (1 - prog(frame, E('S6_04') * fps, (E('S6_04') + 3) * fps));
           const b = prog(frame, T('S8_02', 'except') * fps, (T('S8_02', 'except') + 1.5) * fps);
-          return 0.5 * Math.max(a, b) * (1 - modernOn * 0.6);
+          return 0.9 * Math.max(a, b) * (1 - modernOn * 0.6);
         }
-        return 0.6 * postMul * (1 - modernOn * 0.55);
+        return 0.95 * (0.55 + 0.45 * postMul) * (1 - modernOn * 0.45);
       },
       reveal: (f) => {
         const a = acqOf(f.properties.NAME);
@@ -131,7 +144,7 @@ export const Main: React.FC = () => {
     L.push({
       id: 'modern', fc: modern,
       filter: (f) => f.properties.CONTINENT === 'Africa',
-      fill: () => 'rgba(255,255,255,0.03)', stroke: 'rgba(255,255,255,0.95)', strokeWidth: 1.6,
+      fill: () => 'rgba(255,255,255,0.0)', stroke: 'rgba(20,12,6,0.9)', strokeWidth: 1.4,
       opacity: () => modernOn,
     });
     return L;
@@ -141,7 +154,7 @@ export const Main: React.FC = () => {
 
   return (
     <AbsoluteFill style={{background: '#050a12'}}>
-      <WorldMap cam={cam} land={land} layers={layers} vignette={vignette}>
+      <WorldMap cam={cam} land={land} layers={layers} vignette={vignette} atlas={atlas}>
         {LABELS.map((l, i) => (
           <MapLabel key={i} lon={l.lon} lat={l.lat} text={l.text} at={Math.round(l.t * fps)} until={l.until ? Math.round(l.until * fps) : undefined} kind={l.kind ?? 'city'} size={l.size ?? 26} />
         ))}
