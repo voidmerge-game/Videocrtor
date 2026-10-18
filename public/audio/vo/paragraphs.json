@@ -1,0 +1,5857 @@
+[
+{
+"id": "S1_01",
+"file": "audio/vo/p/S1_01.mp3",
+"duration": 18.68,
+"text": "In 1870, Africa is a continent of empires, kingdoms and city-states. The Sokoto Caliphate rules more people than any European colony on earth. The Zulu, the Asante, the Ethiopians: these are powers that have defeated European armies in the field.",
+"words": [
+{
+"w": "In",
+"s": 0.0,
+"e": 0.28
+},
+{
+"w": "1870,",
+"s": 0.28,
+"e": 1.28
+},
+{
+"w": "Africa",
+"s": 1.78,
+"e": 2.12
+},
+{
+"w": "is",
+"s": 2.12,
+"e": 2.5
+},
+{
+"w": "a",
+"s": 2.5,
+"e": 2.64
+},
+{
+"w": "continent",
+"s": 2.64,
+"e": 2.96
+},
+{
+"w": "of",
+"s": 2.96,
+"e": 3.36
+},
+{
+"w": "empires,",
+"s": 3.36,
+"e": 3.96
+},
+{
+"w": "kingdoms,",
+"s": 4.34,
+"e": 4.54
+},
+{
+"w": "and",
+"s": 4.9,
+"e": 5.02
+},
+{
+"w": "city",
+"s": 5.02,
+"e": 5.28
+},
+{
+"w": "-states.",
+"s": 5.28,
+"e": 5.7
+},
+{
+"w": "The",
+"s": 6.26,
+"e": 6.4
+},
+{
+"w": "Sokoto",
+"s": 6.4,
+"e": 6.86
+},
+{
+"w": "Caliphate",
+"s": 6.86,
+"e": 7.58
+},
+{
+"w": "rules",
+"s": 7.58,
+"e": 8.06
+},
+{
+"w": "more",
+"s": 8.06,
+"e": 8.38
+},
+{
+"w": "people",
+"s": 8.38,
+"e": 8.74
+},
+{
+"w": "than",
+"s": 8.74,
+"e": 8.96
+},
+{
+"w": "any",
+"s": 8.96,
+"e": 9.34
+},
+{
+"w": "European",
+"s": 9.34,
+"e": 9.78
+},
+{
+"w": "colony",
+"s": 9.78,
+"e": 10.34
+},
+{
+"w": "on",
+"s": 10.34,
+"e": 10.7
+},
+{
+"w": "earth.",
+"s": 10.7,
+"e": 11.0
+},
+{
+"w": "The",
+"s": 11.54,
+"e": 11.62
+},
+{
+"w": "Zulu,",
+"s": 11.62,
+"e": 11.96
+},
+{
+"w": "the",
+"s": 12.58,
+"e": 12.72
+},
+{
+"w": "Assante,",
+"s": 12.72,
+"e": 13.12
+},
+{
+"w": "the",
+"s": 13.7,
+"e": 13.88
+},
+{
+"w": "Ethiopians.",
+"s": 13.88,
+"e": 14.62
+},
+{
+"w": "These",
+"s": 15.22,
+"e": 15.48
+},
+{
+"w": "are",
+"s": 15.48,
+"e": 15.68
+},
+{
+"w": "powers",
+"s": 15.68,
+"e": 16.0
+},
+{
+"w": "that",
+"s": 16.0,
+"e": 16.26
+},
+{
+"w": "have",
+"s": 16.26,
+"e": 16.4
+},
+{
+"w": "defeated",
+"s": 16.4,
+"e": 16.8
+},
+{
+"w": "European",
+"s": 16.8,
+"e": 17.36
+},
+{
+"w": "armies",
+"s": 17.36,
+"e": 17.8
+},
+{
+"w": "in",
+"s": 17.8,
+"e": 18.08
+},
+{
+"w": "the",
+"s": 18.08,
+"e": 18.2
+},
+{
+"w": "field.",
+"s": 18.2,
+"e": 18.52
+}
+],
+"nExpected": 40,
+"nGot": 41
+},
+{
+"id": "S1_02",
+"file": "audio/vo/p/S1_02.mp3",
+"duration": 15.75,
+"text": "Europeans control barely ten percent of the land: a string of coastal trading posts, the old Portuguese footholds in Angola and Mozambique, the Dutch and British settlements at the Cape, and France's colony in Algeria, taken in 1830.",
+"words": [
+{
+"w": "Europeans",
+"s": 0.16,
+"e": 0.74
+},
+{
+"w": "control",
+"s": 0.74,
+"e": 1.24
+},
+{
+"w": "barely",
+"s": 1.24,
+"e": 1.62
+},
+{
+"w": "10",
+"s": 1.62,
+"e": 2.0
+},
+{
+"w": "%",
+"s": 2.0,
+"e": 2.36
+},
+{
+"w": "of",
+"s": 2.36,
+"e": 2.54
+},
+{
+"w": "the",
+"s": 2.54,
+"e": 2.66
+},
+{
+"w": "land.",
+"s": 2.66,
+"e": 3.0
+},
+{
+"w": "A",
+"s": 3.48,
+"e": 3.64
+},
+{
+"w": "string",
+"s": 3.64,
+"e": 3.9
+},
+{
+"w": "of",
+"s": 3.9,
+"e": 4.08
+},
+{
+"w": "coastal",
+"s": 4.08,
+"e": 4.44
+},
+{
+"w": "trading",
+"s": 4.44,
+"e": 4.86
+},
+{
+"w": "posts,",
+"s": 4.86,
+"e": 5.24
+},
+{
+"w": "the",
+"s": 5.24,
+"e": 6.0
+},
+{
+"w": "old",
+"s": 6.0,
+"e": 6.28
+},
+{
+"w": "Portuguese",
+"s": 6.28,
+"e": 6.74
+},
+{
+"w": "footholds",
+"s": 6.74,
+"e": 7.52
+},
+{
+"w": "in",
+"s": 7.52,
+"e": 7.72
+},
+{
+"w": "Angola",
+"s": 7.72,
+"e": 8.14
+},
+{
+"w": "and",
+"s": 8.14,
+"e": 8.64
+},
+{
+"w": "Mozambique,",
+"s": 8.64,
+"e": 9.32
+},
+{
+"w": "the",
+"s": 9.8,
+"e": 9.92
+},
+{
+"w": "Dutch",
+"s": 9.92,
+"e": 10.18
+},
+{
+"w": "and",
+"s": 10.18,
+"e": 10.36
+},
+{
+"w": "British",
+"s": 10.36,
+"e": 10.58
+},
+{
+"w": "settlements",
+"s": 10.58,
+"e": 11.1
+},
+{
+"w": "at",
+"s": 11.1,
+"e": 11.4
+},
+{
+"w": "the",
+"s": 11.4,
+"e": 11.48
+},
+{
+"w": "Cape,",
+"s": 11.48,
+"e": 11.72
+},
+{
+"w": "and",
+"s": 12.2,
+"e": 12.3
+},
+{
+"w": "France's",
+"s": 12.3,
+"e": 12.8
+},
+{
+"w": "colony",
+"s": 12.8,
+"e": 13.14
+},
+{
+"w": "in",
+"s": 13.14,
+"e": 13.52
+},
+{
+"w": "Algeria,",
+"s": 13.52,
+"e": 14.14
+},
+{
+"w": "taken",
+"s": 14.4,
+"e": 14.62
+},
+{
+"w": "in",
+"s": 14.62,
+"e": 14.8
+},
+{
+"w": "1830.",
+"s": 14.8,
+"e": 15.52
+}
+],
+"nExpected": 38,
+"nGot": 38
+},
+{
+"id": "S1_03",
+"file": "audio/vo/p/S1_03.mp3",
+"duration": 20.42,
+"text": "The interior is, to European eyes, a blank space on the map. Explorers like David Livingstone have crossed it, mapped its rivers, and come home to tell a public hungry for adventure stories about a land of ivory, gold, and souls to be saved. Within one generation, that blank space will be gone.",
+"words": [
+{
+"w": "The",
+"s": 0.23,
+"e": 0.37
+},
+{
+"w": "interior",
+"s": 0.37,
+"e": 0.83
+},
+{
+"w": "is,",
+"s": 0.83,
+"e": 1.29
+},
+{
+"w": "to",
+"s": 1.69,
+"e": 1.83
+},
+{
+"w": "European",
+"s": 1.83,
+"e": 2.17
+},
+{
+"w": "eyes,",
+"s": 2.17,
+"e": 2.69
+},
+{
+"w": "a",
+"s": 3.25,
+"e": 3.39
+},
+{
+"w": "blank",
+"s": 3.39,
+"e": 3.65
+},
+{
+"w": "space",
+"s": 3.65,
+"e": 4.07
+},
+{
+"w": "on",
+"s": 4.07,
+"e": 4.39
+},
+{
+"w": "the",
+"s": 4.39,
+"e": 4.49
+},
+{
+"w": "map.",
+"s": 4.49,
+"e": 4.77
+},
+{
+"w": "Explorers",
+"s": 5.29,
+"e": 5.89
+},
+{
+"w": "like",
+"s": 5.89,
+"e": 6.09
+},
+{
+"w": "David",
+"s": 6.09,
+"e": 6.39
+},
+{
+"w": "Livingstone",
+"s": 6.39,
+"e": 6.99
+},
+{
+"w": "have",
+"s": 6.99,
+"e": 7.21
+},
+{
+"w": "crossed",
+"s": 7.21,
+"e": 7.61
+},
+{
+"w": "it,",
+"s": 7.61,
+"e": 7.83
+},
+{
+"w": "mapped",
+"s": 8.23,
+"e": 8.53
+},
+{
+"w": "its",
+"s": 8.53,
+"e": 8.73
+},
+{
+"w": "rivers,",
+"s": 8.73,
+"e": 8.99
+},
+{
+"w": "and",
+"s": 9.59,
+"e": 9.79
+},
+{
+"w": "come",
+"s": 9.79,
+"e": 9.97
+},
+{
+"w": "home",
+"s": 9.97,
+"e": 10.21
+},
+{
+"w": "to",
+"s": 10.21,
+"e": 10.39
+},
+{
+"w": "tell",
+"s": 10.39,
+"e": 10.59
+},
+{
+"w": "a",
+"s": 10.59,
+"e": 10.71
+},
+{
+"w": "public,",
+"s": 10.71,
+"e": 11.03
+},
+{
+"w": "hungry",
+"s": 11.33,
+"e": 11.67
+},
+{
+"w": "for",
+"s": 11.67,
+"e": 11.91
+},
+{
+"w": "adventure",
+"s": 11.91,
+"e": 12.31
+},
+{
+"w": "stories",
+"s": 12.31,
+"e": 12.79
+},
+{
+"w": "about",
+"s": 12.79,
+"e": 13.05
+},
+{
+"w": "a",
+"s": 13.05,
+"e": 13.25
+},
+{
+"w": "land",
+"s": 13.25,
+"e": 13.45
+},
+{
+"w": "of",
+"s": 13.45,
+"e": 13.59
+},
+{
+"w": "ivory,",
+"s": 13.59,
+"e": 14.01
+},
+{
+"w": "gold,",
+"s": 14.33,
+"e": 14.71
+},
+{
+"w": "and",
+"s": 15.09,
+"e": 15.23
+},
+{
+"w": "souls",
+"s": 15.23,
+"e": 15.61
+},
+{
+"w": "to",
+"s": 15.61,
+"e": 15.85
+},
+{
+"w": "be",
+"s": 15.85,
+"e": 15.97
+},
+{
+"w": "saved.",
+"s": 15.97,
+"e": 16.41
+},
+{
+"w": "Within",
+"s": 16.77,
+"e": 17.01
+},
+{
+"w": "one",
+"s": 17.01,
+"e": 17.31
+},
+{
+"w": "generation,",
+"s": 17.31,
+"e": 17.93
+},
+{
+"w": "that",
+"s": 18.47,
+"e": 18.61
+},
+{
+"w": "blank",
+"s": 18.61,
+"e": 18.91
+},
+{
+"w": "space",
+"s": 18.91,
+"e": 19.35
+},
+{
+"w": "will",
+"s": 19.35,
+"e": 19.63
+},
+{
+"w": "be",
+"s": 19.63,
+"e": 19.77
+},
+{
+"w": "gone.",
+"s": 19.77,
+"e": 20.07
+}
+],
+"nExpected": 53,
+"nGot": 53
+},
+{
+"id": "S2_01",
+"file": "audio/vo/p/S2_01.mp3",
+"duration": 21.51,
+"text": "Three things change everything. First, technology. Quinine lets Europeans survive malaria. Steamboats push up rivers that sailing ships could never climb. The telegraph and the Suez Canal, opened in 1869, shrink the distance between London, Paris and the African coast.",
+"words": [
+{
+"w": "Three",
+"s": 0.0,
+"e": 0.28
+},
+{
+"w": "things",
+"s": 0.28,
+"e": 0.76
+},
+{
+"w": "change",
+"s": 0.76,
+"e": 1.28
+},
+{
+"w": "everything.",
+"s": 1.28,
+"e": 1.84
+},
+{
+"w": "First,",
+"s": 2.46,
+"e": 2.7
+},
+{
+"w": "technology.",
+"s": 3.3,
+"e": 3.74
+},
+{
+"w": "Quineine",
+"s": 4.64,
+"e": 5.14
+},
+{
+"w": "lets",
+"s": 5.14,
+"e": 5.6
+},
+{
+"w": "Europeans",
+"s": 5.6,
+"e": 6.12
+},
+{
+"w": "survive",
+"s": 6.12,
+"e": 6.82
+},
+{
+"w": "malaria.",
+"s": 6.82,
+"e": 7.36
+},
+{
+"w": "Steamboats",
+"s": 8.08,
+"e": 8.62
+},
+{
+"w": "push",
+"s": 8.62,
+"e": 8.86
+},
+{
+"w": "up",
+"s": 8.86,
+"e": 9.02
+},
+{
+"w": "rivers",
+"s": 9.02,
+"e": 9.3
+},
+{
+"w": "that",
+"s": 9.3,
+"e": 9.94
+},
+{
+"w": "sailing",
+"s": 9.94,
+"e": 10.28
+},
+{
+"w": "ships",
+"s": 10.28,
+"e": 10.62
+},
+{
+"w": "could",
+"s": 10.62,
+"e": 10.8
+},
+{
+"w": "never",
+"s": 10.8,
+"e": 11.02
+},
+{
+"w": "climb.",
+"s": 11.02,
+"e": 11.42
+},
+{
+"w": "The",
+"s": 11.84,
+"e": 11.94
+},
+{
+"w": "Telegraph",
+"s": 11.94,
+"e": 12.54
+},
+{
+"w": "and",
+"s": 12.54,
+"e": 13.1
+},
+{
+"w": "the",
+"s": 13.1,
+"e": 13.22
+},
+{
+"w": "Suez",
+"s": 13.22,
+"e": 13.58
+},
+{
+"w": "Canal",
+"s": 13.58,
+"e": 13.86
+},
+{
+"w": "opened",
+"s": 13.86,
+"e": 14.72
+},
+{
+"w": "in",
+"s": 14.72,
+"e": 14.96
+},
+{
+"w": "1869,",
+"s": 14.96,
+"e": 16.0
+},
+{
+"w": "shrink",
+"s": 16.6,
+"e": 16.9
+},
+{
+"w": "the",
+"s": 16.9,
+"e": 17.14
+},
+{
+"w": "distance",
+"s": 17.14,
+"e": 17.6
+},
+{
+"w": "between",
+"s": 17.6,
+"e": 18.24
+},
+{
+"w": "London,",
+"s": 18.24,
+"e": 18.66
+},
+{
+"w": "Paris,",
+"s": 19.24,
+"e": 19.52
+},
+{
+"w": "and",
+"s": 20.2,
+"e": 20.3
+},
+{
+"w": "the",
+"s": 20.3,
+"e": 20.4
+},
+{
+"w": "African",
+"s": 20.4,
+"e": 20.74
+},
+{
+"w": "coast.",
+"s": 20.74,
+"e": 21.24
+}
+],
+"nExpected": 40,
+"nGot": 40
+},
+{
+"id": "S2_02",
+"file": "audio/vo/p/S2_02.mp3",
+"duration": 14.92,
+"text": "And in 1884, Hiram Maxim unveils a machine gun that fires six hundred rounds a minute. One British writer puts it bluntly: \"Whatever happens, we have got the Maxim gun, and they have not.\"",
+"words": [
+{
+"w": "And",
+"s": 0.27,
+"e": 0.49
+},
+{
+"w": "in",
+"s": 0.49,
+"e": 0.63
+},
+{
+"w": "1884,",
+"s": 0.63,
+"e": 1.87
+},
+{
+"w": "Hyram",
+"s": 1.87,
+"e": 2.75
+},
+{
+"w": "Maxim",
+"s": 2.75,
+"e": 3.19
+},
+{
+"w": "unveils",
+"s": 3.19,
+"e": 4.21
+},
+{
+"w": "a",
+"s": 4.21,
+"e": 4.41
+},
+{
+"w": "machine",
+"s": 4.41,
+"e": 4.75
+},
+{
+"w": "gun",
+"s": 4.75,
+"e": 5.07
+},
+{
+"w": "that",
+"s": 5.07,
+"e": 5.71
+},
+{
+"w": "fires",
+"s": 5.71,
+"e": 6.07
+},
+{
+"w": "600",
+"s": 6.07,
+"e": 6.57
+},
+{
+"w": "rounds",
+"s": 6.57,
+"e": 7.19
+},
+{
+"w": "a",
+"s": 7.19,
+"e": 7.43
+},
+{
+"w": "minute.",
+"s": 7.43,
+"e": 7.65
+},
+{
+"w": "One",
+"s": 8.05,
+"e": 8.39
+},
+{
+"w": "British",
+"s": 8.39,
+"e": 8.65
+},
+{
+"w": "writer",
+"s": 8.65,
+"e": 9.03
+},
+{
+"w": "puts",
+"s": 9.03,
+"e": 9.31
+},
+{
+"w": "it",
+"s": 9.31,
+"e": 9.49
+},
+{
+"w": "bluntly,",
+"s": 9.49,
+"e": 10.01
+},
+{
+"w": "whatever",
+"s": 10.53,
+"e": 10.73
+},
+{
+"w": "happens,",
+"s": 10.73,
+"e": 11.31
+},
+{
+"w": "we",
+"s": 11.81,
+"e": 12.05
+},
+{
+"w": "have",
+"s": 12.05,
+"e": 12.25
+},
+{
+"w": "got",
+"s": 12.25,
+"e": 12.45
+},
+{
+"w": "the",
+"s": 12.45,
+"e": 12.59
+},
+{
+"w": "Maxim",
+"s": 12.59,
+"e": 12.91
+},
+{
+"w": "gun",
+"s": 12.91,
+"e": 13.31
+},
+{
+"w": "and",
+"s": 13.31,
+"e": 13.95
+},
+{
+"w": "they",
+"s": 13.95,
+"e": 14.17
+},
+{
+"w": "have",
+"s": 14.17,
+"e": 14.37
+},
+{
+"w": "not.",
+"s": 14.37,
+"e": 14.61
+}
+],
+"nExpected": 34,
+"nGot": 33
+},
+{
+"id": "S2_03",
+"file": "audio/vo/p/S2_03.mp3",
+"duration": 19.97,
+"text": "Second, economics. Industrial Europe is hungry for palm oil, rubber, cotton, copper, and for new markets. Third, politics. A newly united Germany, a humiliated France, and a nervous Britain each fear that whatever they do not take, a rival will.",
+"words": [
+{
+"w": "Second,",
+"s": 0.31,
+"e": 0.69
+},
+{
+"w": "economics.",
+"s": 1.31,
+"e": 1.81
+},
+{
+"w": "Industrial",
+"s": 2.43,
+"e": 2.79
+},
+{
+"w": "Europe",
+"s": 2.79,
+"e": 3.43
+},
+{
+"w": "is",
+"s": 3.43,
+"e": 3.89
+},
+{
+"w": "hungry",
+"s": 3.89,
+"e": 4.23
+},
+{
+"w": "for",
+"s": 4.23,
+"e": 4.47
+},
+{
+"w": "palm",
+"s": 4.47,
+"e": 4.79
+},
+{
+"w": "oil,",
+"s": 4.79,
+"e": 5.13
+},
+{
+"w": "rubber,",
+"s": 5.61,
+"e": 5.87
+},
+{
+"w": "cotton,",
+"s": 6.41,
+"e": 6.75
+},
+{
+"w": "copper,",
+"s": 7.29,
+"e": 7.61
+},
+{
+"w": "and",
+"s": 8.17,
+"e": 8.35
+},
+{
+"w": "for",
+"s": 8.35,
+"e": 8.51
+},
+{
+"w": "new",
+"s": 8.51,
+"e": 8.67
+},
+{
+"w": "markets.",
+"s": 8.67,
+"e": 8.99
+},
+{
+"w": "Third,",
+"s": 9.53,
+"e": 9.89
+},
+{
+"w": "politics.",
+"s": 10.57,
+"e": 10.85
+},
+{
+"w": "A",
+"s": 11.43,
+"e": 11.75
+},
+{
+"w": "newly",
+"s": 11.75,
+"e": 11.99
+},
+{
+"w": "united",
+"s": 11.99,
+"e": 12.45
+},
+{
+"w": "Germany,",
+"s": 12.45,
+"e": 12.91
+},
+{
+"w": "a",
+"s": 13.35,
+"e": 13.41
+},
+{
+"w": "humiliated",
+"s": 13.41,
+"e": 14.03
+},
+{
+"w": "France,",
+"s": 14.03,
+"e": 14.47
+},
+{
+"w": "and",
+"s": 15.03,
+"e": 15.13
+},
+{
+"w": "a",
+"s": 15.13,
+"e": 15.23
+},
+{
+"w": "nervous",
+"s": 15.23,
+"e": 15.51
+},
+{
+"w": "Britain.",
+"s": 15.51,
+"e": 15.95
+},
+{
+"w": "Each",
+"s": 16.39,
+"e": 16.61
+},
+{
+"w": "fear",
+"s": 16.61,
+"e": 16.93
+},
+{
+"w": "that",
+"s": 16.93,
+"e": 17.15
+},
+{
+"w": "whatever",
+"s": 17.15,
+"e": 17.43
+},
+{
+"w": "they",
+"s": 17.43,
+"e": 17.67
+},
+{
+"w": "do",
+"s": 17.67,
+"e": 17.81
+},
+{
+"w": "not",
+"s": 17.81,
+"e": 17.97
+},
+{
+"w": "take,",
+"s": 17.97,
+"e": 18.33
+},
+{
+"w": "a",
+"s": 18.77,
+"e": 18.95
+},
+{
+"w": "rival",
+"s": 18.95,
+"e": 19.29
+},
+{
+"w": "will.",
+"s": 19.29,
+"e": 19.63
+}
+],
+"nExpected": 40,
+"nGot": 40
+},
+{
+"id": "S3_01",
+"file": "audio/vo/p/S3_01.mp3",
+"duration": 11.45,
+"text": "The spark comes from an unlikely place. Leopold the Second, King of the Belgians, rules a small country with no interest in empire. So he decides to build one for himself.",
+"words": [
+{
+"w": "The",
+"s": 0.0,
+"e": 0.18
+},
+{
+"w": "spark",
+"s": 0.18,
+"e": 0.46
+},
+{
+"w": "comes",
+"s": 0.46,
+"e": 0.84
+},
+{
+"w": "from",
+"s": 0.84,
+"e": 1.06
+},
+{
+"w": "an",
+"s": 1.06,
+"e": 1.22
+},
+{
+"w": "unlikely",
+"s": 1.22,
+"e": 1.82
+},
+{
+"w": "place.",
+"s": 1.82,
+"e": 2.34
+},
+{
+"w": "Leopold",
+"s": 2.92,
+"e": 3.5
+},
+{
+"w": "II,",
+"s": 3.5,
+"e": 4.0
+},
+{
+"w": "King",
+"s": 4.42,
+"e": 4.62
+},
+{
+"w": "of",
+"s": 4.62,
+"e": 4.74
+},
+{
+"w": "the",
+"s": 4.74,
+"e": 4.86
+},
+{
+"w": "Belgians,",
+"s": 4.86,
+"e": 5.3
+},
+{
+"w": "rules",
+"s": 5.74,
+"e": 5.96
+},
+{
+"w": "a",
+"s": 5.96,
+"e": 6.22
+},
+{
+"w": "small",
+"s": 6.22,
+"e": 6.52
+},
+{
+"w": "country",
+"s": 6.52,
+"e": 6.96
+},
+{
+"w": "with",
+"s": 6.96,
+"e": 7.18
+},
+{
+"w": "no",
+"s": 7.18,
+"e": 7.44
+},
+{
+"w": "interest",
+"s": 7.44,
+"e": 7.88
+},
+{
+"w": "in",
+"s": 7.88,
+"e": 8.06
+},
+{
+"w": "empire.",
+"s": 8.06,
+"e": 8.52
+},
+{
+"w": "So",
+"s": 8.98,
+"e": 9.24
+},
+{
+"w": "he",
+"s": 9.24,
+"e": 9.36
+},
+{
+"w": "decides",
+"s": 9.36,
+"e": 9.82
+},
+{
+"w": "to",
+"s": 9.82,
+"e": 10.02
+},
+{
+"w": "build",
+"s": 10.02,
+"e": 10.26
+},
+{
+"w": "one",
+"s": 10.26,
+"e": 10.52
+},
+{
+"w": "for",
+"s": 10.52,
+"e": 10.8
+},
+{
+"w": "himself.",
+"s": 10.8,
+"e": 11.2
+}
+],
+"nExpected": 31,
+"nGot": 30
+},
+{
+"id": "S3_02",
+"file": "audio/vo/p/S3_02.mp3",
+"duration": 16.61,
+"text": "He hires the explorer Henry Morton Stanley, famous for finding Livingstone, to sail up the Congo River, build stations, and sign hundreds of treaties with local chiefs, treaties written in a language they cannot read, handing over their land to a committee in Brussels.",
+"words": [
+{
+"w": "He",
+"s": 0.25,
+"e": 0.41
+},
+{
+"w": "hires",
+"s": 0.41,
+"e": 0.77
+},
+{
+"w": "the",
+"s": 0.77,
+"e": 0.99
+},
+{
+"w": "explorer,",
+"s": 0.99,
+"e": 1.51
+},
+{
+"w": "Henry",
+"s": 1.91,
+"e": 2.07
+},
+{
+"w": "Morton",
+"s": 2.07,
+"e": 2.51
+},
+{
+"w": "Stanley,",
+"s": 2.51,
+"e": 2.87
+},
+{
+"w": "famous",
+"s": 3.37,
+"e": 3.59
+},
+{
+"w": "for",
+"s": 3.59,
+"e": 3.87
+},
+{
+"w": "finding",
+"s": 3.87,
+"e": 4.23
+},
+{
+"w": "Livingstone,",
+"s": 4.23,
+"e": 4.89
+},
+{
+"w": "to",
+"s": 5.25,
+"e": 5.35
+},
+{
+"w": "sail",
+"s": 5.35,
+"e": 5.61
+},
+{
+"w": "up",
+"s": 5.61,
+"e": 5.81
+},
+{
+"w": "the",
+"s": 5.81,
+"e": 5.93
+},
+{
+"w": "Congo",
+"s": 5.93,
+"e": 6.21
+},
+{
+"w": "River,",
+"s": 6.21,
+"e": 6.61
+},
+{
+"w": "build",
+"s": 7.17,
+"e": 7.41
+},
+{
+"w": "stations,",
+"s": 7.41,
+"e": 7.83
+},
+{
+"w": "and",
+"s": 8.23,
+"e": 8.35
+},
+{
+"w": "sign",
+"s": 8.35,
+"e": 8.63
+},
+{
+"w": "hundreds",
+"s": 8.63,
+"e": 9.07
+},
+{
+"w": "of",
+"s": 9.07,
+"e": 9.29
+},
+{
+"w": "treaties",
+"s": 9.29,
+"e": 9.59
+},
+{
+"w": "with",
+"s": 9.59,
+"e": 9.95
+},
+{
+"w": "local",
+"s": 9.95,
+"e": 10.23
+},
+{
+"w": "chiefs,",
+"s": 10.23,
+"e": 10.83
+},
+{
+"w": "treaties",
+"s": 11.11,
+"e": 11.45
+},
+{
+"w": "written",
+"s": 11.45,
+"e": 11.89
+},
+{
+"w": "in",
+"s": 11.89,
+"e": 12.13
+},
+{
+"w": "a",
+"s": 12.13,
+"e": 12.27
+},
+{
+"w": "language",
+"s": 12.27,
+"e": 12.59
+},
+{
+"w": "they",
+"s": 12.59,
+"e": 12.85
+},
+{
+"w": "cannot",
+"s": 12.85,
+"e": 13.15
+},
+{
+"w": "read,",
+"s": 13.15,
+"e": 13.53
+},
+{
+"w": "handing",
+"s": 14.01,
+"e": 14.35
+},
+{
+"w": "over",
+"s": 14.35,
+"e": 14.63
+},
+{
+"w": "their",
+"s": 14.63,
+"e": 14.83
+},
+{
+"w": "land",
+"s": 14.83,
+"e": 15.17
+},
+{
+"w": "to",
+"s": 15.17,
+"e": 15.35
+},
+{
+"w": "a",
+"s": 15.35,
+"e": 15.47
+},
+{
+"w": "committee",
+"s": 15.47,
+"e": 15.75
+},
+{
+"w": "in",
+"s": 15.75,
+"e": 16.01
+},
+{
+"w": "Brussels.",
+"s": 16.01,
+"e": 16.31
+}
+],
+"nExpected": 44,
+"nGot": 44
+},
+{
+"id": "S3_03",
+"file": "audio/vo/p/S3_03.mp3",
+"duration": 11.1,
+"text": "France and Portugal rush to stake rival claims on the same river. The great powers realize the race is on, and that without rules, it could end in a European war.",
+"words": [
+{
+"w": "France",
+"s": 0.3,
+"e": 0.62
+},
+{
+"w": "and",
+"s": 0.62,
+"e": 0.96
+},
+{
+"w": "Portugal",
+"s": 0.96,
+"e": 1.4
+},
+{
+"w": "rush",
+"s": 1.4,
+"e": 2.0
+},
+{
+"w": "to",
+"s": 2.0,
+"e": 2.3
+},
+{
+"w": "stake",
+"s": 2.3,
+"e": 2.56
+},
+{
+"w": "rival",
+"s": 2.56,
+"e": 2.9
+},
+{
+"w": "claims",
+"s": 2.9,
+"e": 3.36
+},
+{
+"w": "on",
+"s": 3.36,
+"e": 3.54
+},
+{
+"w": "the",
+"s": 3.54,
+"e": 3.64
+},
+{
+"w": "same",
+"s": 3.64,
+"e": 3.86
+},
+{
+"w": "river.",
+"s": 3.86,
+"e": 4.18
+},
+{
+"w": "The",
+"s": 4.6,
+"e": 4.8
+},
+{
+"w": "great",
+"s": 4.8,
+"e": 5.0
+},
+{
+"w": "powers",
+"s": 5.0,
+"e": 5.34
+},
+{
+"w": "realize",
+"s": 5.34,
+"e": 5.84
+},
+{
+"w": "the",
+"s": 5.84,
+"e": 6.34
+},
+{
+"w": "race",
+"s": 6.34,
+"e": 6.66
+},
+{
+"w": "is",
+"s": 6.66,
+"e": 6.88
+},
+{
+"w": "on,",
+"s": 6.88,
+"e": 7.18
+},
+{
+"w": "and",
+"s": 7.52,
+"e": 7.72
+},
+{
+"w": "that",
+"s": 7.72,
+"e": 7.88
+},
+{
+"w": "without",
+"s": 7.88,
+"e": 8.08
+},
+{
+"w": "rules,",
+"s": 8.08,
+"e": 8.54
+},
+{
+"w": "it",
+"s": 8.92,
+"e": 9.1
+},
+{
+"w": "could",
+"s": 9.1,
+"e": 9.26
+},
+{
+"w": "end",
+"s": 9.26,
+"e": 9.62
+},
+{
+"w": "in",
+"s": 9.62,
+"e": 9.86
+},
+{
+"w": "a",
+"s": 9.86,
+"e": 9.94
+},
+{
+"w": "European",
+"s": 9.94,
+"e": 10.38
+},
+{
+"w": "war.",
+"s": 10.38,
+"e": 10.78
+}
+],
+"nExpected": 31,
+"nGot": 31
+},
+{
+"id": "S4_01",
+"file": "audio/vo/p/S4_01.mp3",
+"duration": 12.1,
+"text": "In November 1884, Chancellor Otto von Bismarck invites fourteen states to Berlin. For three months they negotiate the future of a continent. Not a single African is in the room.",
+"words": [
+{
+"w": "In",
+"s": 0.0,
+"e": 0.22
+},
+{
+"w": "November",
+"s": 0.22,
+"e": 0.46
+},
+{
+"w": "1884,",
+"s": 0.46,
+"e": 1.68
+},
+{
+"w": "Chancellor",
+"s": 2.24,
+"e": 2.66
+},
+{
+"w": "Otto",
+"s": 2.66,
+"e": 3.0
+},
+{
+"w": "von",
+"s": 3.0,
+"e": 3.3
+},
+{
+"w": "Bismarck",
+"s": 3.3,
+"e": 3.86
+},
+{
+"w": "invites",
+"s": 3.86,
+"e": 4.36
+},
+{
+"w": "14",
+"s": 4.36,
+"e": 4.9
+},
+{
+"w": "states",
+"s": 4.9,
+"e": 5.32
+},
+{
+"w": "to",
+"s": 5.32,
+"e": 5.6
+},
+{
+"w": "Berlin.",
+"s": 5.6,
+"e": 5.86
+},
+{
+"w": "For",
+"s": 6.56,
+"e": 6.72
+},
+{
+"w": "three",
+"s": 6.72,
+"e": 6.98
+},
+{
+"w": "months",
+"s": 6.98,
+"e": 7.3
+},
+{
+"w": "they",
+"s": 7.3,
+"e": 7.6
+},
+{
+"w": "negotiate",
+"s": 7.6,
+"e": 8.02
+},
+{
+"w": "the",
+"s": 8.02,
+"e": 8.36
+},
+{
+"w": "future",
+"s": 8.36,
+"e": 8.64
+},
+{
+"w": "of",
+"s": 8.64,
+"e": 8.86
+},
+{
+"w": "a",
+"s": 8.86,
+"e": 9.0
+},
+{
+"w": "continent.",
+"s": 9.0,
+"e": 9.34
+},
+{
+"w": "Not",
+"s": 9.88,
+"e": 10.04
+},
+{
+"w": "a",
+"s": 10.04,
+"e": 10.16
+},
+{
+"w": "single",
+"s": 10.16,
+"e": 10.44
+},
+{
+"w": "African",
+"s": 10.44,
+"e": 10.92
+},
+{
+"w": "is",
+"s": 10.92,
+"e": 11.38
+},
+{
+"w": "in",
+"s": 11.38,
+"e": 11.5
+},
+{
+"w": "the",
+"s": 11.5,
+"e": 11.62
+},
+{
+"w": "room.",
+"s": 11.62,
+"e": 11.84
+}
+],
+"nExpected": 30,
+"nGot": 30
+},
+{
+"id": "S4_02",
+"file": "audio/vo/p/S4_02.mp3",
+"duration": 14.01,
+"text": "The conference hands the Congo basin, an area eighty times the size of Belgium, to Leopold as his private property. And it sets the rule that will drive the next thirty years: \"effective occupation.\"",
+"words": [
+{
+"w": "The",
+"s": 0.26,
+"e": 0.4
+},
+{
+"w": "conference",
+"s": 0.4,
+"e": 0.78
+},
+{
+"w": "hands",
+"s": 0.78,
+"e": 1.18
+},
+{
+"w": "the",
+"s": 1.18,
+"e": 1.4
+},
+{
+"w": "Congo",
+"s": 1.4,
+"e": 1.68
+},
+{
+"w": "basin",
+"s": 1.68,
+"e": 2.14
+},
+{
+"w": "an",
+"s": 2.14,
+"e": 2.8
+},
+{
+"w": "area",
+"s": 2.8,
+"e": 3.18
+},
+{
+"w": "80",
+"s": 3.18,
+"e": 3.6
+},
+{
+"w": "times",
+"s": 3.6,
+"e": 4.04
+},
+{
+"w": "the",
+"s": 4.04,
+"e": 4.26
+},
+{
+"w": "size",
+"s": 4.26,
+"e": 4.54
+},
+{
+"w": "of",
+"s": 4.54,
+"e": 4.74
+},
+{
+"w": "Belgium",
+"s": 4.74,
+"e": 5.1
+},
+{
+"w": "to",
+"s": 5.1,
+"e": 5.76
+},
+{
+"w": "Leopold",
+"s": 5.76,
+"e": 6.34
+},
+{
+"w": "as",
+"s": 6.34,
+"e": 6.88
+},
+{
+"w": "his",
+"s": 6.88,
+"e": 7.04
+},
+{
+"w": "private",
+"s": 7.04,
+"e": 7.4
+},
+{
+"w": "property",
+"s": 7.4,
+"e": 7.92
+},
+{
+"w": "and",
+"s": 7.92,
+"e": 8.66
+},
+{
+"w": "it",
+"s": 8.66,
+"e": 8.78
+},
+{
+"w": "sets",
+"s": 8.78,
+"e": 9.02
+},
+{
+"w": "the",
+"s": 9.02,
+"e": 9.28
+},
+{
+"w": "rule",
+"s": 9.28,
+"e": 9.6
+},
+{
+"w": "that",
+"s": 9.6,
+"e": 9.98
+},
+{
+"w": "will",
+"s": 9.98,
+"e": 10.1
+},
+{
+"w": "drive",
+"s": 10.1,
+"e": 10.46
+},
+{
+"w": "the",
+"s": 10.46,
+"e": 10.66
+},
+{
+"w": "next",
+"s": 10.66,
+"e": 11.0
+},
+{
+"w": "30",
+"s": 11.0,
+"e": 11.46
+},
+{
+"w": "years.",
+"s": 11.46,
+"e": 11.94
+},
+{
+"w": "Effective",
+"s": 12.56,
+"e": 13.2
+},
+{
+"w": "occupation.",
+"s": 13.2,
+"e": 13.68
+}
+],
+"nExpected": 34,
+"nGot": 34
+},
+{
+"id": "S4_03",
+"file": "audio/vo/p/S4_03.mp3",
+"duration": 10.97,
+"text": "A flag on the coast is no longer enough. To own land, a power must actually hold it. Berlin does not start the Scramble. It makes it mandatory.",
+"words": [
+{
+"w": "A",
+"s": 0.33,
+"e": 0.67
+},
+{
+"w": "flag",
+"s": 0.67,
+"e": 0.95
+},
+{
+"w": "on",
+"s": 0.95,
+"e": 1.17
+},
+{
+"w": "the",
+"s": 1.17,
+"e": 1.27
+},
+{
+"w": "coast",
+"s": 1.27,
+"e": 1.61
+},
+{
+"w": "is",
+"s": 1.61,
+"e": 1.99
+},
+{
+"w": "no",
+"s": 1.99,
+"e": 2.21
+},
+{
+"w": "longer",
+"s": 2.21,
+"e": 2.53
+},
+{
+"w": "enough.",
+"s": 2.53,
+"e": 2.87
+},
+{
+"w": "To",
+"s": 3.33,
+"e": 3.45
+},
+{
+"w": "own",
+"s": 3.45,
+"e": 3.69
+},
+{
+"w": "land,",
+"s": 3.69,
+"e": 4.09
+},
+{
+"w": "a",
+"s": 4.57,
+"e": 4.69
+},
+{
+"w": "power",
+"s": 4.69,
+"e": 5.07
+},
+{
+"w": "must",
+"s": 5.07,
+"e": 5.69
+},
+{
+"w": "actually",
+"s": 5.69,
+"e": 6.23
+},
+{
+"w": "hold",
+"s": 6.23,
+"e": 6.65
+},
+{
+"w": "it.",
+"s": 6.65,
+"e": 6.85
+},
+{
+"w": "Berlin",
+"s": 7.21,
+"e": 7.55
+},
+{
+"w": "does",
+"s": 7.55,
+"e": 7.89
+},
+{
+"w": "not",
+"s": 7.89,
+"e": 8.07
+},
+{
+"w": "start",
+"s": 8.07,
+"e": 8.39
+},
+{
+"w": "the",
+"s": 8.39,
+"e": 8.57
+},
+{
+"w": "scramble.",
+"s": 8.57,
+"e": 8.95
+},
+{
+"w": "It",
+"s": 9.43,
+"e": 9.59
+},
+{
+"w": "makes",
+"s": 9.59,
+"e": 9.83
+},
+{
+"w": "it",
+"s": 9.83,
+"e": 9.97
+},
+{
+"w": "mandatory.",
+"s": 9.97,
+"e": 10.35
+}
+],
+"nExpected": 28,
+"nGot": 28
+},
+{
+"id": "S5_01",
+"file": "audio/vo/p/S5_01.mp3",
+"duration": 12.11,
+"text": "Watch the map. In 1881, France seizes Tunisia. In 1882, Britain occupies Egypt to secure the Suez Canal, and with it, the road to India.",
+"words": [
+{
+"w": "Watch",
+"s": 0.0,
+"e": 0.3
+},
+{
+"w": "the",
+"s": 0.3,
+"e": 0.48
+},
+{
+"w": "map.",
+"s": 0.48,
+"e": 0.74
+},
+{
+"w": "In",
+"s": 1.2,
+"e": 1.32
+},
+{
+"w": "1881,",
+"s": 1.32,
+"e": 2.38
+},
+{
+"w": "France",
+"s": 2.92,
+"e": 3.4
+},
+{
+"w": "seizes",
+"s": 3.4,
+"e": 4.02
+},
+{
+"w": "Tunisia.",
+"s": 4.02,
+"e": 4.48
+},
+{
+"w": "In",
+"s": 5.0,
+"e": 5.16
+},
+{
+"w": "1882,",
+"s": 5.16,
+"e": 6.12
+},
+{
+"w": "Britain",
+"s": 6.8,
+"e": 6.96
+},
+{
+"w": "occupies",
+"s": 6.96,
+"e": 7.66
+},
+{
+"w": "Egypt",
+"s": 7.66,
+"e": 8.08
+},
+{
+"w": "to",
+"s": 8.08,
+"e": 8.38
+},
+{
+"w": "secure",
+"s": 8.38,
+"e": 8.7
+},
+{
+"w": "the",
+"s": 8.7,
+"e": 8.86
+},
+{
+"w": "Suez",
+"s": 8.86,
+"e": 9.24
+},
+{
+"w": "Canal,",
+"s": 9.24,
+"e": 9.52
+},
+{
+"w": "and",
+"s": 9.88,
+"e": 10.26
+},
+{
+"w": "with",
+"s": 10.26,
+"e": 10.44
+},
+{
+"w": "it,",
+"s": 10.44,
+"e": 10.62
+},
+{
+"w": "the",
+"s": 11.0,
+"e": 11.12
+},
+{
+"w": "road",
+"s": 11.12,
+"e": 11.34
+},
+{
+"w": "to",
+"s": 11.34,
+"e": 11.52
+},
+{
+"w": "India.",
+"s": 11.52,
+"e": 11.82
+}
+],
+"nExpected": 25,
+"nGot": 25
+},
+{
+"id": "S5_02",
+"file": "audio/vo/p/S5_02.mp3",
+"duration": 12.61,
+"text": "In 1884, Bismarck, who had once called colonies a luxury, suddenly claims four of them: South-West Africa, Togoland, Kamerun, and East Africa.",
+"words": [
+{
+"w": "In",
+"s": 0.29,
+"e": 0.43
+},
+{
+"w": "1884,",
+"s": 0.43,
+"e": 1.39
+},
+{
+"w": "Bismarck,",
+"s": 1.99,
+"e": 2.59
+},
+{
+"w": "who",
+"s": 2.89,
+"e": 3.01
+},
+{
+"w": "had",
+"s": 3.01,
+"e": 3.13
+},
+{
+"w": "once",
+"s": 3.13,
+"e": 3.33
+},
+{
+"w": "called",
+"s": 3.33,
+"e": 3.67
+},
+{
+"w": "colonies",
+"s": 3.67,
+"e": 4.11
+},
+{
+"w": "a",
+"s": 4.11,
+"e": 4.59
+},
+{
+"w": "luxury,",
+"s": 4.59,
+"e": 4.93
+},
+{
+"w": "suddenly",
+"s": 5.49,
+"e": 5.91
+},
+{
+"w": "claims",
+"s": 5.91,
+"e": 6.37
+},
+{
+"w": "four",
+"s": 6.37,
+"e": 6.89
+},
+{
+"w": "of",
+"s": 6.89,
+"e": 7.05
+},
+{
+"w": "them.",
+"s": 7.05,
+"e": 7.23
+},
+{
+"w": "Southwest",
+"s": 7.67,
+"e": 8.09
+},
+{
+"w": "Africa,",
+"s": 8.09,
+"e": 8.75
+},
+{
+"w": "Togoland,",
+"s": 9.25,
+"e": 9.77
+},
+{
+"w": "Cameroon,",
+"s": 10.39,
+"e": 11.05
+},
+{
+"w": "and",
+"s": 11.53,
+"e": 11.63
+},
+{
+"w": "East",
+"s": 11.63,
+"e": 11.93
+},
+{
+"w": "Africa,",
+"s": 11.93,
+"e": 12.39
+}
+],
+"nExpected": 22,
+"nGot": 22
+},
+{
+"id": "S5_03",
+"file": "audio/vo/p/S5_03.mp3",
+"duration": 12.42,
+"text": "Britain lets chartered companies do the work: the Royal Niger Company in the north, the British South Africa Company of Cecil Rhodes in the south, who dreams of a railway from the Cape to Cairo under one flag.",
+"words": [
+{
+"w": "Britain",
+"s": 0.22,
+"e": 0.48
+},
+{
+"w": "lets",
+"s": 0.48,
+"e": 0.78
+},
+{
+"w": "chartered",
+"s": 0.78,
+"e": 1.32
+},
+{
+"w": "companies",
+"s": 1.32,
+"e": 1.68
+},
+{
+"w": "do",
+"s": 1.68,
+"e": 1.92
+},
+{
+"w": "the",
+"s": 1.92,
+"e": 2.02
+},
+{
+"w": "work.",
+"s": 2.02,
+"e": 2.3
+},
+{
+"w": "The",
+"s": 2.8,
+"e": 2.96
+},
+{
+"w": "Royal",
+"s": 2.96,
+"e": 3.24
+},
+{
+"w": "Niger",
+"s": 3.24,
+"e": 3.58
+},
+{
+"w": "Company",
+"s": 3.58,
+"e": 4.06
+},
+{
+"w": "in",
+"s": 4.06,
+"e": 4.3
+},
+{
+"w": "the",
+"s": 4.3,
+"e": 4.38
+},
+{
+"w": "North,",
+"s": 4.38,
+"e": 4.62
+},
+{
+"w": "the",
+"s": 4.62,
+"e": 5.2
+},
+{
+"w": "British",
+"s": 5.2,
+"e": 5.42
+},
+{
+"w": "South",
+"s": 5.42,
+"e": 5.72
+},
+{
+"w": "Africa",
+"s": 5.72,
+"e": 6.04
+},
+{
+"w": "Company",
+"s": 6.04,
+"e": 6.56
+},
+{
+"w": "of",
+"s": 6.56,
+"e": 6.72
+},
+{
+"w": "Cecil",
+"s": 6.72,
+"e": 7.06
+},
+{
+"w": "Rhodes",
+"s": 7.06,
+"e": 7.4
+},
+{
+"w": "in",
+"s": 7.4,
+"e": 7.66
+},
+{
+"w": "the",
+"s": 7.66,
+"e": 7.78
+},
+{
+"w": "South,",
+"s": 7.78,
+"e": 8.06
+},
+{
+"w": "who",
+"s": 8.44,
+"e": 8.72
+},
+{
+"w": "dreams",
+"s": 8.72,
+"e": 9.06
+},
+{
+"w": "of",
+"s": 9.06,
+"e": 9.28
+},
+{
+"w": "a",
+"s": 9.28,
+"e": 9.4
+},
+{
+"w": "railway",
+"s": 9.4,
+"e": 9.7
+},
+{
+"w": "from",
+"s": 9.7,
+"e": 9.98
+},
+{
+"w": "the",
+"s": 9.98,
+"e": 10.12
+},
+{
+"w": "Cape",
+"s": 10.12,
+"e": 10.34
+},
+{
+"w": "to",
+"s": 10.34,
+"e": 10.52
+},
+{
+"w": "Cairo",
+"s": 10.52,
+"e": 10.94
+},
+{
+"w": "under",
+"s": 10.94,
+"e": 11.44
+},
+{
+"w": "one",
+"s": 11.44,
+"e": 11.7
+},
+{
+"w": "flag.",
+"s": 11.7,
+"e": 12.16
+}
+],
+"nExpected": 38,
+"nGot": 38
+},
+{
+"id": "S5_04",
+"file": "audio/vo/p/S5_04.mp3",
+"duration": 13.64,
+"text": "France moves inland from Senegal and south from Algeria, through the oases of the Sahara, until two French columns meet in the desert and a single empire stretches from the Mediterranean to the Congo.",
+"words": [
+{
+"w": "France",
+"s": 0.26,
+"e": 0.52
+},
+{
+"w": "moves",
+"s": 0.52,
+"e": 0.86
+},
+{
+"w": "inland",
+"s": 0.86,
+"e": 1.3
+},
+{
+"w": "from",
+"s": 1.3,
+"e": 1.74
+},
+{
+"w": "Senegal",
+"s": 1.74,
+"e": 2.2
+},
+{
+"w": "and",
+"s": 2.2,
+"e": 2.86
+},
+{
+"w": "south",
+"s": 2.86,
+"e": 3.2
+},
+{
+"w": "from",
+"s": 3.2,
+"e": 3.46
+},
+{
+"w": "Algeria",
+"s": 3.46,
+"e": 4.26
+},
+{
+"w": "through",
+"s": 4.26,
+"e": 4.82
+},
+{
+"w": "the",
+"s": 4.82,
+"e": 5.02
+},
+{
+"w": "Oasis",
+"s": 5.02,
+"e": 5.5
+},
+{
+"w": "of",
+"s": 5.5,
+"e": 5.88
+},
+{
+"w": "the",
+"s": 5.88,
+"e": 6.0
+},
+{
+"w": "Sahara",
+"s": 6.0,
+"e": 6.4
+},
+{
+"w": "until",
+"s": 6.4,
+"e": 7.16
+},
+{
+"w": "two",
+"s": 7.16,
+"e": 7.48
+},
+{
+"w": "French",
+"s": 7.48,
+"e": 7.78
+},
+{
+"w": "columns",
+"s": 7.78,
+"e": 8.26
+},
+{
+"w": "meet",
+"s": 8.26,
+"e": 8.6
+},
+{
+"w": "in",
+"s": 8.6,
+"e": 8.88
+},
+{
+"w": "the",
+"s": 8.88,
+"e": 8.98
+},
+{
+"w": "desert",
+"s": 8.98,
+"e": 9.26
+},
+{
+"w": "and",
+"s": 9.26,
+"e": 9.94
+},
+{
+"w": "a",
+"s": 9.94,
+"e": 10.1
+},
+{
+"w": "single",
+"s": 10.1,
+"e": 10.38
+},
+{
+"w": "empire",
+"s": 10.38,
+"e": 10.92
+},
+{
+"w": "stretches",
+"s": 10.92,
+"e": 11.38
+},
+{
+"w": "from",
+"s": 11.38,
+"e": 11.76
+},
+{
+"w": "the",
+"s": 11.76,
+"e": 11.92
+},
+{
+"w": "Mediterranean",
+"s": 11.92,
+"e": 12.42
+},
+{
+"w": "to",
+"s": 12.42,
+"e": 13.0
+},
+{
+"w": "the",
+"s": 13.0,
+"e": 13.14
+},
+{
+"w": "Congo.",
+"s": 13.14,
+"e": 13.42
+}
+],
+"nExpected": 34,
+"nGot": 34
+},
+{
+"id": "S5_05",
+"file": "audio/vo/p/S5_05.mp3",
+"duration": 26.54,
+"text": "The two empires nearly collide. In 1898, a French expedition that has marched for two years from the Atlantic plants its flag at Fashoda, on the Upper Nile, and finds Kitchener's gunboats waiting. For weeks, Britain and France stand on the edge of war. Paris backs down. Within six years, the two rivals are allies, united by a greater fear: Germany.",
+"words": [
+{
+"w": "The",
+"s": 0.22,
+"e": 0.4
+},
+{
+"w": "two",
+"s": 0.4,
+"e": 0.62
+},
+{
+"w": "empires",
+"s": 0.62,
+"e": 1.2
+},
+{
+"w": "nearly",
+"s": 1.2,
+"e": 1.56
+},
+{
+"w": "collide.",
+"s": 1.56,
+"e": 2.1
+},
+{
+"w": "In",
+"s": 2.48,
+"e": 2.76
+},
+{
+"w": "1898,",
+"s": 2.76,
+"e": 3.64
+},
+{
+"w": "a",
+"s": 4.24,
+"e": 4.48
+},
+{
+"w": "French",
+"s": 4.48,
+"e": 4.74
+},
+{
+"w": "expedition",
+"s": 4.74,
+"e": 5.36
+},
+{
+"w": "that",
+"s": 5.36,
+"e": 5.6
+},
+{
+"w": "has",
+"s": 5.6,
+"e": 6.18
+},
+{
+"w": "marched",
+"s": 6.18,
+"e": 6.5
+},
+{
+"w": "for",
+"s": 6.5,
+"e": 6.76
+},
+{
+"w": "two",
+"s": 6.76,
+"e": 7.02
+},
+{
+"w": "years",
+"s": 7.02,
+"e": 7.46
+},
+{
+"w": "from",
+"s": 7.46,
+"e": 7.9
+},
+{
+"w": "the",
+"s": 7.9,
+"e": 8.04
+},
+{
+"w": "Atlantic",
+"s": 8.04,
+"e": 8.4
+},
+{
+"w": "Plants,",
+"s": 8.4,
+"e": 8.94
+},
+{
+"w": "its",
+"s": 9.42,
+"e": 9.6
+},
+{
+"w": "flag",
+"s": 9.6,
+"e": 9.92
+},
+{
+"w": "at",
+"s": 9.92,
+"e": 10.12
+},
+{
+"w": "Fashota",
+"s": 10.12,
+"e": 10.58
+},
+{
+"w": "on",
+"s": 10.58,
+"e": 11.28
+},
+{
+"w": "the",
+"s": 11.28,
+"e": 11.42
+},
+{
+"w": "upper",
+"s": 11.42,
+"e": 11.66
+},
+{
+"w": "Nile,",
+"s": 11.66,
+"e": 12.06
+},
+{
+"w": "and",
+"s": 12.7,
+"e": 12.84
+},
+{
+"w": "finds",
+"s": 12.84,
+"e": 13.16
+},
+{
+"w": "Kitchener's",
+"s": 13.16,
+"e": 13.74
+},
+{
+"w": "gunboats",
+"s": 13.74,
+"e": 14.26
+},
+{
+"w": "waiting",
+"s": 14.26,
+"e": 14.58
+},
+{
+"w": "for",
+"s": 14.58,
+"e": 15.14
+},
+{
+"w": "weeks.",
+"s": 15.14,
+"e": 15.48
+},
+{
+"w": "Britain",
+"s": 16.04,
+"e": 16.26
+},
+{
+"w": "and",
+"s": 16.26,
+"e": 16.6
+},
+{
+"w": "France",
+"s": 16.6,
+"e": 16.94
+},
+{
+"w": "stand",
+"s": 16.94,
+"e": 17.3
+},
+{
+"w": "on",
+"s": 17.3,
+"e": 17.58
+},
+{
+"w": "the",
+"s": 17.58,
+"e": 17.7
+},
+{
+"w": "edge",
+"s": 17.7,
+"e": 17.92
+},
+{
+"w": "of",
+"s": 17.92,
+"e": 18.06
+},
+{
+"w": "war.",
+"s": 18.06,
+"e": 18.3
+},
+{
+"w": "Paris",
+"s": 18.8,
+"e": 19.16
+},
+{
+"w": "backs",
+"s": 19.16,
+"e": 19.8
+},
+{
+"w": "down.",
+"s": 19.8,
+"e": 20.16
+},
+{
+"w": "Within",
+"s": 20.76,
+"e": 20.9
+},
+{
+"w": "six",
+"s": 20.9,
+"e": 21.26
+},
+{
+"w": "years,",
+"s": 21.26,
+"e": 21.66
+},
+{
+"w": "the",
+"s": 22.08,
+"e": 22.18
+},
+{
+"w": "two",
+"s": 22.18,
+"e": 22.36
+},
+{
+"w": "rivals",
+"s": 22.36,
+"e": 22.72
+},
+{
+"w": "are",
+"s": 22.72,
+"e": 23.0
+},
+{
+"w": "allies,",
+"s": 23.0,
+"e": 23.42
+},
+{
+"w": "united",
+"s": 23.86,
+"e": 24.3
+},
+{
+"w": "by",
+"s": 24.3,
+"e": 24.64
+},
+{
+"w": "a",
+"s": 24.64,
+"e": 24.78
+},
+{
+"w": "greater",
+"s": 24.78,
+"e": 25.02
+},
+{
+"w": "fear.",
+"s": 25.02,
+"e": 25.34
+},
+{
+"w": "Germany,",
+"s": 25.94,
+"e": 26.24
+}
+],
+"nExpected": 61,
+"nGot": 61
+},
+{
+"id": "S5_06",
+"file": "audio/vo/p/S5_06.mp3",
+"duration": 9.87,
+"text": "Italy takes Eritrea and a strip of Somalia. Portugal pushes inland to join its old coastal colonies. Spain picks up the Western Sahara.",
+"words": [
+{
+"w": "Italy",
+"s": 0.3,
+"e": 0.56
+},
+{
+"w": "takes",
+"s": 0.56,
+"e": 0.96
+},
+{
+"w": "Eritrea",
+"s": 0.96,
+"e": 1.5
+},
+{
+"w": "and",
+"s": 1.5,
+"e": 2.22
+},
+{
+"w": "a",
+"s": 2.22,
+"e": 2.36
+},
+{
+"w": "strip",
+"s": 2.36,
+"e": 2.52
+},
+{
+"w": "of",
+"s": 2.52,
+"e": 2.68
+},
+{
+"w": "Somalia.",
+"s": 2.68,
+"e": 3.12
+},
+{
+"w": "Portugal",
+"s": 3.68,
+"e": 4.12
+},
+{
+"w": "pushes",
+"s": 4.12,
+"e": 4.66
+},
+{
+"w": "inland",
+"s": 4.66,
+"e": 5.06
+},
+{
+"w": "to",
+"s": 5.06,
+"e": 5.54
+},
+{
+"w": "join",
+"s": 5.54,
+"e": 5.82
+},
+{
+"w": "its",
+"s": 5.82,
+"e": 6.0
+},
+{
+"w": "old",
+"s": 6.0,
+"e": 6.3
+},
+{
+"w": "coastal",
+"s": 6.3,
+"e": 6.68
+},
+{
+"w": "colonies.",
+"s": 6.68,
+"e": 7.2
+},
+{
+"w": "Spain",
+"s": 7.76,
+"e": 8.26
+},
+{
+"w": "picks",
+"s": 8.26,
+"e": 8.58
+},
+{
+"w": "up",
+"s": 8.58,
+"e": 8.76
+},
+{
+"w": "the",
+"s": 8.76,
+"e": 8.9
+},
+{
+"w": "western",
+"s": 8.9,
+"e": 9.16
+},
+{
+"w": "Sahara.",
+"s": 9.16,
+"e": 9.72
+}
+],
+"nExpected": 23,
+"nGot": 23
+},
+{
+"id": "S5_07",
+"file": "audio/vo/p/S5_07.mp3",
+"duration": 9.84,
+"text": "By 1900, ninety percent of Africa is under European flags. In thirty years, a continent has changed hands.",
+"words": [
+{
+"w": "By",
+"s": 0.15,
+"e": 0.47
+},
+{
+"w": "1900,",
+"s": 0.47,
+"e": 1.25
+},
+{
+"w": "90",
+"s": 1.69,
+"e": 2.29
+},
+{
+"w": "%",
+"s": 2.29,
+"e": 2.73
+},
+{
+"w": "of",
+"s": 2.73,
+"e": 2.99
+},
+{
+"w": "Africa",
+"s": 2.99,
+"e": 3.43
+},
+{
+"w": "is",
+"s": 3.43,
+"e": 4.01
+},
+{
+"w": "under",
+"s": 4.01,
+"e": 4.35
+},
+{
+"w": "European",
+"s": 4.35,
+"e": 4.87
+},
+{
+"w": "flags.",
+"s": 4.87,
+"e": 5.43
+},
+{
+"w": "In",
+"s": 6.01,
+"e": 6.21
+},
+{
+"w": "30",
+"s": 6.21,
+"e": 6.57
+},
+{
+"w": "years,",
+"s": 6.57,
+"e": 7.01
+},
+{
+"w": "a",
+"s": 7.43,
+"e": 7.59
+},
+{
+"w": "continent",
+"s": 7.59,
+"e": 8.03
+},
+{
+"w": "has",
+"s": 8.03,
+"e": 8.53
+},
+{
+"w": "changed",
+"s": 8.53,
+"e": 8.95
+},
+{
+"w": "hands.",
+"s": 8.95,
+"e": 9.29
+}
+],
+"nExpected": 18,
+"nGot": 18
+},
+{
+"id": "S6_01",
+"file": "audio/vo/p/S6_01.mp3",
+"duration": 11.56,
+"text": "None of this happens without a fight. In 1879, a Zulu army annihilates a British column at Isandlwana, the worst defeat a modern European army has suffered at African hands.",
+"words": [
+{
+"w": "None",
+"s": 0.0,
+"e": 0.32
+},
+{
+"w": "of",
+"s": 0.32,
+"e": 0.46
+},
+{
+"w": "this",
+"s": 0.46,
+"e": 0.62
+},
+{
+"w": "happens",
+"s": 0.62,
+"e": 0.92
+},
+{
+"w": "without",
+"s": 0.92,
+"e": 1.2
+},
+{
+"w": "a",
+"s": 1.2,
+"e": 1.38
+},
+{
+"w": "fight.",
+"s": 1.38,
+"e": 1.58
+},
+{
+"w": "In",
+"s": 2.18,
+"e": 2.3
+},
+{
+"w": "1879,",
+"s": 2.3,
+"e": 3.34
+},
+{
+"w": "a",
+"s": 3.88,
+"e": 3.96
+},
+{
+"w": "Zulu",
+"s": 3.96,
+"e": 4.28
+},
+{
+"w": "army",
+"s": 4.28,
+"e": 4.72
+},
+{
+"w": "annihilates",
+"s": 4.72,
+"e": 5.48
+},
+{
+"w": "a",
+"s": 5.48,
+"e": 5.66
+},
+{
+"w": "British",
+"s": 5.66,
+"e": 5.82
+},
+{
+"w": "column",
+"s": 5.82,
+"e": 6.24
+},
+{
+"w": "at",
+"s": 6.24,
+"e": 6.44
+},
+{
+"w": "Isindalwana.",
+"s": 6.44,
+"e": 7.12
+},
+{
+"w": "The",
+"s": 7.68,
+"e": 7.8
+},
+{
+"w": "worst",
+"s": 7.8,
+"e": 8.04
+},
+{
+"w": "defeat",
+"s": 8.04,
+"e": 8.42
+},
+{
+"w": "a",
+"s": 8.42,
+"e": 8.62
+},
+{
+"w": "modern",
+"s": 8.62,
+"e": 8.88
+},
+{
+"w": "European",
+"s": 8.88,
+"e": 9.32
+},
+{
+"w": "army",
+"s": 9.32,
+"e": 9.76
+},
+{
+"w": "has",
+"s": 9.76,
+"e": 9.98
+},
+{
+"w": "suffered",
+"s": 9.98,
+"e": 10.32
+},
+{
+"w": "at",
+"s": 10.32,
+"e": 10.52
+},
+{
+"w": "African",
+"s": 10.52,
+"e": 10.88
+},
+{
+"w": "hands.",
+"s": 10.88,
+"e": 11.3
+}
+],
+"nExpected": 30,
+"nGot": 30
+},
+{
+"id": "S6_02",
+"file": "audio/vo/p/S6_02.mp3",
+"duration": 11.95,
+"text": "In West Africa, Samori Tour\u00e9 fights the French for sixteen years, manufacturing his own rifles, moving his entire state eastward to stay out of reach.",
+"words": [
+{
+"w": "In",
+"s": 0.26,
+"e": 0.36
+},
+{
+"w": "West",
+"s": 0.36,
+"e": 0.56
+},
+{
+"w": "Africa,",
+"s": 0.56,
+"e": 0.98
+},
+{
+"w": "Samori",
+"s": 1.54,
+"e": 1.9
+},
+{
+"w": "Tourette",
+"s": 1.9,
+"e": 2.76
+},
+{
+"w": "fights",
+"s": 2.76,
+"e": 3.0
+},
+{
+"w": "the",
+"s": 3.0,
+"e": 3.3
+},
+{
+"w": "French",
+"s": 3.3,
+"e": 3.6
+},
+{
+"w": "for",
+"s": 3.6,
+"e": 4.04
+},
+{
+"w": "16",
+"s": 4.04,
+"e": 4.46
+},
+{
+"w": "years,",
+"s": 4.46,
+"e": 5.04
+},
+{
+"w": "manufacturing",
+"s": 5.56,
+"e": 6.26
+},
+{
+"w": "his",
+"s": 6.26,
+"e": 6.78
+},
+{
+"w": "own",
+"s": 6.78,
+"e": 7.06
+},
+{
+"w": "rifles,",
+"s": 7.06,
+"e": 7.46
+},
+{
+"w": "moving",
+"s": 7.96,
+"e": 8.32
+},
+{
+"w": "his",
+"s": 8.32,
+"e": 8.6
+},
+{
+"w": "entire",
+"s": 8.6,
+"e": 9.04
+},
+{
+"w": "state",
+"s": 9.04,
+"e": 9.6
+},
+{
+"w": "eastward",
+"s": 9.6,
+"e": 10.44
+},
+{
+"w": "to",
+"s": 10.44,
+"e": 10.84
+},
+{
+"w": "stay",
+"s": 10.84,
+"e": 11.1
+},
+{
+"w": "out",
+"s": 11.1,
+"e": 11.36
+},
+{
+"w": "of",
+"s": 11.36,
+"e": 11.48
+},
+{
+"w": "reach.",
+"s": 11.48,
+"e": 11.72
+}
+],
+"nExpected": 25,
+"nGot": 25
+},
+{
+"id": "S6_03",
+"file": "audio/vo/p/S6_03.mp3",
+"duration": 15.15,
+"text": "In Sudan, the Mahdi's army takes Khartoum in 1885 and holds the country for thirteen years, until Kitchener's Maxim guns at Omdurman kill ten thousand men in a single morning, for the loss of forty-eight British soldiers.",
+"words": [
+{
+"w": "In",
+"s": 0.23,
+"e": 0.37
+},
+{
+"w": "Sudan,",
+"s": 0.37,
+"e": 0.63
+},
+{
+"w": "the",
+"s": 1.17,
+"e": 1.23
+},
+{
+"w": "Madi's",
+"s": 1.23,
+"e": 1.63
+},
+{
+"w": "army",
+"s": 1.63,
+"e": 1.89
+},
+{
+"w": "takes",
+"s": 1.89,
+"e": 2.23
+},
+{
+"w": "cartoom",
+"s": 2.23,
+"e": 2.83
+},
+{
+"w": "in",
+"s": 2.83,
+"e": 2.93
+},
+{
+"w": "1885",
+"s": 2.93,
+"e": 3.95
+},
+{
+"w": "and",
+"s": 3.95,
+"e": 4.61
+},
+{
+"w": "holds",
+"s": 4.61,
+"e": 4.89
+},
+{
+"w": "the",
+"s": 4.89,
+"e": 5.05
+},
+{
+"w": "country",
+"s": 5.05,
+"e": 5.37
+},
+{
+"w": "for",
+"s": 5.37,
+"e": 5.55
+},
+{
+"w": "13",
+"s": 5.55,
+"e": 6.05
+},
+{
+"w": "years,",
+"s": 6.05,
+"e": 6.57
+},
+{
+"w": "until",
+"s": 7.05,
+"e": 7.51
+},
+{
+"w": "Kitchener's",
+"s": 7.51,
+"e": 8.11
+},
+{
+"w": "Maxim",
+"s": 8.11,
+"e": 8.31
+},
+{
+"w": "guns",
+"s": 8.31,
+"e": 8.83
+},
+{
+"w": "at",
+"s": 8.83,
+"e": 8.99
+},
+{
+"w": "Amdurman",
+"s": 8.99,
+"e": 9.61
+},
+{
+"w": "killed",
+"s": 9.61,
+"e": 10.23
+},
+{
+"w": "10",
+"s": 10.23,
+"e": 10.57
+},
+{
+"w": ",000",
+"s": 10.57,
+"e": 10.99
+},
+{
+"w": "men",
+"s": 10.99,
+"e": 11.25
+},
+{
+"w": "in",
+"s": 11.25,
+"e": 11.41
+},
+{
+"w": "a",
+"s": 11.41,
+"e": 11.53
+},
+{
+"w": "single",
+"s": 11.53,
+"e": 11.79
+},
+{
+"w": "morning",
+"s": 11.79,
+"e": 12.23
+},
+{
+"w": "for",
+"s": 12.23,
+"e": 12.73
+},
+{
+"w": "the",
+"s": 12.73,
+"e": 12.87
+},
+{
+"w": "loss",
+"s": 12.87,
+"e": 13.17
+},
+{
+"w": "of",
+"s": 13.17,
+"e": 13.39
+},
+{
+"w": "48",
+"s": 13.39,
+"e": 13.91
+},
+{
+"w": "British",
+"s": 13.91,
+"e": 14.27
+},
+{
+"w": "soldiers.",
+"s": 14.27,
+"e": 14.79
+}
+],
+"nExpected": 37,
+"nGot": 37
+},
+{
+"id": "S6_04",
+"file": "audio/vo/p/S6_04.mp3",
+"duration": 20.47,
+"text": "And then there is Ethiopia. In 1896, at Adwa, Emperor Menelik the Second, armed with modern rifles bought from the very Europeans who were dividing his neighbors, destroys an Italian army of seventeen thousand men. Ethiopia stays independent. On the whole continent, only Liberia can say the same.",
+"words": [
+{
+"w": "And",
+"s": 0.36,
+"e": 0.54
+},
+{
+"w": "then",
+"s": 0.54,
+"e": 0.72
+},
+{
+"w": "there",
+"s": 0.72,
+"e": 0.92
+},
+{
+"w": "is",
+"s": 0.92,
+"e": 1.14
+},
+{
+"w": "Ethiopia.",
+"s": 1.14,
+"e": 1.7
+},
+{
+"w": "In",
+"s": 2.4,
+"e": 2.42
+},
+{
+"w": "1896,",
+"s": 2.42,
+"e": 3.28
+},
+{
+"w": "at",
+"s": 3.94,
+"e": 4.12
+},
+{
+"w": "Adwa,",
+"s": 4.12,
+"e": 4.5
+},
+{
+"w": "Emperor",
+"s": 5.1,
+"e": 5.46
+},
+{
+"w": "Menelik",
+"s": 5.46,
+"e": 6.0
+},
+{
+"w": "II,",
+"s": 6.0,
+"e": 6.44
+},
+{
+"w": "armed",
+"s": 7.04,
+"e": 7.32
+},
+{
+"w": "with",
+"s": 7.32,
+"e": 7.52
+},
+{
+"w": "modern",
+"s": 7.52,
+"e": 7.86
+},
+{
+"w": "rifles",
+"s": 7.86,
+"e": 8.3
+},
+{
+"w": "bought",
+"s": 8.3,
+"e": 8.64
+},
+{
+"w": "from",
+"s": 8.64,
+"e": 8.86
+},
+{
+"w": "the",
+"s": 8.86,
+"e": 9.04
+},
+{
+"w": "very",
+"s": 9.04,
+"e": 9.26
+},
+{
+"w": "Europeans",
+"s": 9.26,
+"e": 9.76
+},
+{
+"w": "who",
+"s": 9.76,
+"e": 10.1
+},
+{
+"w": "were",
+"s": 10.1,
+"e": 10.2
+},
+{
+"w": "dividing",
+"s": 10.2,
+"e": 10.54
+},
+{
+"w": "his",
+"s": 10.54,
+"e": 10.78
+},
+{
+"w": "neighbors,",
+"s": 10.78,
+"e": 11.1
+},
+{
+"w": "destroys",
+"s": 11.76,
+"e": 12.2
+},
+{
+"w": "an",
+"s": 12.2,
+"e": 12.6
+},
+{
+"w": "Italian",
+"s": 12.6,
+"e": 12.94
+},
+{
+"w": "army",
+"s": 12.94,
+"e": 13.36
+},
+{
+"w": "of",
+"s": 13.36,
+"e": 13.62
+},
+{
+"w": "17",
+"s": 13.62,
+"e": 14.08
+},
+{
+"w": ",000",
+"s": 14.08,
+"e": 14.54
+},
+{
+"w": "men.",
+"s": 14.54,
+"e": 14.86
+},
+{
+"w": "Ethiopia",
+"s": 15.2,
+"e": 15.66
+},
+{
+"w": "stays",
+"s": 15.66,
+"e": 16.1
+},
+{
+"w": "independent,",
+"s": 16.1,
+"e": 16.68
+},
+{
+"w": "on",
+"s": 16.68,
+"e": 17.34
+},
+{
+"w": "the",
+"s": 17.34,
+"e": 17.46
+},
+{
+"w": "whole",
+"s": 17.46,
+"e": 17.62
+},
+{
+"w": "continent,",
+"s": 17.62,
+"e": 18.04
+},
+{
+"w": "only",
+"s": 18.44,
+"e": 18.62
+},
+{
+"w": "Liberia",
+"s": 18.62,
+"e": 19.34
+},
+{
+"w": "can",
+"s": 19.34,
+"e": 19.5
+},
+{
+"w": "say",
+"s": 19.5,
+"e": 19.7
+},
+{
+"w": "the",
+"s": 19.7,
+"e": 19.84
+},
+{
+"w": "same.",
+"s": 19.84,
+"e": 20.14
+}
+],
+"nExpected": 48,
+"nGot": 47
+},
+{
+"id": "S7_01",
+"file": "audio/vo/p/S7_01.mp3",
+"duration": 15.14,
+"text": "Conquest is only the beginning. In Leopold's Congo, villages are given rubber quotas. Those who fail are flogged, taken hostage, or killed. Soldiers are ordered to account for every bullet with a severed hand.",
+"words": [
+{
+"w": "Conquest",
+"s": 0.0,
+"e": 0.6
+},
+{
+"w": "is",
+"s": 0.6,
+"e": 1.28
+},
+{
+"w": "only",
+"s": 1.28,
+"e": 1.7
+},
+{
+"w": "the",
+"s": 1.7,
+"e": 1.9
+},
+{
+"w": "beginning.",
+"s": 1.9,
+"e": 2.24
+},
+{
+"w": "In",
+"s": 2.96,
+"e": 3.0
+},
+{
+"w": "Leopold's",
+"s": 3.0,
+"e": 3.54
+},
+{
+"w": "Congo,",
+"s": 3.54,
+"e": 3.82
+},
+{
+"w": "villages",
+"s": 4.42,
+"e": 4.74
+},
+{
+"w": "are",
+"s": 4.74,
+"e": 5.04
+},
+{
+"w": "given",
+"s": 5.04,
+"e": 5.24
+},
+{
+"w": "rubber",
+"s": 5.24,
+"e": 5.54
+},
+{
+"w": "quotas.",
+"s": 5.54,
+"e": 6.08
+},
+{
+"w": "Those",
+"s": 6.68,
+"e": 6.8
+},
+{
+"w": "who",
+"s": 6.8,
+"e": 7.02
+},
+{
+"w": "fail",
+"s": 7.02,
+"e": 7.42
+},
+{
+"w": "are",
+"s": 7.42,
+"e": 7.82
+},
+{
+"w": "flogged,",
+"s": 7.82,
+"e": 8.46
+},
+{
+"w": "taken",
+"s": 8.8,
+"e": 9.08
+},
+{
+"w": "hostage",
+"s": 9.08,
+"e": 9.5
+},
+{
+"w": "or",
+"s": 9.5,
+"e": 10.28
+},
+{
+"w": "killed.",
+"s": 10.28,
+"e": 10.68
+},
+{
+"w": "Soldiers",
+"s": 11.26,
+"e": 11.54
+},
+{
+"w": "are",
+"s": 11.54,
+"e": 11.8
+},
+{
+"w": "ordered",
+"s": 11.8,
+"e": 12.08
+},
+{
+"w": "to",
+"s": 12.08,
+"e": 12.3
+},
+{
+"w": "account",
+"s": 12.3,
+"e": 12.66
+},
+{
+"w": "for",
+"s": 12.66,
+"e": 12.96
+},
+{
+"w": "every",
+"s": 12.96,
+"e": 13.38
+},
+{
+"w": "bullet",
+"s": 13.38,
+"e": 13.7
+},
+{
+"w": "with",
+"s": 13.7,
+"e": 14.16
+},
+{
+"w": "a",
+"s": 14.16,
+"e": 14.28
+},
+{
+"w": "severed",
+"s": 14.28,
+"e": 14.66
+},
+{
+"w": "hand.",
+"s": 14.66,
+"e": 14.94
+}
+],
+"nExpected": 34,
+"nGot": 34
+},
+{
+"id": "S7_02",
+"file": "audio/vo/p/S7_02.mp3",
+"duration": 12.38,
+"text": "Missionaries and a shipping clerk named Edmund Morel expose the system to the world. By the time Belgium takes the colony from its king in 1908, the population of the Congo has fallen by millions.",
+"words": [
+{
+"w": "Missionaries",
+"s": 0.2,
+"e": 0.72
+},
+{
+"w": "and",
+"s": 0.72,
+"e": 1.02
+},
+{
+"w": "a",
+"s": 1.02,
+"e": 1.2
+},
+{
+"w": "shipping",
+"s": 1.2,
+"e": 1.38
+},
+{
+"w": "clerk",
+"s": 1.38,
+"e": 1.74
+},
+{
+"w": "named",
+"s": 1.74,
+"e": 2.0
+},
+{
+"w": "Edmund",
+"s": 2.0,
+"e": 2.4
+},
+{
+"w": "Morrell",
+"s": 2.4,
+"e": 2.84
+},
+{
+"w": "expose",
+"s": 2.84,
+"e": 3.48
+},
+{
+"w": "the",
+"s": 3.48,
+"e": 3.84
+},
+{
+"w": "system",
+"s": 3.84,
+"e": 4.24
+},
+{
+"w": "to",
+"s": 4.24,
+"e": 4.42
+},
+{
+"w": "the",
+"s": 4.42,
+"e": 4.54
+},
+{
+"w": "world.",
+"s": 4.54,
+"e": 4.84
+},
+{
+"w": "By",
+"s": 5.28,
+"e": 5.5
+},
+{
+"w": "the",
+"s": 5.5,
+"e": 5.62
+},
+{
+"w": "time",
+"s": 5.62,
+"e": 5.88
+},
+{
+"w": "Belgium",
+"s": 5.88,
+"e": 6.2
+},
+{
+"w": "takes",
+"s": 6.2,
+"e": 6.52
+},
+{
+"w": "the",
+"s": 6.52,
+"e": 6.72
+},
+{
+"w": "colony",
+"s": 6.72,
+"e": 7.04
+},
+{
+"w": "from",
+"s": 7.04,
+"e": 7.28
+},
+{
+"w": "its",
+"s": 7.28,
+"e": 7.44
+},
+{
+"w": "king",
+"s": 7.44,
+"e": 7.68
+},
+{
+"w": "in",
+"s": 7.68,
+"e": 7.88
+},
+{
+"w": "1908,",
+"s": 7.88,
+"e": 8.72
+},
+{
+"w": "the",
+"s": 9.32,
+"e": 9.36
+},
+{
+"w": "population",
+"s": 9.36,
+"e": 9.86
+},
+{
+"w": "of",
+"s": 9.86,
+"e": 10.14
+},
+{
+"w": "the",
+"s": 10.14,
+"e": 10.22
+},
+{
+"w": "Congo",
+"s": 10.22,
+"e": 10.56
+},
+{
+"w": "has",
+"s": 10.56,
+"e": 11.06
+},
+{
+"w": "fallen",
+"s": 11.06,
+"e": 11.44
+},
+{
+"w": "by",
+"s": 11.44,
+"e": 11.7
+},
+{
+"w": "millions.",
+"s": 11.7,
+"e": 12.1
+}
+],
+"nExpected": 35,
+"nGot": 35
+},
+{
+"id": "S7_03",
+"file": "audio/vo/p/S7_03.mp3",
+"duration": 16.41,
+"text": "In German South-West Africa, the Herero and Nama rise in 1904. The German commander issues an extermination order. Survivors are driven into the desert or worked to death in camps. Up to eighty percent of the Herero people die.",
+"words": [
+{
+"w": "In",
+"s": 0.28,
+"e": 0.5
+},
+{
+"w": "German",
+"s": 0.5,
+"e": 0.82
+},
+{
+"w": "Southwest",
+"s": 0.82,
+"e": 1.3
+},
+{
+"w": "Africa,",
+"s": 1.3,
+"e": 2.06
+},
+{
+"w": "the",
+"s": 2.06,
+"e": 2.46
+},
+{
+"w": "Herrero",
+"s": 2.46,
+"e": 2.92
+},
+{
+"w": "and",
+"s": 2.92,
+"e": 3.18
+},
+{
+"w": "Nama",
+"s": 3.18,
+"e": 3.6
+},
+{
+"w": "rise",
+"s": 3.6,
+"e": 4.18
+},
+{
+"w": "in",
+"s": 4.18,
+"e": 4.46
+},
+{
+"w": "1904.",
+"s": 4.46,
+"e": 5.32
+},
+{
+"w": "The",
+"s": 6.0,
+"e": 6.06
+},
+{
+"w": "German",
+"s": 6.06,
+"e": 6.3
+},
+{
+"w": "commander",
+"s": 6.3,
+"e": 6.64
+},
+{
+"w": "issues",
+"s": 6.64,
+"e": 7.3
+},
+{
+"w": "an",
+"s": 7.3,
+"e": 7.56
+},
+{
+"w": "extermination",
+"s": 7.56,
+"e": 8.26
+},
+{
+"w": "order.",
+"s": 8.26,
+"e": 8.56
+},
+{
+"w": "Survivors",
+"s": 9.12,
+"e": 9.78
+},
+{
+"w": "are",
+"s": 9.78,
+"e": 9.88
+},
+{
+"w": "driven",
+"s": 9.88,
+"e": 10.14
+},
+{
+"w": "into",
+"s": 10.14,
+"e": 10.52
+},
+{
+"w": "the",
+"s": 10.52,
+"e": 10.66
+},
+{
+"w": "desert",
+"s": 10.66,
+"e": 10.98
+},
+{
+"w": "or",
+"s": 10.98,
+"e": 11.48
+},
+{
+"w": "work",
+"s": 11.48,
+"e": 11.72
+},
+{
+"w": "to",
+"s": 11.72,
+"e": 11.9
+},
+{
+"w": "death",
+"s": 11.9,
+"e": 12.22
+},
+{
+"w": "in",
+"s": 12.22,
+"e": 12.52
+},
+{
+"w": "camps.",
+"s": 12.52,
+"e": 12.88
+},
+{
+"w": "Up",
+"s": 13.4,
+"e": 13.52
+},
+{
+"w": "to",
+"s": 13.52,
+"e": 13.7
+},
+{
+"w": "80",
+"s": 13.7,
+"e": 13.96
+},
+{
+"w": "%",
+"s": 13.96,
+"e": 14.36
+},
+{
+"w": "of",
+"s": 14.36,
+"e": 14.74
+},
+{
+"w": "the",
+"s": 14.74,
+"e": 14.86
+},
+{
+"w": "Herrero",
+"s": 14.86,
+"e": 15.26
+},
+{
+"w": "people",
+"s": 15.26,
+"e": 15.58
+},
+{
+"w": "die.",
+"s": 15.58,
+"e": 16.1
+}
+],
+"nExpected": 39,
+"nGot": 39
+},
+{
+"id": "S7_04",
+"file": "audio/vo/p/S7_04.mp3",
+"duration": 12.03,
+"text": "Even Europeans turn on Europeans. In South Africa, Britain's war against the Boer republics costs more than twenty thousand lives in British concentration camps, most of them children.",
+"words": [
+{
+"w": "Even",
+"s": 0.31,
+"e": 0.55
+},
+{
+"w": "Europeans",
+"s": 0.55,
+"e": 1.03
+},
+{
+"w": "turn",
+"s": 1.03,
+"e": 1.45
+},
+{
+"w": "on",
+"s": 1.45,
+"e": 1.71
+},
+{
+"w": "Europeans.",
+"s": 1.71,
+"e": 2.31
+},
+{
+"w": "In",
+"s": 3.13,
+"e": 3.27
+},
+{
+"w": "South",
+"s": 3.27,
+"e": 3.53
+},
+{
+"w": "Africa,",
+"s": 3.53,
+"e": 3.91
+},
+{
+"w": "Britain's",
+"s": 4.37,
+"e": 4.75
+},
+{
+"w": "war",
+"s": 4.75,
+"e": 4.99
+},
+{
+"w": "against",
+"s": 4.99,
+"e": 5.29
+},
+{
+"w": "the",
+"s": 5.29,
+"e": 5.49
+},
+{
+"w": "Boer",
+"s": 5.49,
+"e": 5.75
+},
+{
+"w": "republics",
+"s": 5.75,
+"e": 6.39
+},
+{
+"w": "costs",
+"s": 6.39,
+"e": 6.67
+},
+{
+"w": "more",
+"s": 6.67,
+"e": 7.01
+},
+{
+"w": "than",
+"s": 7.01,
+"e": 7.17
+},
+{
+"w": "20",
+"s": 7.17,
+"e": 7.55
+},
+{
+"w": ",000",
+"s": 7.55,
+"e": 7.89
+},
+{
+"w": "lives",
+"s": 7.89,
+"e": 8.33
+},
+{
+"w": "in",
+"s": 8.33,
+"e": 8.81
+},
+{
+"w": "British",
+"s": 8.81,
+"e": 9.03
+},
+{
+"w": "concentration",
+"s": 9.03,
+"e": 9.63
+},
+{
+"w": "camps.",
+"s": 9.63,
+"e": 10.23
+},
+{
+"w": "Most",
+"s": 10.65,
+"e": 10.97
+},
+{
+"w": "of",
+"s": 10.97,
+"e": 11.19
+},
+{
+"w": "them",
+"s": 11.19,
+"e": 11.31
+},
+{
+"w": "children.",
+"s": 11.31,
+"e": 11.63
+}
+],
+"nExpected": 28,
+"nGot": 28
+},
+{
+"id": "S8_01",
+"file": "audio/vo/p/S8_01.mp3",
+"duration": 22.94,
+"text": "The last pieces fall in the decade before the Great War. Twice, in 1905 and 1911, Germany challenges France over Morocco, sending a gunboat to Agadir and bringing Europe to the brink. Twice, Germany is forced to step back, and each crisis pushes the continent closer to 1914.",
+"words": [
+{
+"w": "The",
+"s": 0.0,
+"e": 0.22
+},
+{
+"w": "last",
+"s": 0.22,
+"e": 0.54
+},
+{
+"w": "pieces",
+"s": 0.54,
+"e": 1.0
+},
+{
+"w": "fall",
+"s": 1.0,
+"e": 1.72
+},
+{
+"w": "in",
+"s": 1.72,
+"e": 2.0
+},
+{
+"w": "the",
+"s": 2.0,
+"e": 2.08
+},
+{
+"w": "decade",
+"s": 2.08,
+"e": 2.44
+},
+{
+"w": "before",
+"s": 2.44,
+"e": 2.98
+},
+{
+"w": "the",
+"s": 2.98,
+"e": 3.18
+},
+{
+"w": "Great",
+"s": 3.18,
+"e": 3.4
+},
+{
+"w": "War.",
+"s": 3.4,
+"e": 3.62
+},
+{
+"w": "Twice,",
+"s": 4.16,
+"e": 4.44
+},
+{
+"w": "in",
+"s": 5.06,
+"e": 5.22
+},
+{
+"w": "1905",
+"s": 5.22,
+"e": 6.12
+},
+{
+"w": "and",
+"s": 6.12,
+"e": 6.56
+},
+{
+"w": "1911,",
+"s": 6.56,
+"e": 7.22
+},
+{
+"w": "Germany",
+"s": 7.88,
+"e": 8.12
+},
+{
+"w": "challenges",
+"s": 8.12,
+"e": 8.64
+},
+{
+"w": "France",
+"s": 8.64,
+"e": 9.04
+},
+{
+"w": "over",
+"s": 9.04,
+"e": 9.42
+},
+{
+"w": "Morocco,",
+"s": 9.42,
+"e": 9.84
+},
+{
+"w": "sending",
+"s": 10.44,
+"e": 10.72
+},
+{
+"w": "a",
+"s": 10.72,
+"e": 10.94
+},
+{
+"w": "gunboat",
+"s": 10.94,
+"e": 11.32
+},
+{
+"w": "to",
+"s": 11.32,
+"e": 11.52
+},
+{
+"w": "Agadir",
+"s": 11.52,
+"e": 11.98
+},
+{
+"w": "and",
+"s": 11.98,
+"e": 12.58
+},
+{
+"w": "bringing",
+"s": 12.58,
+"e": 12.84
+},
+{
+"w": "Europe",
+"s": 12.84,
+"e": 13.18
+},
+{
+"w": "to",
+"s": 13.18,
+"e": 13.36
+},
+{
+"w": "the",
+"s": 13.36,
+"e": 13.48
+},
+{
+"w": "brink.",
+"s": 13.48,
+"e": 13.74
+},
+{
+"w": "Twice,",
+"s": 14.24,
+"e": 14.5
+},
+{
+"w": "Germany",
+"s": 15.04,
+"e": 15.48
+},
+{
+"w": "is",
+"s": 15.48,
+"e": 15.82
+},
+{
+"w": "forced",
+"s": 15.82,
+"e": 16.12
+},
+{
+"w": "to",
+"s": 16.12,
+"e": 16.44
+},
+{
+"w": "step",
+"s": 16.44,
+"e": 16.64
+},
+{
+"w": "back,",
+"s": 16.64,
+"e": 17.0
+},
+{
+"w": "and",
+"s": 17.44,
+"e": 17.64
+},
+{
+"w": "each",
+"s": 17.64,
+"e": 17.92
+},
+{
+"w": "crisis",
+"s": 17.92,
+"e": 18.38
+},
+{
+"w": "pushes",
+"s": 18.38,
+"e": 18.82
+},
+{
+"w": "the",
+"s": 18.82,
+"e": 19.1
+},
+{
+"w": "continent",
+"s": 19.1,
+"e": 19.44
+},
+{
+"w": "closer",
+"s": 19.44,
+"e": 19.98
+},
+{
+"w": "to",
+"s": 19.98,
+"e": 20.24
+},
+{
+"w": "1",
+"s": 20.24,
+"e": 20.52
+},
+{
+"w": ",914.",
+"s": 20.52,
+"e": 22.64
+}
+],
+"nExpected": 48,
+"nGot": 49
+},
+{
+"id": "S8_02",
+"file": "audio/vo/p/S8_02.mp3",
+"duration": 13.33,
+"text": "By 1914, the map is finished. France has taken Morocco, Italy has taken Libya from the Ottomans, and seven European powers rule everything except Ethiopia and Liberia.",
+"words": [
+{
+"w": "By",
+"s": 0.3,
+"e": 0.52
+},
+{
+"w": "1914,",
+"s": 0.52,
+"e": 1.12
+},
+{
+"w": "the",
+"s": 2.1,
+"e": 2.28
+},
+{
+"w": "map",
+"s": 2.28,
+"e": 2.52
+},
+{
+"w": "is",
+"s": 2.52,
+"e": 2.76
+},
+{
+"w": "finished.",
+"s": 2.76,
+"e": 3.1
+},
+{
+"w": "France",
+"s": 3.66,
+"e": 4.02
+},
+{
+"w": "has",
+"s": 4.02,
+"e": 4.22
+},
+{
+"w": "taken",
+"s": 4.22,
+"e": 4.46
+},
+{
+"w": "Morocco,",
+"s": 4.46,
+"e": 4.86
+},
+{
+"w": "Italy",
+"s": 5.42,
+"e": 5.76
+},
+{
+"w": "has",
+"s": 5.76,
+"e": 6.06
+},
+{
+"w": "taken",
+"s": 6.06,
+"e": 6.34
+},
+{
+"w": "Libya",
+"s": 6.34,
+"e": 6.72
+},
+{
+"w": "from",
+"s": 6.72,
+"e": 7.02
+},
+{
+"w": "the",
+"s": 7.02,
+"e": 7.18
+},
+{
+"w": "Ottomans,",
+"s": 7.18,
+"e": 7.74
+},
+{
+"w": "and",
+"s": 7.92,
+"e": 8.4
+},
+{
+"w": "seven",
+"s": 8.4,
+"e": 8.72
+},
+{
+"w": "European",
+"s": 8.72,
+"e": 9.26
+},
+{
+"w": "powers",
+"s": 9.26,
+"e": 9.82
+},
+{
+"w": "rule",
+"s": 9.82,
+"e": 10.56
+},
+{
+"w": "everything",
+"s": 10.56,
+"e": 11.08
+},
+{
+"w": "except",
+"s": 11.08,
+"e": 11.44
+},
+{
+"w": "Ethiopia",
+"s": 11.44,
+"e": 12.06
+},
+{
+"w": "and",
+"s": 12.06,
+"e": 12.52
+},
+{
+"w": "Liberia.",
+"s": 12.52,
+"e": 13.16
+}
+],
+"nExpected": 27,
+"nGot": 27
+},
+{
+"id": "S8_03",
+"file": "audio/vo/p/S8_03.mp3",
+"duration": 12.26,
+"text": "Then look again. The borders drawn in Berlin, London and Paris, often with a ruler, cutting through more than a hundred and seventy peoples, are the borders Africa still lives with today.",
+"words": [
+{
+"w": "Then",
+"s": 0.17,
+"e": 0.45
+},
+{
+"w": "look",
+"s": 0.45,
+"e": 0.59
+},
+{
+"w": "again.",
+"s": 0.59,
+"e": 0.91
+},
+{
+"w": "The",
+"s": 1.43,
+"e": 1.51
+},
+{
+"w": "borders",
+"s": 1.51,
+"e": 1.81
+},
+{
+"w": "drawn",
+"s": 1.81,
+"e": 2.25
+},
+{
+"w": "in",
+"s": 2.25,
+"e": 2.47
+},
+{
+"w": "Berlin,",
+"s": 2.47,
+"e": 2.75
+},
+{
+"w": "London,",
+"s": 3.45,
+"e": 3.69
+},
+{
+"w": "and",
+"s": 4.09,
+"e": 4.17
+},
+{
+"w": "Paris,",
+"s": 4.17,
+"e": 4.53
+},
+{
+"w": "often",
+"s": 5.11,
+"e": 5.43
+},
+{
+"w": "with",
+"s": 5.43,
+"e": 5.63
+},
+{
+"w": "a",
+"s": 5.63,
+"e": 5.77
+},
+{
+"w": "ruler",
+"s": 5.77,
+"e": 6.07
+},
+{
+"w": "cutting",
+"s": 6.07,
+"e": 6.77
+},
+{
+"w": "through",
+"s": 6.77,
+"e": 7.05
+},
+{
+"w": "more",
+"s": 7.05,
+"e": 7.37
+},
+{
+"w": "than",
+"s": 7.37,
+"e": 7.57
+},
+{
+"w": "170",
+"s": 7.57,
+"e": 8.39
+},
+{
+"w": "peoples,",
+"s": 8.39,
+"e": 8.93
+},
+{
+"w": "are",
+"s": 9.53,
+"e": 9.69
+},
+{
+"w": "the",
+"s": 9.69,
+"e": 9.81
+},
+{
+"w": "borders",
+"s": 9.81,
+"e": 10.11
+},
+{
+"w": "Africa",
+"s": 10.11,
+"e": 10.63
+},
+{
+"w": "still",
+"s": 10.63,
+"e": 11.03
+},
+{
+"w": "lives",
+"s": 11.03,
+"e": 11.33
+},
+{
+"w": "with",
+"s": 11.33,
+"e": 11.65
+},
+{
+"w": "today.",
+"s": 11.65,
+"e": 12.01
+}
+],
+"nExpected": 32,
+"nGot": 29
+},
+{
+"id": "S8_04",
+"file": "audio/vo/p/S8_04.mp3",
+"duration": 19.54,
+"text": "When the colonies won their independence in the 1950s and 60s, their new leaders faced a choice: redraw the map along the lines of the peoples who lived there, or keep the frontiers they had inherited. In 1964, they chose to keep them, judging that any attempt to redraw them would mean endless war.",
+"words": [
+{
+"w": "When",
+"s": 0.25,
+"e": 0.51
+},
+{
+"w": "the",
+"s": 0.51,
+"e": 0.67
+},
+{
+"w": "colonies",
+"s": 0.67,
+"e": 1.01
+},
+{
+"w": "won",
+"s": 1.01,
+"e": 1.33
+},
+{
+"w": "their",
+"s": 1.33,
+"e": 1.49
+},
+{
+"w": "independence",
+"s": 1.49,
+"e": 2.01
+},
+{
+"w": "in",
+"s": 2.01,
+"e": 2.29
+},
+{
+"w": "the",
+"s": 2.29,
+"e": 2.37
+},
+{
+"w": "1950s",
+"s": 2.37,
+"e": 3.25
+},
+{
+"w": "and",
+"s": 3.25,
+"e": 3.33
+},
+{
+"w": "60s,",
+"s": 3.33,
+"e": 4.01
+},
+{
+"w": "their",
+"s": 4.45,
+"e": 4.63
+},
+{
+"w": "new",
+"s": 4.63,
+"e": 4.83
+},
+{
+"w": "leaders",
+"s": 4.83,
+"e": 5.15
+},
+{
+"w": "faced",
+"s": 5.15,
+"e": 5.51
+},
+{
+"w": "a",
+"s": 5.51,
+"e": 5.67
+},
+{
+"w": "choice.",
+"s": 5.67,
+"e": 6.01
+},
+{
+"w": "Redraw",
+"s": 6.73,
+"e": 7.13
+},
+{
+"w": "the",
+"s": 7.13,
+"e": 7.29
+},
+{
+"w": "map",
+"s": 7.29,
+"e": 7.55
+},
+{
+"w": "along",
+"s": 7.55,
+"e": 7.83
+},
+{
+"w": "the",
+"s": 7.83,
+"e": 8.05
+},
+{
+"w": "lines",
+"s": 8.05,
+"e": 8.31
+},
+{
+"w": "of",
+"s": 8.31,
+"e": 8.49
+},
+{
+"w": "the",
+"s": 8.49,
+"e": 8.59
+},
+{
+"w": "peoples",
+"s": 8.59,
+"e": 8.93
+},
+{
+"w": "who",
+"s": 8.93,
+"e": 9.15
+},
+{
+"w": "lived",
+"s": 9.15,
+"e": 9.35
+},
+{
+"w": "there,",
+"s": 9.35,
+"e": 9.69
+},
+{
+"w": "or",
+"s": 9.99,
+"e": 10.25
+},
+{
+"w": "keep",
+"s": 10.25,
+"e": 10.51
+},
+{
+"w": "the",
+"s": 10.51,
+"e": 10.71
+},
+{
+"w": "frontiers",
+"s": 10.71,
+"e": 11.27
+},
+{
+"w": "they",
+"s": 11.27,
+"e": 11.47
+},
+{
+"w": "had",
+"s": 11.47,
+"e": 11.65
+},
+{
+"w": "inherited.",
+"s": 11.65,
+"e": 12.01
+},
+{
+"w": "In",
+"s": 12.61,
+"e": 12.75
+},
+{
+"w": "1964,",
+"s": 12.75,
+"e": 13.43
+},
+{
+"w": "they",
+"s": 14.05,
+"e": 14.31
+},
+{
+"w": "chose",
+"s": 14.31,
+"e": 14.55
+},
+{
+"w": "to",
+"s": 14.55,
+"e": 14.75
+},
+{
+"w": "keep",
+"s": 14.75,
+"e": 14.97
+},
+{
+"w": "them,",
+"s": 14.97,
+"e": 15.21
+},
+{
+"w": "judging",
+"s": 15.75,
+"e": 16.03
+},
+{
+"w": "that",
+"s": 16.03,
+"e": 16.27
+},
+{
+"w": "any",
+"s": 16.27,
+"e": 16.49
+},
+{
+"w": "attempt",
+"s": 16.49,
+"e": 16.83
+},
+{
+"w": "to",
+"s": 16.83,
+"e": 17.01
+},
+{
+"w": "redraw",
+"s": 17.01,
+"e": 17.49
+},
+{
+"w": "them",
+"s": 17.49,
+"e": 17.71
+},
+{
+"w": "would",
+"s": 17.71,
+"e": 18.09
+},
+{
+"w": "mean",
+"s": 18.09,
+"e": 18.33
+},
+{
+"w": "endless",
+"s": 18.33,
+"e": 18.79
+},
+{
+"w": "war.",
+"s": 18.79,
+"e": 19.23
+}
+],
+"nExpected": 54,
+"nGot": 54
+},
+{
+"id": "S8_05",
+"file": "audio/vo/p/S8_05.mp3",
+"duration": 5.43,
+"text": "The Scramble lasted thirty years. Its map has lasted a hundred and forty.",
+"words": [
+{
+"w": "The",
+"s": 0.31,
+"e": 0.41
+},
+{
+"w": "scramble",
+"s": 0.41,
+"e": 0.87
+},
+{
+"w": "lasted",
+"s": 0.87,
+"e": 1.39
+},
+{
+"w": "30",
+"s": 1.39,
+"e": 2.01
+},
+{
+"w": "years.",
+"s": 2.01,
+"e": 2.45
+},
+{
+"w": "Its",
+"s": 3.11,
+"e": 3.25
+},
+{
+"w": "map",
+"s": 3.25,
+"e": 3.55
+},
+{
+"w": "has",
+"s": 3.55,
+"e": 3.75
+},
+{
+"w": "lasted",
+"s": 3.75,
+"e": 4.13
+},
+{
+"w": "140.",
+"s": 4.13,
+"e": 4.55
+}
+],
+"nExpected": 13,
+"nGot": 10
+}
+]

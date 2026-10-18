@@ -4,6 +4,7 @@ import {AbsoluteFill} from 'remotion';
 import {C, W, H} from '../theme';
 import type {FC} from '../lib/geo';
 import type {Feature, Geometry} from 'geojson';
+import {RasterGlobe} from './RasterGlobe';
 
 export type Cam = {lon: number; lat: number; scale: number};
 
@@ -36,7 +37,9 @@ export const WorldMap: React.FC<{
   showGraticule?: boolean;
   /** 0..1 darkness of vignette */
   vignette?: number;
-}> = ({cam, land, layers = [], children, showGraticule = true, vignette = 0.55}) => {
+  /** draw satellite/relief texture (default true) */
+  raster?: boolean;
+}> = ({cam, land, layers = [], children, showGraticule = true, vignette = 0.55, raster = true}) => {
   const projection = useMemo(
     () =>
       geoOrthographic()
@@ -58,6 +61,7 @@ export const WorldMap: React.FC<{
   return (
     <MapCtx.Provider value={{projection, cam, visible}}>
       <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, ${C.oceanLight} 0%, ${C.ocean} 55%, #050d16 100%)`}}>
+        {raster && <RasterGlobe cam={cam} />}
         <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
           <defs>
             <radialGradient id="atmo" cx="50%" cy="50%" r="50%">
@@ -95,14 +99,15 @@ export const WorldMap: React.FC<{
 
           {/* atmosphere halo */}
           <circle cx={cx} cy={cy} r={r * 1.06} fill="url(#atmo)" />
-          {/* ocean sphere */}
-          <path d={sphere} fill="url(#oceanG)" />
+          {/* ocean sphere (vector fallback when no raster) */}
+          {!raster && <path d={sphere} fill="url(#oceanG)" />}
           <g clipPath="url(#sphereClip)">
             {showGraticule && <path d={graticule} fill="none" stroke={C.graticule} strokeWidth={1} />}
-            {/* land shadow then land */}
-            <path d={landPath} fill="#000" opacity={0.35} transform="translate(3,4)" filter="url(#innerShadow)" />
-            <path d={landPath} fill="url(#landG)" stroke={C.landShade} strokeWidth={0.8} />
-            <path d={landPath} fill="url(#paperNoise)" />
+            {/* land: vector fill only without raster; otherwise just a crisp coastline */}
+            {!raster && <path d={landPath} fill="#000" opacity={0.35} transform="translate(3,4)" filter="url(#innerShadow)" />}
+            {!raster && <path d={landPath} fill="url(#landG)" stroke={C.landShade} strokeWidth={0.8} />}
+            {!raster && <path d={landPath} fill="url(#paperNoise)" />}
+            {raster && <path d={landPath} fill="none" stroke="rgba(255,245,220,0.28)" strokeWidth={1.1} />}
 
             {layers.map((L) => {
               if (!L.fc) return null;
@@ -148,7 +153,7 @@ export const WorldMap: React.FC<{
               );
             })}
             {/* lighting */}
-            <path d={sphere} fill="url(#shade)" />
+            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 : 1} />
           </g>
           {/* limb */}
           <path d={sphere} fill="none" stroke="rgba(160,200,255,0.35)" strokeWidth={2} />
