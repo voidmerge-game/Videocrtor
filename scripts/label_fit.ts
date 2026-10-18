@@ -39,11 +39,25 @@ const fit = (geom: any) => {
   const th = 0.5 * Math.atan2(2 * sxy, sxx - syy);
   const l1 = (sxx + syy) / 2 + Math.sqrt(((sxx - syy) / 2) ** 2 + sxy ** 2), l2 = (sxx + syy) / 2 - Math.sqrt(((sxx - syy) / 2) ** 2 + sxy ** 2);
   const ratio = Math.sqrt(l1 / Math.max(l2, 1e-9));
-  const ray = (ang: number) => { const u = [Math.cos(ang), Math.sin(ang)]; let L = 0; for (const s of [1, -1]) { let d = 0; const st = step / 3; while (d < 200) { d += st; if (!inside(pole[0] + s * u[0] * d, pole[1] + s * u[1] * d, ring)) break; } L += d - st; } return L; };
-  const Laxis = ray(th), L0 = ray(0), Lperp = ray(th + Math.PI / 2), Lv = ray(Math.PI / 2);
+  // free length through a point p along direction ang (both ways), 0 if p is outside
+  const rayFrom = (px: number, py: number, ang: number) => {
+    if (!inside(px, py, ring)) return 0;
+    const u = [Math.cos(ang), Math.sin(ang)]; let L = 0;
+    for (const sgn of [1, -1]) { let d = 0; const st = step / 3; while (d < 200) { d += st; if (!inside(px + sgn * u[0] * d, py + sgn * u[1] * d, ring)) break; } L += d - st; }
+    return L;
+  };
+  // free length along `ang` within a band of half-height `off` (perpendicular offsets), min over the band
+  const OFFS = [0, 0.3, 0.6, 1.0, 1.5, 2.2, 3.0];
+  const band = (ang: number) => OFFS.map((off) => {
+    const nx = -Math.sin(ang), ny = Math.cos(ang);
+    let L = Infinity;
+    for (const o of off === 0 ? [0] : [-off, -off / 2, 0, off / 2, off]) L = Math.min(L, rayFrom(pole[0] + nx * o, pole[1] + ny * o, ang));
+    return +L.toFixed(2);
+  });
   let a = (th * 180) / Math.PI; // math angle (y up); CSS rotation = -a
   while (a > 90) a -= 180; while (a <= -90) a += 180;
-  return {lon: +(pole[0] / cs).toFixed(3), lat: +pole[1].toFixed(3), th: +a.toFixed(1), L0: +L0.toFixed(2), Lv: +Lv.toFixed(2), La: +Laxis.toFixed(2), Lp: +Lperp.toFixed(2), ratio: +ratio.toFixed(2)};
+  const L0 = rayFrom(pole[0], pole[1], 0), Lv = rayFrom(pole[0], pole[1], Math.PI / 2), Laxis = rayFrom(pole[0], pole[1], th), Lperp = rayFrom(pole[0], pole[1], th + Math.PI / 2);
+  return {lon: +(pole[0] / cs).toFixed(3), lat: +pole[1].toFixed(3), th: +a.toFixed(1), L0: +L0.toFixed(2), Lv: +Lv.toFixed(2), La: +Laxis.toFixed(2), Lp: +Lperp.toFixed(2), ratio: +ratio.toFixed(2), r: +pd.toFixed(2), bh: band(0), ba: band(th)};
 };
 
 const out: Record<string, Record<string, any>> = {};

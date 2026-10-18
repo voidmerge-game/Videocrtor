@@ -378,7 +378,7 @@ const ZOOM = (k: CamKey): CamKey => {
 };
 export const CAM3: CamKey[] = CAM.map(ZOOM);
 
-export type LabelFit = {lon: number; lat: number; th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number};
+export type LabelFit = {lon: number; lat: number; th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number; r: number; bh: number[]; ba: number[]};
 export type BigEv = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number; fit?: LabelFit};
 const LP = LABEL_POS as Record<string, Record<string, LabelFit>>;
 /** which polygon a label belongs to (era dataset, feature NAME); labels not listed keep their manual placement */
@@ -391,7 +391,7 @@ const FIT_OF: Record<string, [string, string]> = {
   'French West Africa': ['1914', 'French West Africa'], Algeria: ['1914', 'Algeria'], Madagascar: ['1914', 'Madagascar (France)'], Eritrea: ['1914', 'Eritrea'],
   'Italian Somaliland': ['1914', 'Italian Somaliland'], Angola: ['1914', 'Angola'], Mozambique: ['1914', 'Mozambique'], 'Río de Oro': ['1914', 'Rio De Oro'],
   Sudan: ['1914', 'Anglo-Egyptian Sudan'], 'Mahdist Sudan': ['1914', 'Anglo-Egyptian Sudan'], 'Congo Free State': ['1914', 'Belgian Congo'], Libya: ['1914', 'Libya'],
-  Morocco: ['1914', 'Morocco'],
+  Morocco: ['1914', 'Morocco'], 'French Equatorial Africa': ['1914', 'French Equatorial Africa'],
 };
 const ETH14: [string, string] = ['1914', 'Abyssinia'], ETH80: [string, string] = ['1880', 'Ethiopia'];
 const withFit = (e: BigEv): BigEv => {
@@ -440,7 +440,7 @@ export const BIG: BigEv[] = ([
   ...both(38.0, 1.0, 'British East Africa', T('S5_03', 'Cairo'), 24, -25),
   ...both(-4.0, 17.5, 'French West Africa', T('S5_04', 'Senegal'), 40),
   ...both(3.0, 27.5, 'Algeria', T('S5_04', 'Algeria'), 36),
-  ...both(18.6, 7.0, 'French Equatorial Africa', T('S5_04', 'Congo'), 26, -62).map((e) => ({...e, fit: {lon: 18.6, lat: 7.0, th: 62, L0: 9, Lv: 9, La: 24, Lp: 7, ratio: 2}})),
+  ...both(18.6, 7.0, 'French Equatorial Africa', T('S5_04', 'Congo'), 26, -62),
   ...both(46.8, -19.5, 'Madagascar', T('S5_04', 'Congo') + 1.2, 24, -75),
   ...both(38.2, 14.9, 'Eritrea', T('S5_06', 'Eritrea'), 18, -30),
   ...both(46.0, 4.5, 'Italian Somaliland', T('S5_06', 'Somalia'), 20, -55),

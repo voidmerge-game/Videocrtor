@@ -14,9 +14,40 @@ import {clamp01, easeOutCubic} from '../lib/anim';
 const fadeIO = (f: number, len: number, a = 10, b = 12) => Math.min(clamp01(f / a), clamp01((len - f) / b));
 
 /* ---------- Big region label (printed on the map: dark on light terrain, white on dark fills) ---------- */
+type Fit = {th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number; r: number; bh: number[]; ba: number[]};
+const OFFS = [0, 0.3, 0.6, 1.0, 1.5, 2.2, 3.0];
+/** free length (deg) along a direction for a text band of half-height `halfH` deg — min over the band */
+const bandLen = (band: number[], halfH: number) => {
+  let L = band[0];
+  for (let i = 1; i < OFFS.length; i++) {
+    if (OFFS[i] <= halfH) L = Math.min(L, band[i]);
+    else { const f = (halfH - OFFS[i - 1]) / (OFFS[i] - OFFS[i - 1]); L = Math.min(L, band[i - 1] + (band[i] - band[i - 1]) * f); return L; }
+  }
+  return halfH > OFFS[OFFS.length - 1] ? L * 0.6 : L;
+};
+const split2 = (label: string): string[] | null => {
+  const w = label.split(' ');
+  if (w.length < 2) return null;
+  let best: string[] | null = null, bestLen = Infinity;
+  for (let k = 1; k < w.length; k++) { const a = w.slice(0, k).join(' '), b = w.slice(k).join(' '); const m = Math.max(a.length, b.length); if (m < bestLen) { bestLen = m; best = [a, b]; } }
+  return best;
+};
+const CHAR_EM = 1.02; // Montserrat 700 caps advance (~0.74em) + 0.28em tracking
+/** largest font (px) for `lines` of text, fully inside the territory along a direction with band table `band` */
+const fitFont = (lines: string[], band: number[], ppd: number) => {
+  const chars = Math.max(...lines.map((l) => l.length));
+  let lo = 6, hi = 130;
+  const ok = (f: number) => {
+    const halfH = (lines.length * 1.15 * f) / 2 / ppd;
+    return chars * CHAR_EM * f <= 0.88 * bandLen(band, halfH) * ppd; // the band table is 0 where the text would cross the border
+  };
+  if (!ok(lo)) return 0;
+  for (let it = 0; it < 14; it++) { const mid = (lo + hi) / 2; if (ok(mid)) lo = mid; else hi = mid; }
+  return lo;
+};
+
 export const BigLabel: React.FC<{
-  lon: number; lat: number; text: string; at: number; until?: number; size?: number; rot?: number; tone?: 'dark' | 'light'; minScale?: number;
-  fit?: {th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number};
+  lon: number; lat: number; text: string; at: number; until?: number; size?: number; rot?: number; tone?: 'dark' | 'light'; minScale?: number; fit?: Fit;
 }> = ({lon, lat, text, at, until, size = 40, rot = 0, tone = 'dark', minScale = 0, fit}) => {
   const frame = useCurrentFrame();
   const {cam} = useMap();
@@ -25,29 +56,36 @@ export const BigLabel: React.FC<{
   const op = until !== undefined ? fadeIO(f, until - at, 14, 14) : clamp01(f / 14);
   const light = tone === 'light';
   const label = text.toUpperCase();
-  // v5: labels are anchored to the map (grow 1:1 with the zoom). When a polygon fit is known, the font is sized so the
-  // name spans ~78% of the free length of its territory (reference: dominant names ~115-130 px, small ones ~20 px).
   const ppd = (cam.scale * Math.PI) / 180; // px per degree
-  const chars = Math.max(3, label.length);
-  let fontPx: number, rotDeg: number;
+  // v5.3: when the territory polygon is known the name is ALWAYS fully inside it — we pick the layout
+  // (one or two lines, horizontal or along the main axis) that allows the largest font; too small → not drawn.
+  let fontPx: number, rotDeg: number, lines: string[];
   if (fit) {
-    const sc = (L: number, Wd: number) => Math.min((1.3 * L * ppd) / chars, 1.3 * Wd * ppd);
-    const h = sc(fit.L0, fit.Lv), a = sc(fit.La, fit.Lp);
-    const useAxis = a > 1.5 * h && fit.ratio > 1.4 && Math.abs(fit.th) > 12;
-    fontPx = Math.min(120, useAxis ? a : h);
-    rotDeg = useAxis ? -fit.th : 0;
-    if (fontPx < 26) fontPx = 26;                       // small territories: the name may overrun the border (as in the reference)
+    const two = split2(label);
+    const cands: {f: number; rot: number; lines: string[]}[] = [];
+    const h1 = fitFont([label], fit.bh, ppd); cands.push({f: h1, rot: 0, lines: [label]});
+    if (two) cands.push({f: fitFont(two, fit.bh, ppd) * 0.9, rot: 0, lines: two});
+    if (Math.abs(fit.th) > 12) {
+      const a1 = fitFont([label], fit.ba, ppd); cands.push({f: a1 / 1.4, rot: -fit.th, lines: [label]});
+      if (two) cands.push({f: (fitFont(two, fit.ba, ppd) * 0.9) / 1.4, rot: -fit.th, lines: two});
+    }
+    cands.sort((p, q) => q.f - p.f);
+    const best = cands[0];
+    // undo the preference penalties to get the real font size
+    const real = best.rot === 0 ? (best.lines.length === 1 ? best.f : best.f / 0.9) : (best.lines.length === 1 ? best.f * 1.4 : (best.f * 1.4) / 0.9);
+    fontPx = Math.min(120, real); rotDeg = best.rot; lines = best.lines;
+    if (fontPx < 13) return null;
   } else {
     fontPx = Math.min(120, size * 1.2 * Math.pow(cam.scale / 2400, 0.7));
-    rotDeg = rot;
+    rotDeg = rot; lines = [label];
   }
   const track = 0.28;
   return (
     <Marker lon={lon} lat={lat}>
       <div
         style={{
-          opacity: op, transform: `rotate(${rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap',
-          fontFamily: FONT.map, fontWeight: 700, fontSize: fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: 1,
+          opacity: op, transform: `rotate(${rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap', textAlign: 'center',
+          fontFamily: FONT.map, fontWeight: 700, fontSize: fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: 1.15,
           color: light ? 'rgba(246,243,238,0.97)' : 'rgba(14,10,8,0.9)',
           textShadow: light
             ? '0 2px 2px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.5)'
@@ -55,7 +93,7 @@ export const BigLabel: React.FC<{
           paddingLeft: `${track}em`,
         }}
       >
-        {label}
+        {lines.map((l, i) => <div key={i}>{l}</div>)}
       </div>
     </Marker>
   );
