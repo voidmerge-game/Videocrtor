@@ -392,6 +392,8 @@ const FIT_OF: Record<string, [string, string]> = {
   'Italian Somaliland': ['1914', 'Italian Somaliland'], Angola: ['1914', 'Angola'], Mozambique: ['1914', 'Mozambique'], 'Río de Oro': ['1914', 'Rio De Oro'],
   Sudan: ['1914', 'Anglo-Egyptian Sudan'], 'Mahdist Sudan': ['1914', 'Anglo-Egyptian Sudan'], 'Congo Free State': ['1914', 'Belgian Congo'], Libya: ['1914', 'Libya'],
   Morocco: ['1914', 'Morocco'], 'French Equatorial Africa': ['1914', 'French Equatorial Africa'],
+  'Belgian Congo': ['1914', 'Belgian Congo'], Uganda: ['1914', 'Uganda'], Bechuanaland: ['1914', 'Botswana'], Nyasaland: ['1914', 'Malawi'],
+  Liberia: ['1914', 'Liberia'], 'Sierra Leone': ['1914', 'Sierra Leone'],
 };
 const ETH14: [string, string] = ['1914', 'Abyssinia'], ETH80: [string, string] = ['1880', 'Ethiopia'];
 const withFit = (e: BigEv): BigEv => {
@@ -449,6 +451,14 @@ export const BIG: BigEv[] = ([
   ...both(-13.5, 24.5, 'Río de Oro', T('S5_06', 'Sahara'), 20, -70),
   ...both(39.0, 9.5, 'Ethiopia', T('S5_06', 'Eritrea') + 0.5, 30),
   ...both(29.5, 15.0, 'Sudan', T('S6_03', 'Omdurman'), 36),
+  // v5.5: every territory on the partition map carries its name (hidden automatically where it cannot fit inside)
+  {lon: 23.1, lat: -1.8, text: 'Congo Free State', t: T('S5_02') + 0.6, until: S5e, size: 30},
+  {lon: 23.1, lat: -1.8, text: 'Belgian Congo', t: S8a, until: S8b, size: 30},
+  ...both(32.5, 1.5, 'Uganda', T('S5_03', 'Cairo') + 0.3, 22),
+  ...both(24.0, -22.0, 'Bechuanaland', T('S5_03', 'Cape') + 0.3, 22),
+  ...both(34.0, -13.0, 'Nyasaland', T('S5_03', 'Rhodes') + 0.4, 18),
+  ...both(-9.5, 6.5, 'Liberia', T('S5_04', 'Senegal') + 0.4, 20),
+  ...both(-11.8, 8.5, 'Sierra Leone', T('S5_03', 'Niger') + 0.8, 18),
   // scenes 6–7 close-ups
   {lon: 31.9, lat: -27.4, text: 'Zululand', t: T('S6_01', 'Zulu'), until: E('S6_01') + 1, size: 28, rot: -55},
   {lon: 31.5, lat: 13.5, text: 'Mahdist Sudan', t: T('S6_03', 'Khartoum') + 0.5, until: E('S6_03') + 1, size: 40, rot: -8},

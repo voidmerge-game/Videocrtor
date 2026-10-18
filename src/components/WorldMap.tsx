@@ -226,6 +226,8 @@ export const WorldMap: React.FC<{
                   </g>
                   {L.strokeOnTop && items.map((it) => (
                     <g key={`s${it.i}`} opacity={it.op} clipPath={it.clip}>
+                      {/* v5.5: every territory gets a clearly visible two-tone border — dark edge + light line (reads as a distinct piece) */}
+                      <path d={it.d} fill="none" stroke="rgba(22,17,12,0.78)" strokeWidth={(L.strokeWidth ?? 1) + 2.2} strokeLinejoin="round" strokeLinecap="round" />
                       <path d={it.d} fill="none" stroke={it.stroke} strokeWidth={L.strokeWidth ?? 1} strokeLinejoin="round" strokeLinecap="round" />
                       {it.em > 0 && <path d={it.d} fill="none" stroke="#231a12" strokeWidth={(L.strokeWidth ?? 1) + 2.2} strokeLinejoin="round" strokeLinecap="round" opacity={it.em} />}
                     </g>

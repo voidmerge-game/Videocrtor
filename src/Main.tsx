@@ -36,6 +36,15 @@ const STATE_FILL4: Record<string, string> = {
   'Sultanate of Zanzibar': '#a090a8', Dahomey: '#b49470', Imerina: '#b08a90', Transvaal: '#b8ac86', 'Orange Free State': '#bfb48e', Liberia: '#b4a070',
 };
 
+/** small deterministic lightness variation per territory (±8%) — neighbours of one power remain distinct pieces */
+const shade = (hex: string, name: string) => {
+  let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  const k = 1 + (((h % 1000) / 1000) * 2 - 1) * 0.08;
+  const c = hex.replace('#', ''); const n = parseInt(c.length === 3 ? c.split('').map((x) => x + x).join('') : c, 16);
+  const r = Math.min(255, Math.round(((n >> 16) & 255) * k)), g = Math.min(255, Math.round(((n >> 8) & 255) * k)), b = Math.min(255, Math.round((n & 255) * k));
+  return `rgb(${r},${g},${b})`;
+};
+
 const splitCaption = (c: string): [string, string | undefined] => {
   const i = c.indexOf(' — ');
   if (i > 0) return [c.slice(0, i), c.slice(i + 3)];
@@ -139,11 +148,11 @@ export const Main: React.FC = () => {
       filter: (f) => !!f.properties.NAME && (!!OWNER_1880[f.properties.NAME] || STATES_1870.has(f.properties.NAME)),
       fill: (f) => {
         const p = OWNER_1880[f.properties.NAME];
-        if (p === 'ottoman') return '#8e7f98';
-        return p ? POWER_FILL[p] : STATE_FILL4[f.properties.NAME] ?? '#d8c8ac';
+        if (p === 'ottoman') return shade('#8e7f98', f.properties.NAME);
+        return p ? shade(POWER_FILL[p], f.properties.NAME) : STATE_FILL4[f.properties.NAME] ?? '#d8c8ac';
       },
-      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(235,220,200,0.8)' : 'rgba(235,220,200,0.6)'),
-      strokeWidth: 1.5,
+      strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(240,228,210,0.9)' : 'rgba(240,228,210,0.75)'),
+      strokeWidth: 1.3,
       blend: 'multiply', wash: 0.42, strokeOnTop: true, shadow: true,
       opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.9 : 0.8) * pre1880On * preFadeOut,
     });
@@ -151,8 +160,8 @@ export const Main: React.FC = () => {
     L.push({
       id: 'post', fc: af1914,
       filter: (f) => AFRICA_1914.has(f.properties.NAME),
-      fill: (f) => POWER_FILL[OWNER_1914[f.properties.NAME]],
-      stroke: 'rgba(235,220,200,0.8)', strokeWidth: 1.5,
+      fill: (f) => shade(POWER_FILL[OWNER_1914[f.properties.NAME]], f.properties.NAME),
+      stroke: 'rgba(240,228,210,0.9)', strokeWidth: 1.3,
       blend: 'multiply', wash: 0.45, strokeOnTop: true, shadow: true,
       emphasis: (f) => {
         const a = acqOf(f.properties.NAME);
