@@ -20,3 +20,4 @@ Rule: after every turn start: git fetch + git reset FETCH_HEAD + checkout stale 
 2026-10-18T19:08:29Z v6 d36d46f — FINAL RENDER re-dispatched: run 39157374856 (20 chunks, crf 18, no audio reuse)
 2026-10-18T19:48:42Z v6 FINAL delivered: run 39157374856 SUCCESS, 981.5 MB, 577.633 s, 17329 frames; Drive id 1Bnjquq6WaQ2SPWc5cgr8kk8KyTmEugnG
 2026-10-18T20:16:36Z v6.1: africa_1880 rebuilt from NE 10m admin-1 (real coastlines/borders) after user rejected the coarse polygons; QA 0 violations; NO RENDER until user confirms
+2026-10-18T20:48:18Z v6.1 FINAL delivered: run 39163024446 SUCCESS, 963.0 MB, 577.633 s; Drive id 1zmu9NLC_umqZqUycsZi8BE2pG1JwMsRV
