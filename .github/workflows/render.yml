@@ -22,6 +22,14 @@ on:
         description: Upload to Drive (needs DRIVE_UPLOAD_URI secret)
         default: "true"
         required: true
+      frames:
+        description: Frame range start-end (empty = full)
+        default: ""
+        required: false
+      concurrency:
+        description: Parallel browser tabs
+        default: "4"
+        required: true
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -37,8 +45,10 @@ jobs:
       - name: Render
         run: |
           mkdir -p out
+          FR=""; if [ -n "${{ inputs.frames }}" ]; then FR="--frames=${{ inputs.frames }}"; fi
           npx remotion render src/index.ts "${{ inputs.composition }}" "out/${{ inputs.drive_file_name }}" \
-            --scale="${{ inputs.scale }}" --crf="${{ inputs.crf }}" --concurrency=4 --codec=h264 --audio-codec=aac --log=info
+            --scale="${{ inputs.scale }}" --crf="${{ inputs.crf }}" --concurrency="${{ inputs.concurrency }}" --codec=h264 --audio-codec=aac \
+            --timeout=120000 --log=info $FR
           ls -la out
       - name: Upload to Google Drive
         if: ${{ inputs.upload == 'true' }}

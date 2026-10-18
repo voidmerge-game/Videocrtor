@@ -17,6 +17,10 @@ export type Layer = {
   opacity?: (f: Feature<Geometry, any>) => number;
   /** 0..1 reveal radius from feature centroid (ink-spread). 1 = fully shown, undefined = always full */
   reveal?: (f: Feature<Geometry, any>) => number | undefined;
+  /** optional geographic origin [lon,lat] for the reveal wave (defaults to feature centroid) */
+  revealFrom?: (f: Feature<Geometry, any>) => [number, number] | undefined;
+  /** optional per-feature stroke override */
+  strokeFn?: (f: Feature<Geometry, any>) => string | undefined;
   filter?: (f: Feature<Geometry, any>) => boolean;
   glow?: boolean;
 };
@@ -125,9 +129,17 @@ export const WorldMap: React.FC<{
                     let clipEl: React.ReactNode = null;
                     if (rev !== undefined && rev < 1) {
                       if (rev <= 0) return null;
-                      const [ccx, ccy] = path.centroid(f);
+                      let [ccx, ccy] = path.centroid(f);
+                      const org = L.revealFrom ? L.revealFrom(f) : undefined;
+                      if (org) {
+                        const pp = projection(org);
+                        if (pp) { ccx = pp[0]; ccy = pp[1]; }
+                      }
                       const b = path.bounds(f);
-                      const R = Math.hypot(b[1][0] - b[0][0], b[1][1] - b[0][1]) * 0.75 * rev + 1;
+                      const far = Math.max(
+                        Math.hypot(b[0][0] - ccx, b[0][1] - ccy), Math.hypot(b[1][0] - ccx, b[1][1] - ccy),
+                        Math.hypot(b[0][0] - ccx, b[1][1] - ccy), Math.hypot(b[1][0] - ccx, b[0][1] - ccy));
+                      const R = far * rev + 1;
                       const id = `rv-${L.id}-${i}`;
                       clip = `url(#${id})`;
                       clipEl = (
@@ -142,7 +154,7 @@ export const WorldMap: React.FC<{
                         <path
                           d={d}
                           fill={fill ?? 'none'}
-                          stroke={L.stroke ?? 'none'}
+                          stroke={(L.strokeFn && L.strokeFn(f)) ?? L.stroke ?? 'none'}
                           strokeWidth={L.strokeWidth ?? 1}
                           strokeLinejoin="round"
                         />

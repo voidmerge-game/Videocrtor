@@ -6,18 +6,20 @@ import {Marker} from './WorldMap';
 import {fadeInOut, easeOutCubic, clamp01} from '../lib/anim';
 
 /* ---------- Flag that drops onto the map with a spring + shadow ---------- */
-export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: number; width?: number; label?: string}> = ({
-  lon, lat, power, at, width = 54, label,
+export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: number; width?: number; label?: string; until?: number}> = ({
+  lon, lat, power, at, width = 54, label, until,
 }) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const f = frame - at;
   if (f < 0) return null;
+  if (until !== undefined && frame > until) return null;
+  const outOp = until !== undefined ? interpolate(frame, [until - 18, until], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) : 1;
   const s = spring({frame: f, fps, config: {damping: 14, stiffness: 160, mass: 0.9}});
   const scale = interpolate(s, [0, 1], [2.2, 1]);
   const y = interpolate(s, [0, 1], [-90, 0]);
   const shadowBlur = interpolate(s, [0, 1], [30, 6]);
-  const op = clamp01(f / 6);
+  const op = clamp01(f / 6) * outOp;
   const labelOp = interpolate(f, [8, 22], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <Marker lon={lon} lat={lat}>
@@ -175,13 +177,13 @@ export const QuoteCard: React.FC<{text: string; author: string; source: string; 
   const f = frame - at;
   const len = until - at;
   const op = fadeInOut(f, len, 10, 18);
-  const chars = Math.floor(interpolate(f, [8, Math.min(len - 60, 8 + text.length * 1.1)], [0, text.length], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}));
+  const chars = Math.floor(interpolate(f, [8, Math.min(len - 70, 8 + text.length * 0.8)], [0, text.length], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}));
   const shown = text.slice(0, chars);
   const metaOp = interpolate(f, [len - 110, len - 80], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill style={{background: '#070605', opacity: op, justifyContent: 'center', alignItems: 'center'}}>
-      <div style={{width: 1240, textAlign: 'center'}}>
-        <div style={{fontFamily: FONT.type, fontSize: 34, lineHeight: 1.65, color: '#d8cfbd', letterSpacing: 1.5, textTransform: 'uppercase', minHeight: 170}}>
+      <div style={{width: 1360, textAlign: 'center'}}>
+        <div style={{fontFamily: FONT.type, fontSize: 37, lineHeight: 1.65, color: '#d8cfbd', letterSpacing: 1.5, textTransform: 'uppercase', minHeight: 170, whiteSpace: 'pre-line'}}>
           {shown}
           <span style={{opacity: Math.floor(f / 8) % 2 ? 1 : 0}}>▌</span>
         </div>
