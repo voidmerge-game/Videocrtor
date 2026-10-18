@@ -149,14 +149,19 @@ jobs:
           N=$(ls -d parts/chunk_* | wc -l)
           : > vlist.txt
           : > alist.txt
-          for i in $(seq 0 $((N-1))); do echo "file 'parts/chunk_$i/chunk_$i.mp4'" >> vlist.txt; echo "file 'parts/audio_$i/audio_$i.wav'" >> alist.txt; done
+          for i in $(seq 0 $((N-1))); do echo "file 'parts/chunk_$i/chunk_$i.mp4'" >> vlist.txt; done
+          # audio chunk count may differ from video chunk count (e.g. reused audio run) -> use ALL audio_* parts in numeric order
+          M=$(ls -d parts/audio_* | wc -l)
+          for i in $(seq 0 $((M-1))); do echo "file 'parts/audio_$i/audio_$i.wav'" >> alist.txt; done
           cat vlist.txt alist.txt
           ffmpeg -y -f concat -safe 0 -i vlist.txt -c copy video_only.mp4
           ffmpeg -y -f concat -safe 0 -i alist.txt -c copy audio_full.wav
-          ffprobe -v error -show_entries format=duration -of default=nw=1 video_only.mp4
-          ffprobe -v error -show_entries format=duration -of default=nw=1 audio_full.wav
+          VD=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 video_only.mp4)
+          AD=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 audio_full.wav)
+          echo "video=$VD audio=$AD"
           mkdir -p out
-          ffmpeg -y -i video_only.mp4 -i audio_full.wav -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 256k -ar 48000 -movflags +faststart -shortest "out/${{ inputs.out_name }}"
+          # exact cut at the video duration (no -shortest: it is imprecise and dropped the tail)
+          ffmpeg -y -i video_only.mp4 -i audio_full.wav -map 0:v:0 -map 1:a:0 -c:v copy -af apad -t "$VD" -c:a aac -b:a 256k -ar 48000 -movflags +faststart "out/${{ inputs.out_name }}"
           ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,nb_frames -of default=nw=1 "out/${{ inputs.out_name }}"
           ls -la out
       - name: Upload to Google Drive
