@@ -4,7 +4,9 @@ import {WorldMap, Layer} from './components/WorldMap';
 import {useTopo} from './lib/geo';
 import {camAt, camWithDrift, prog, clamp01, easeOutCubic} from './lib/anim';
 import {C, FONT, Power} from './theme';
-import {FlagDrop, MapLabel, YearBadge, TitleCard, Grain, TableArchive, QuoteCard, CardPop} from './components/Ui';
+import {FlagDrop, MapLabel, YearBadge, Grain, TableArchive, QuoteCard, CardPop} from './components/Ui';
+import {Title3D, TimelineRibbon, ShareChart, Grade} from './components/Extras';
+import {RIBBON_WIN, CHART_WIN} from './lib/reserve';
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
 import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, ARCHIVE, QUOTES, yearAt, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
@@ -238,6 +240,8 @@ export const Main: React.FC = () => {
 
       {/* HUD */}
       {!quoteOn && t >= FIRST_VO && t < END_VO + 1.5 && <YearBadge year={yearAt(t)} />}
+      {!quoteOn && <TimelineRibbon t={t} from={RIBBON_WIN.t0} until={RIBBON_WIN.t1} />}
+      <ShareChart t={t} from={CHART_WIN.t0} until={CHART_WIN.t1} />
       {/* v5: archive = framed cards popping over the map; a few longer segments go to the brick wall */}
       {ARCHIVE.map((a, i) => {
         const [cap, sub] = splitCaption(a.caption);
@@ -250,7 +254,7 @@ export const Main: React.FC = () => {
       <Counter t={t} />
 
       {/* Title */}
-      <TitleCard title="THE SCRAMBLE FOR AFRICA" sub="How Europe carved up a continent · 1870 — 1914" at={Math.round((COLD_OPEN.quote + 0.8) * fps)} until={Math.round((FIRST_VO + 0.5) * fps)} />
+      <Title3D title="THE SCRAMBLE FOR AFRICA" sub="How Europe carved up a continent · 1870 — 1914" at={Math.round((COLD_OPEN.quote + 0.8) * fps)} until={Math.round((FIRST_VO + 0.5) * fps)} />
 
       {/* Quote cards (full-screen) */}
       {QUOTES.map((q, i) => <QuoteCard key={i} text={q.text} author={q.author} source={q.source} at={Math.round(q.t * fps)} until={Math.round(q.until * fps)} />)}
@@ -259,6 +263,7 @@ export const Main: React.FC = () => {
         <AbsoluteFill style={{background: 'rgba(3,6,12,0.62)', opacity: clamp01((t - (END_VO + 1.5 + OUTRO.card - 1)) / 1.5)}} />
       )}
       <Credits t0={END_VO + 1.5 + OUTRO.card} />
+      <Grade amount={0.9} />
       <Grain amount={0.06} />
 
       {/* ---------- AUDIO ---------- */}

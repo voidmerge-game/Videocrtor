@@ -359,6 +359,10 @@ export const SFX: Sfx[] = [
   {src: 'audio/sfx/hit.wav', t: T('S5_07', '90'), vol: 0.45},
   {src: 'audio/sfx/hit.wav', t: END_VO + 1.5, vol: 0.6},
   {src: 'audio/sfx/whoosh.wav', t: T('S8_03', 'Then'), vol: 0.4},
+  // v6: war-room table prints land with a soft thud; title gets a whoosh; the timeline ribbon ticks on every year change
+  ...ARCHIVE.filter((a) => a.wall).map((a) => ({src: 'audio/sfx/thud.wav', t: a.t + 0.25, vol: 0.25})),
+  {src: 'audio/sfx/whoosh.wav', t: COLD_OPEN.quote + 0.7, vol: 0.35},
+  ...YEARS.slice(1).filter((y) => y[1] !== 'TODAY').map((y) => ({src: 'audio/sfx/tick.wav', t: y[0], vol: 0.18})),
 ];
 
 /* ---------------- music ---------------- */
