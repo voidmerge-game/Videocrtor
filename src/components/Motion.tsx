@@ -31,12 +31,12 @@ export const BigLabel: React.FC<{
   const chars = Math.max(3, label.length);
   let fontPx: number, rotDeg: number;
   if (fit) {
-    const sc = (L: number, Wd: number) => Math.min((0.95 * L * ppd) / chars, 1.0 * Wd * ppd);
+    const sc = (L: number, Wd: number) => Math.min((1.3 * L * ppd) / chars, 1.3 * Wd * ppd);
     const h = sc(fit.L0, fit.Lv), a = sc(fit.La, fit.Lp);
     const useAxis = a > 1.5 * h && fit.ratio > 1.4 && Math.abs(fit.th) > 12;
     fontPx = Math.min(120, useAxis ? a : h);
     rotDeg = useAxis ? -fit.th : 0;
-    if (fontPx < 22) fontPx = 22;                       // small territories: the name may overrun the border (as in the reference)
+    if (fontPx < 26) fontPx = 26;                       // small territories: the name may overrun the border (as in the reference)
   } else {
     fontPx = Math.min(120, size * 1.2 * Math.pow(cam.scale / 2400, 0.7));
     rotDeg = rot;

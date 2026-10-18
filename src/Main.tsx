@@ -118,7 +118,7 @@ export const Main: React.FC = () => {
     const a = camAt(CAM4, t - 1 / fps), b = camAt(CAM4, t + 1 / fps);
     const zoomRate = Math.abs(Math.log(b.scale / a.scale)) / 2;
     const panPx = (Math.hypot(b.lon - a.lon, b.lat - a.lat) / 2) * (cam.scale / 57.3);
-    return Math.min(9, Math.max(0, zoomRate * 110 + panPx * 0.05 - 0.35));
+    return Math.min(6, Math.max(0, zoomRate * 90 + panPx * 0.022 - 0.5));
   })();
 
   // ----- layer opacities over time -----

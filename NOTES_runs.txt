@@ -6,3 +6,4 @@ drive final id 1q2psUEjEG3i606r0KRee6pfoJOhWBhJT; video run 39111203659; audio r
 - Drive id 1keZMUoMJwWR-MPw-QqzS3WUhUSaGD7bE (folder Epic-Video-Project)
 - changes: CAM3 (closer camera), BIG spaced labels, CITIES, CALLOUTS, ROUTES (animated arrows), PULSES, HD Africa relief layer
 v5 render_parallel dispatched 2026-10-18 13:39:10 commit cd233bc reuse_audio 39120070111
+run 39132472217 CANCELLED (labels wrong); v5.1 render_parallel run 39133352853 dispatched 2026-10-18 13:51:10 commit 8801b3f reuse_audio 39120070111

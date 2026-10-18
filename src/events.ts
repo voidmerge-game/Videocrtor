@@ -572,7 +572,125 @@ const ZOOM4 = (k: CamKey): CamKey => {
   const f = s < 500 ? 1 : s <= 960 ? 1.32 : s <= 1150 ? 1.8 : s <= 1450 ? 2.05 : 2.25;
   return {...k, scale: Math.round(s * f)};
 };
-export const CAM4: CamKey[] = CAM.map(ZOOM4);
+
+/* =====================================================================================
+   v5.2 camera — shot like the reference: close (60–75 px/deg) on the subject, medium (40–55) on a region,
+   overviews (24–30) only for the summary beats; continuous pans between subjects.
+   ===================================================================================== */
+const K = (t: number, lon: number, lat: number, ppd: number): CamKey => ({t, lon, lat, scale: Math.round(ppd * 57.2958)});
+export const CAM5: CamKey[] = [
+  {t: 0, lon: -28, lat: 12, scale: 440},
+  {t: COLD_OPEN.quote, lon: -28, lat: 12, scale: 440},
+  {t: COLD_OPEN.quote + 1, lon: -22, lat: 12, scale: 470},
+  K(FIRST_VO + 2, 18, 4, 24),
+  // S1 — Africa in 1870
+  K(T('S1_01', 'Sokoto'), 7, 13, 46),
+  K(T('S1_01', 'Zulu'), 31, -28, 55),
+  K(T('S1_01', 'Asante'), -1.5, 7, 58),
+  K(T('S1_01', 'Ethiopians'), 38, 11, 50),
+  K(E('S1_01'), 36, 10, 46),
+  K(T('S1_02', 'Europeans'), 18, 2, 26),
+  K(T('S1_02', 'Portuguese'), 24, -14, 38),
+  K(T('S1_02', 'Cape'), 22, -31, 52),
+  K(T('S1_02', 'Algeria'), 3, 31, 48),
+  K(T('S1_03'), 20, 2, 30),
+  K(T('S1_03', 'Livingstone'), 24, -6, 36),
+  K(T('S1_03', 'Within'), 18, 4, 26),
+  // S2 — the enablers
+  K(T('S2_01'), 15, 40, 30),
+  K(T('S2_01', 'Suez'), 32, 30, 58),
+  K(T('S2_01', 'London'), 5, 46, 32),
+  K(T('S2_02'), 20, 25, 30),
+  K(T('S2_03', 'Second'), 10, 47, 40),
+  K(T('S2_03', 'Germany'), 10, 50, 44),
+  // S3 — Leopold
+  K(T('S3_01'), 4.5, 50.5, 68),
+  K(T('S3_01', 'build'), 6, 30, 26),
+  K(T('S3_02'), 18, -3, 44),
+  K(T('S3_02', 'Congo'), 18, -2, 54),
+  K(T('S3_03'), 14, -4, 54),
+  K(E('S3_03'), 16, 0, 40),
+  // S4 — Berlin
+  K(T('S4_01'), 13, 50, 58),
+  K(T('S4_01', 'Berlin'), 13.4, 51, 72),
+  K(T('S4_02'), 23, -2, 40),
+  K(T('S4_02', 'effective'), 22, -1, 44),
+  K(T('S4_03'), 10, 5, 34),
+  // S5 — the partition
+  K(T('S5_01'), 15, 25, 34),
+  K(T('S5_01', 'Tunisia'), 10, 34, 58),
+  K(T('S5_01', 'Egypt'), 30, 27, 48),
+  K(T('S5_02'), 15, 0, 32),
+  K(T('S5_02', 'South'), 17, -22, 50),
+  K(T('S5_02', 'Togoland'), 5, 7, 58),
+  K(T('S5_02', 'Kamerun'), 13, 5, 54),
+  K(T('S5_02', 'East'), 35, -6, 54),
+  K(T('S5_03'), 8, 9, 50),
+  K(T('S5_03', 'Rhodes'), 27, -20, 42),
+  K(T('S5_03', 'Cairo'), 28, -4, 26),
+  K(T('S5_04'), -10, 15, 44),
+  K(T('S5_04', 'Algeria'), 3, 30, 44),
+  K(T('S5_04', 'oases'), 2, 24, 40),
+  K(T('S5_04', 'desert'), 2, 18, 40),
+  K(T('S5_04', 'Mediterranean'), 10, 12, 28),
+  K(T('S5_05'), 20, 10, 32),
+  K(T('S5_05', 'Fashoda'), 32, 10, 58),
+  K(T('S5_05', 'Paris'), 20, 12, 30),
+  K(T('S5_06'), 41, 10, 54),
+  K(T('S5_06', 'Portugal'), 24, -14, 38),
+  K(T('S5_06', 'Sahara'), -13, 24, 54),
+  K(T('S5_07'), 18, 3, 25),
+  K(E('S5_07'), 18, 3, 24),
+  // S6 — resistance
+  K(T('S6_01'), 25, -12, 34),
+  K(T('S6_01', 'Isandlwana'), 30.7, -28.3, 72),
+  K(T('S6_02'), 0, 8, 44),
+  K(T('S6_02', 'Samori'), -7, 10, 64),
+  K(T('S6_03'), 28, 16, 44),
+  K(T('S6_03', 'Khartoum'), 32.5, 15.6, 68),
+  K(T('S6_04'), 33, 12, 44),
+  K(T('S6_04', 'Adwa'), 39, 13, 72),
+  K(T('S6_04', 'Ethiopia', 2), 39.5, 10, 58),
+  K(T('S6_04', 'Liberia'), 18, 6, 26),
+  // S7 — the price
+  K(T('S7_01'), 23, -3, 44),
+  K(T('S7_01', 'Congo'), 23, -3, 48),
+  K(T('S7_03'), 17, -22, 50),
+  K(T('S7_03', 'Herero'), 17, -21, 60),
+  K(E('S7_03') - 0.5, 17.5, -21.5, 62),
+  K(T('S7_04'), 26, -28, 58),
+  K(T('S7_04', 'Boer'), 27, -28, 64),
+  // S8 — 1914 and today
+  K(T('S8_01'), -5, 32, 44),
+  K(T('S8_01', 'Agadir'), -9.6, 30.4, 68),
+  K(T('S8_01', 'Europe'), 0, 38, 32),
+  K(T('S8_02'), 18, 10, 30),
+  K(T('S8_02', 'Morocco'), -6, 32, 50),
+  K(T('S8_02', 'Libya'), 18, 27, 44),
+  K(T('S8_02', 'seven'), 18, 3, 25),
+  K(T('S8_03'), 18, 3, 25),
+  K(T('S8_03', 'ruler'), 15, 18, 34),
+  K(T('S8_04'), 20, 2, 27),
+  K(T('S8_05'), 18, 3, 25),
+  {t: END_VO + 1.5, lon: 14, lat: 8, scale: 560},
+  {t: END_VO + 1.5 + OUTRO.card, lon: 0, lat: 12, scale: 440},
+  {t: END_VO + 1.5 + OUTRO.card + OUTRO.credits, lon: -20, lat: 14, scale: 420},
+];
+
+/** hold on each subject, then travel to the next one in 1–2.4 s (reference: settle → hold → move, never a constant slow crawl) */
+const HOLD = (keys: CamKey[]): CamKey[] => {
+  const out: CamKey[] = [];
+  for (let i = 0; i < keys.length; i++) {
+    const a = keys[i], b = keys[i + 1];
+    out.push(a);
+    if (!b) break;
+    const dist = Math.hypot(b.lon - a.lon, b.lat - a.lat) + 12 * Math.abs(Math.log(b.scale / a.scale));
+    const travel = Math.min(2.4, Math.max(1.0, 0.8 + 0.05 * dist));
+    if (b.t - a.t > travel + 0.4 && a.scale > 500) out.push({...a, t: b.t - travel});
+  }
+  return out;
+};
+export const CAM4: CamKey[] = HOLD(CAM5);
 
 /** labels printed in white (over dark fills) — everything else is dark ink on the light terrain */
 export const LIGHT_LABELS = new Set(['German S.W. Africa', 'German East Africa', 'Kamerun', 'Togo', 'German South-West Africa', 'Eritrea', 'Italian Somaliland', 'Libya',
