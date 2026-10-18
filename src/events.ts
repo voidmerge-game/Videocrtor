@@ -210,7 +210,7 @@ export const ARCHIVE: ArcEv[] = [
   {src: 'archive/menelik.jpg', caption: 'Emperor Menelik II of Ethiopia', t: T('S6_04', 'Menelik'), until: E('S6_04') + 0.5, ...Pt_, from: 'right'},
   {src: 'archive/nsala.jpg', caption: 'Nsala of Wala, Congo Free State, 1904 — A. S. Harris', t: T('S7_01', 'quotas'), until: E('S7_01') + 0.5, ...R, from: 'right', w: 780, h: 480},
   {src: 'archive/morel.jpg', caption: 'E. D. Morel, Congo Reform Association', t: T('S7_02', 'Morel'), until: E('S7_02') + 0.3, ...Pt_, from: 'right', w: 560, h: 520},
-  {src: 'archive/herero.jpg', caption: 'Herero prisoners, c. 1904', t: T('S7_03', 'Herero'), until: E('S7_03') + 0.3, ...Lf, from: 'left', w: 700, h: 520},
+  {src: 'archive/herero.jpg', caption: 'Herero prisoners, c. 1904', t: T('S7_03', 'Herero'), until: E('S7_03') + 0.3, ...Lf, from: 'left', w: 600, h: 450},
   {src: 'archive/boer_camp.jpg', caption: 'Bloemfontein concentration camp, c. 1901', t: T('S7_04', 'Boer'), until: E('S7_04') + 0.3, ...R, from: 'right'},
   {src: 'archive/panther.jpg', caption: 'SMS Panther', t: T('S8_01', 'gunboat'), until: T('S8_01', 'Twice', 2) + 1.5, ...R, from: 'right'},
 ];
@@ -233,7 +233,7 @@ export const YEARS: [number, string][] = [
   [FIRST_VO, '1870'], [T('S2_01'), '1869'], [T('S2_02', 'Maxim'), '1884'], [T('S3_01'), '1876'], [T('S3_02', 'Stanley'), '1879'],
   [T('S4_01'), '1884'], [T('S4_02'), '1885'], [T('S5_01', 'Tunisia'), '1881'], [T('S5_01', 'Egypt'), '1882'], [T('S5_02'), '1884'],
   [T('S5_03', 'Niger'), '1886'], [T('S5_03', 'Rhodes'), '1889'], [T('S5_04', 'Senegal'), '1890'], [T('S5_04', 'desert'), '1894'],
-  [T('S5_05', 'Fashoda'), '1898'], [T('S5_06'), '1896'], [T('S5_07'), '1900'], [T('S6_01', 'Isandlwana'), '1879'], [T('S6_02'), '1882'],
+  [T('S5_05', 'Fashoda'), '1898'], [T('S5_06'), '1896'], [T('S5_07'), '1900'], [T('S6_01', '1879'), '1879'], [T('S6_02'), '1882'],
   [T('S6_03', 'Khartoum'), '1885'], [T('S6_03', 'Omdurman'), '1898'], [T('S6_04', 'Adwa'), '1896'], [T('S7_01'), '1890s'], [T('S7_02', 'Belgium'), '1908'],
   [T('S7_03', 'Herero'), '1904'], [T('S7_04', 'Boer'), '1901'], [T('S8_01', 'Agadir'), '1911'], [T('S8_02', 'By'), '1914'], [T('S8_03', 'Then'), 'TODAY'],
   [T('S8_04', '1964'), '1964'], [T('S8_05'), '1914'],
@@ -314,10 +314,11 @@ export const CAM: CamKey[] = [
   {t: T('S6_04', 'Adwa'), lon: 38.5, lat: 12, scale: 1600},
   {t: T('S6_04', 'Liberia'), lon: 18, lat: 6, scale: 900},
   // Scene 7 — the price
-  {t: T('S7_01'), lon: 22, lat: -2, scale: 1100},
-  {t: T('S7_01', 'Congo'), lon: 22, lat: -3, scale: 1300},
-  {t: T('S7_03'), lon: 18, lat: -18, scale: 1200},
-  {t: T('S7_03', 'Herero'), lon: 17, lat: -22, scale: 1500},
+  {t: T('S7_01'), lon: 30, lat: -2, scale: 1100},
+  {t: T('S7_01', 'Congo'), lon: 31, lat: -3, scale: 1300},
+  {t: T('S7_03'), lon: 8, lat: -18, scale: 1200},
+  {t: T('S7_03', 'Herero'), lon: 3, lat: -22, scale: 1400},
+  {t: E('S7_03') - 0.5, lon: 4, lat: -22.5, scale: 1420},
   {t: T('S7_04'), lon: 24, lat: -26, scale: 1300},
   {t: T('S7_04', 'Boer'), lon: 26, lat: -28, scale: 1500},
   // Scene 8 — 1914 and today

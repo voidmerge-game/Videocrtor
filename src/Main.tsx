@@ -190,7 +190,7 @@ export const Main: React.FC = () => {
                 const fi = m.fadeIn ? clamp01(f / (m.fadeIn * fps)) : 1;
                 const fo = m.fadeOut ? clamp01((dur - f) / (m.fadeOut * fps)) : 1;
                 // ducking under narration (soft, looks ahead a little)
-                const duck = voActive(tt) ? 0.42 : 1;
+                const duck = voActive(tt) ? 0.5 : 1;
                 return m.gain * fi * fo * duck * 0.9;
               }}
             />
