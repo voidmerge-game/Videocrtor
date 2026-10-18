@@ -12,7 +12,7 @@ export const OWNER_1880: Record<string, Power> = {
   'Angola (Portugal)': 'portugal', Mozambique: 'portugal', 'Portuguese Guinea': 'portugal',
   'Gold Coast (GB)': 'britain', 'Cape Colony': 'britain', Natal: 'britain', Lagos: 'britain', 'Sierra Leone': 'britain',
   Gambia: 'britain', 'Griqualand West': 'britain', Basutoland: 'britain',
-  'Spanish Guinea': 'spain', Egypt: 'ottoman', 'Ottoman Empire': 'ottoman', 'Harer (Egypt)': 'ottoman',
+  'Spanish Guinea': 'spain', Egypt: 'ottoman', 'Egyptian Sudan': 'ottoman', 'Ottoman Empire': 'ottoman', 'Harer (Egypt)': 'ottoman',
 };
 export const OWNER_1914: Record<string, Power> = {
   Malawi: 'britain', Botswana: 'britain', 'South Africa': 'britain', 'Anglo-Egyptian Sudan': 'britain', Egypt: 'britain',
