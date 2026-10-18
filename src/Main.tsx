@@ -7,7 +7,8 @@ import {C, FONT, Power} from './theme';
 import {FlagDrop, MapLabel, YearBadge, Caption, TitleCard, Grain, PowerChip, ArchiveFrame, QuoteCard} from './components/Ui';
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
-import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, CAPTIONS, ARCHIVE, QUOTES, yearAt, CHIPS, CHIPS_UNTIL, CAM, SFX, MUSIC} from './events';
+import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, CAPTIONS, ARCHIVE, QUOTES, yearAt, CHIPS, CHIPS_UNTIL, CAM3, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES} from './events';
+import {BigLabel, City, Callout, Route, Pulse} from './components/Motion';
 
 export const MAIN_DURATION_SEC = TOTAL;
 
@@ -20,6 +21,9 @@ const STATE_FILL: Record<string, string> = {
   'Kanem-Bornu': 'rgba(110,120,150,0.45)', 'Wadai Empire': 'rgba(150,130,100,0.45)', 'Tukular Caliphate': 'rgba(130,140,110,0.5)', Imerina: 'rgba(150,110,120,0.5)',
   Transvaal: 'rgba(140,130,100,0.45)', 'Orange Free State': 'rgba(150,140,110,0.45)', Liberia: 'rgba(140,120,80,0.45)',
 };
+// small labels superseded by CITIES / CALLOUTS in v3
+const DUP_LABELS = new Set(['Léopoldville', 'Stanley Falls', 'Boma', 'Cairo', 'Cape Town', 'Dakar', 'Timbuktu', 'Berlin', 'Paris', 'London', 'Brussels',
+  'Khartoum', 'Omdurman', 'Isandlwana', 'Fashoda', 'Adwa', 'Agadir', 'Ouargla', 'Suez Canal', 'Brazzaville', 'Upper Nile', 'Wassoulou Empire of Samori Touré', 'Bloemfontein', 'Pretoria', 'Fez', 'Liberia']);
 // atlas palette: printed with 'multiply' over the shaded relief
 const POWER_FILL: Record<Power, string> = {
   britain: '#e2604c', france: '#4f7fc4', germany: '#8d8a6e', belgium: '#ecb43c', portugal: '#4a9c68',
@@ -88,7 +92,7 @@ export const Main: React.FC = () => {
   const af1914 = useTopo('colonies_1914');
   const modern = useTopo('countries_world');
 
-  const cam = camAt(CAM, t);
+  const cam = camAt(CAM3, t);
 
   // ----- layer opacities over time -----
   const pre1880On = prog(frame, (FIRST_VO + 1.5) * fps, (FIRST_VO + 4.5) * fps); // fade in during S1
@@ -155,11 +159,28 @@ export const Main: React.FC = () => {
   return (
     <AbsoluteFill style={{background: '#050a12'}}>
       <WorldMap cam={cam} land={land} layers={layers} vignette={vignette} atlas={atlas}>
-        {LABELS.map((l, i) => (
+        {/* city dots (only when the camera is close) */}
+        {CITIES.map((c, i) => (
+          <City key={`c${i}`} lon={c.lon} lat={c.lat} name={c.name} at={Math.round((c.t ?? 0) * fps)} until={c.until ? Math.round(c.until * fps) : undefined} minScale={c.minScale} capital={c.capital} side={c.side} />
+        ))}
+        {/* small labels kept only for cities/seas; big region names come from BIG */}
+        {LABELS.filter((l) => l.kind !== 'region' && !DUP_LABELS.has(l.text)).map((l, i) => (
           <MapLabel key={i} lon={l.lon} lat={l.lat} text={l.text} at={Math.round(l.t * fps)} until={l.until ? Math.round(l.until * fps) : undefined} kind={l.kind ?? 'city'} size={l.size ?? 26} />
+        ))}
+        {BIG.map((b, i) => (
+          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} />
+        ))}
+        {ROUTES.map((r, i) => (
+          <Route key={`r${i}`} pts={r.pts} at={Math.round(r.t * fps)} until={Math.round(r.until * fps)} color={r.color} width={r.width} dashed={r.dashed} drawDur={r.drawDur} head={r.head} />
+        ))}
+        {PULSES.map((p, i) => (
+          <Pulse key={`p${i}`} lon={p.lon} lat={p.lat} at={Math.round(p.t * fps)} until={Math.round(p.until * fps)} color={p.color} />
         ))}
         {FLAGS.map((f, i) => (
           <FlagDrop key={i} lon={f.lon} lat={f.lat} power={f.power} at={Math.round(f.t * fps)} until={f.until ? Math.round(f.until * fps) : undefined} label={f.label} width={f.w ?? 58} />
+        ))}
+        {CALLOUTS.map((c, i) => (
+          <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={c.dx} dy={c.dy} />
         ))}
       </WorldMap>
 

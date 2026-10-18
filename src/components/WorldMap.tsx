@@ -7,6 +7,8 @@ import type {Feature, Geometry} from 'geojson';
 import {RasterGlobe} from './RasterGlobe';
 
 export type Cam = {lon: number; lat: number; scale: number};
+const AFRICA_HD = {lon0: -30, lon1: 65, lat0: -42, lat1: 50};
+const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
 export type Layer = {
   id: string;
@@ -108,6 +110,9 @@ export const WorldMap: React.FC<{
         )}
         {raster && atlas > 0 && (
           <RasterGlobe cam={cam} src="data/relief_4k.png" tint={[0.98, 0.93, 0.82]} light={0.35} opacity={atlas} blend="multiply" />
+        )}
+        {raster && atlas > 0 && cam.scale > 1150 && (
+          <RasterGlobe cam={cam} src="data/relief_africa_hd.png" tint={[0.98, 0.93, 0.82]} light={0.35} opacity={atlas * clamp01((cam.scale - 1150) / 300)} blend="multiply" bounds={AFRICA_HD} />
         )}
         <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
           <defs>

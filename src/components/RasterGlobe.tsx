@@ -33,7 +33,9 @@ const loadTex = (src: string) => {
 
 export type Tint = [number, number, number];
 
-const renderGlobe = (out: Uint8ClampedArray, cam: Cam, w: number, h: number, res: number, src: string, tint: Tint, lightAmt: number) => {
+export type Bounds = {lon0: number; lon1: number; lat0: number; lat1: number};
+
+const renderGlobe = (out: Uint8ClampedArray, cam: Cam, w: number, h: number, res: number, src: string, tint: Tint, lightAmt: number, bounds?: Bounds) => {
   const T = TEXS[src];
   const TW = T.w, TH = T.h, tex = T.data;
   const R = cam.scale * res, cx = (W / 2) * res, cy = (H / 2) * res;
@@ -54,11 +56,20 @@ const renderGlobe = (out: Uint8ClampedArray, cam: Cam, w: number, h: number, res
       const sc = Math.sin(c), cc = Math.cos(c);
       const lat = rho === 0 ? lat0 : Math.asin(cc * sinP + (py * sc * cosP) / rho);
       const lon = l0 + Math.atan2(px * sc, rho * cc * cosP - py * sc * sinP);
-      let u = (lon + Math.PI) * kx;
-      let v = (Math.PI / 2 - lat) * ky;
-      u = ((u % TW) + TW) % TW;
-      if (v < 0) v = 0; else if (v > TH - 1.001) v = TH - 1.001;
-      const u0 = u | 0, v0 = v | 0, fu = u - u0, fv = v - v0, u1 = (u0 + 1) % TW, v1 = v0 + 1;
+      let u: number, v: number;
+      if (bounds) {
+        const lonD = ((lon * 180) / Math.PI + 540) % 360 - 180;
+        const latD = (lat * 180) / Math.PI;
+        u = ((lonD - bounds.lon0) / (bounds.lon1 - bounds.lon0)) * TW;
+        v = ((bounds.lat1 - latD) / (bounds.lat1 - bounds.lat0)) * TH;
+        if (u < 0 || u >= TW - 1 || v < 0 || v >= TH - 1) { out[idx + 3] = 0; continue; }
+      } else {
+        u = (lon + Math.PI) * kx;
+        v = (Math.PI / 2 - lat) * ky;
+        u = ((u % TW) + TW) % TW;
+        if (v < 0) v = 0; else if (v > TH - 1.001) v = TH - 1.001;
+      }
+      const u0 = u | 0, v0 = v | 0, fu = u - u0, fv = v - v0, u1 = (u0 + 1) % TW, v1 = Math.min(TH - 1, v0 + 1);
       const i00 = (v0 * TW + u0) * 4, i10 = (v0 * TW + u1) * 4, i01 = (v1 * TW + u0) * 4, i11 = (v1 * TW + u1) * 4;
       // lighting: light from upper-left, limb darkening
       const nz = cc; // cosine of angle from view axis
@@ -73,8 +84,8 @@ const renderGlobe = (out: Uint8ClampedArray, cam: Cam, w: number, h: number, res
   }
 };
 
-export const RasterGlobe: React.FC<{cam: Cam; res?: number; opacity?: number; src?: string; tint?: Tint; light?: number; blend?: string}> = ({
-  cam, res = 1, opacity = 1, src = 'data/earth_4k.jpg', tint = [1, 1, 1], light = 1, blend,
+export const RasterGlobe: React.FC<{cam: Cam; res?: number; opacity?: number; src?: string; tint?: Tint; light?: number; blend?: string; bounds?: Bounds}> = ({
+  cam, res = 1, opacity = 1, src = 'data/earth_4k.jpg', tint = [1, 1, 1], light = 1, blend, bounds,
 }) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const [handle] = useState(() => delayRender('raster-globe'));
@@ -87,9 +98,9 @@ export const RasterGlobe: React.FC<{cam: Cam; res?: number; opacity?: number; sr
     if (!ready || !ref.current) return;
     const ctx = ref.current.getContext('2d')!;
     const id = ctx.createImageData(w, h);
-    renderGlobe(id.data, cam, w, h, res, src, tint, light);
+    renderGlobe(id.data, cam, w, h, res, src, tint, light, bounds);
     ctx.putImageData(id, 0, 0);
-  }, [ready, cam.lon, cam.lat, cam.scale, w, h, res, src, tint[0], tint[1], tint[2], light]);
+  }, [ready, cam.lon, cam.lat, cam.scale, w, h, res, src, tint[0], tint[1], tint[2], light, bounds]);
   return (
     <canvas
       ref={ref}

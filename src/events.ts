@@ -207,7 +207,7 @@ export const ARCHIVE: ArcEv[] = [
   {src: 'archive/marchand.jpg', caption: 'The Marchand mission, 1898', t: T('S5_05', 'expedition'), until: T('S5_05', 'Paris'), ...Lf, from: 'left', y: 120, w: 760, h: 540},
   {src: 'archive/isandlwana.jpg', caption: 'The Battle of Isandlwana — C. E. Fripp', t: T('S6_01', 'Zulu'), until: E('S6_01') + 0.5, ...Lf, from: 'left', w: 780, h: 500},
   {src: 'archive/omdurman.jpg', caption: 'Omdurman, 1898 — R. Caton Woodville', t: T('S6_03', 'Kitchener'), until: E('S6_03') + 0.3, ...Lf, from: 'left', w: 560, h: 560},
-  {src: 'archive/menelik.jpg', caption: 'Emperor Menelik II of Ethiopia', t: T('S6_04', 'Menelik'), until: E('S6_04') + 0.5, ...Pt_, from: 'right'},
+  {src: 'archive/menelik.jpg', caption: 'Emperor Menelik II of Ethiopia', t: T('S6_04', 'Menelik'), until: E('S6_04') + 0.5, x: 90, y: 140, w: 470, h: 560, from: 'left'},
   {src: 'archive/nsala.jpg', caption: 'Nsala of Wala, Congo Free State, 1904 — A. S. Harris', t: T('S7_01', 'quotas'), until: E('S7_01') + 0.5, ...R, from: 'right', w: 780, h: 480},
   {src: 'archive/morel.jpg', caption: 'E. D. Morel, Congo Reform Association', t: T('S7_02', 'Morel'), until: E('S7_02') + 0.3, ...Pt_, from: 'right', w: 560, h: 520},
   {src: 'archive/herero.jpg', caption: 'Herero prisoners, c. 1904', t: T('S7_03', 'Herero'), until: E('S7_03') + 0.3, ...Lf, from: 'left', w: 600, h: 450},
@@ -310,8 +310,9 @@ export const CAM: CamKey[] = [
   {t: T('S6_02', 'Samori'), lon: -5, lat: 10, scale: 1600},
   {t: T('S6_03'), lon: 28, lat: 16, scale: 1200},
   {t: T('S6_03', 'Khartoum'), lon: 32, lat: 15, scale: 1700},
-  {t: T('S6_04'), lon: 36, lat: 10, scale: 1200},
-  {t: T('S6_04', 'Adwa'), lon: 38.5, lat: 12, scale: 1600},
+  {t: T('S6_04'), lon: 30, lat: 10, scale: 1200},
+  {t: T('S6_04', 'Adwa'), lon: 31.5, lat: 12.5, scale: 1600},
+  {t: T('S6_04', 'Ethiopia', 2), lon: 32, lat: 11, scale: 1500},
   {t: T('S6_04', 'Liberia'), lon: 18, lat: 6, scale: 900},
   // Scene 7 — the price
   {t: T('S7_01'), lon: 30, lat: -2, scale: 1100},
@@ -361,3 +362,183 @@ export const MUSIC: Music[] = [
 ];
 
 export const SCENES_FOR_DEBUG = {SCENE_START};
+
+/* =====================================================================================
+   v3 motion graphics — closer camera, big spaced labels, cities, callouts, route arrows
+   ===================================================================================== */
+
+// push the camera in: regional shots become close-ups, overviews a little tighter
+const ZOOM = (k: CamKey): CamKey => {
+  const s = k.scale;
+  const f = s < 500 ? 1 : s <= 900 ? 1.18 : s <= 1000 ? 1.3 : s <= 1300 ? 1.5 : 1.55;
+  return {...k, scale: Math.round(s * f)};
+};
+export const CAM3: CamKey[] = CAM.map(ZOOM);
+
+export type BigEv = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number};
+const S5e = E('S5_07') + 1.0; // partition labels stay until the 1900 summary ends
+const S8a = T('S8_02', 'By'), S8b = T('S8_03', 'borders') + 1.5;
+const both = (lon: number, lat: number, text: string, t: number, size = 40, rot = 0): BigEv[] => [
+  {lon, lat, text, t: t + 0.6, until: S5e, size, rot},
+  {lon, lat, text, t: S8a, until: S8b, size, rot},
+];
+export const BIG: BigEv[] = [
+  // 1870 — African powers
+  {lon: 6.5, lat: 12.5, text: 'Sokoto Caliphate', t: T('S1_01', 'Sokoto'), until: E('S1_03') + 1, size: 40},
+  {lon: 31.2, lat: -28.2, text: 'Zulu', t: T('S1_01', 'Zulu'), until: E('S1_03') + 1, size: 34},
+  {lon: -1.5, lat: 7.2, text: 'Asante', t: T('S1_01', 'Asante'), until: E('S1_03') + 1, size: 30},
+  {lon: 39.0, lat: 9.5, text: 'Ethiopia', t: T('S1_01', 'Ethiopians'), until: E('S1_03') + 1, size: 40},
+  {lon: 32.3, lat: 0.8, text: 'Buganda', t: T('S1_01', 'Ethiopians') + 1, until: E('S1_03') + 1, size: 26},
+  {lon: 29.5, lat: 27.0, text: 'Egypt', t: T('S1_02', 'Europeans'), until: E('S1_03') + 1, size: 36},
+  {lon: -6.0, lat: 32.0, text: 'Morocco', t: T('S1_02', 'Europeans'), until: E('S1_03') + 1, size: 30},
+  {lon: 3.0, lat: 22.0, text: 'Sahara', t: T('S1_03', 'blank'), until: E('S1_03') + 1, size: 54, rot: -8},
+  {lon: 22.5, lat: 1.5, text: 'Congo Basin', t: T('S1_03', 'blank') + 0.6, until: E('S1_03') + 1, size: 34},
+  // Europe (scenes 2–4)
+  {lon: -1.8, lat: 53.0, text: 'Britain', t: T('S2_03', 'Britain'), until: E('S4_01') + 1, size: 40, rot: -70},
+  {lon: 2.2, lat: 46.6, text: 'France', t: T('S2_03', 'France'), until: E('S4_01') + 1, size: 44},
+  {lon: 10.5, lat: 51.2, text: 'Germany', t: T('S2_03', 'Germany'), until: E('S4_01') + 1, size: 44, rot: -14},
+  {lon: 12.8, lat: 42.8, text: 'Italy', t: T('S2_03', 'Germany') + 0.5, until: E('S4_01') + 1, size: 32, rot: 55},
+  {lon: 32.0, lat: 39.0, text: 'Ottoman Empire', t: T('S2_01', 'Suez'), until: E('S2_03') + 1, size: 34, rot: -8},
+  {lon: 29.5, lat: 27.0, text: 'Egypt', t: T('S2_01', 'Suez'), until: E('S2_03') + 1, size: 34},
+  // Congo (scenes 3–4)
+  {lon: 23.5, lat: -7.0, text: 'Congo Free State', t: T('S4_02', 'Congo') + 1.5, until: E('S4_03') + 1, size: 34, rot: -12},
+  {lon: 15.0, lat: 0.5, text: 'French Congo', t: T('S3_03', 'France') + 0.8, until: E('S4_03') + 1, size: 24, rot: -60},
+  // the partition (scene 5) + 1914 summary
+  ...both(9.5, 35.5, 'Tunisia', T('S5_01', 'Tunisia'), 26, -70),
+  ...both(29.5, 27.0, 'Egypt', T('S5_01', 'Egypt'), 36),
+  ...both(18.0, -21.0, 'German S.W. Africa', T('S5_02', 'South'), 26, -70),
+  ...both(1.0, 8.6, 'Togo', T('S5_02', 'Togoland'), 20, -80),
+  ...both(12.8, 5.5, 'Kamerun', T('S5_02', 'Kamerun'), 26, -60),
+  ...both(35.0, -6.5, 'German East Africa', T('S5_02', 'East'), 28, -40),
+  ...both(8.0, 10.0, 'Nigeria', T('S5_03', 'Niger'), 32),
+  ...both(-1.5, 8.5, 'Gold Coast', T('S5_03', 'Niger') + 0.6, 20, -80),
+  ...both(26.5, -17.0, 'Rhodesia', T('S5_03', 'Rhodes'), 30),
+  ...both(24.5, -28.5, 'South Africa', T('S5_03', 'Cape'), 30),
+  ...both(38.0, 1.0, 'British East Africa', T('S5_03', 'Cairo'), 24, -25),
+  ...both(-4.0, 17.5, 'French West Africa', T('S5_04', 'Senegal'), 40),
+  ...both(3.0, 27.5, 'Algeria', T('S5_04', 'Algeria'), 36),
+  ...both(19.0, 8.5, 'French Equatorial Africa', T('S5_04', 'Congo'), 26, -62),
+  ...both(46.8, -19.5, 'Madagascar', T('S5_04', 'Congo') + 1.2, 24, -75),
+  ...both(38.8, 15.5, 'Eritrea', T('S5_06', 'Eritrea'), 20, -30),
+  ...both(46.0, 4.5, 'Italian Somaliland', T('S5_06', 'Somalia'), 20, -55),
+  ...both(17.5, -12.0, 'Angola', T('S5_06', 'Portugal'), 30),
+  ...both(36.0, -16.5, 'Mozambique', T('S5_06', 'Portugal') + 0.3, 24, -70),
+  ...both(-13.5, 24.5, 'Río de Oro', T('S5_06', 'Sahara'), 20, -70),
+  ...both(39.0, 9.5, 'Ethiopia', T('S5_06', 'Eritrea') + 0.5, 30),
+  ...both(29.5, 15.0, 'Sudan', T('S6_03', 'Omdurman'), 36),
+  // scenes 6–7 close-ups
+  {lon: 31.9, lat: -27.4, text: 'Zululand', t: T('S6_01', 'Zulu'), until: E('S6_01') + 1, size: 28, rot: -55},
+  {lon: 31.5, lat: 13.5, text: 'Mahdist Sudan', t: T('S6_03', 'Khartoum') + 0.5, until: E('S6_03') + 1, size: 40, rot: -8},
+  {lon: 39.8, lat: 7.3, text: 'Ethiopia', t: T('S6_04'), until: E('S6_04') + 1, size: 40},
+  {lon: 21.5, lat: -5.5, text: 'Congo Free State', t: T('S7_01'), until: E('S7_02') + 1, size: 28, rot: -12},
+  {lon: 17.5, lat: -22.0, text: 'German South-West Africa', t: T('S7_03'), until: E('S7_03') + 1, size: 26, rot: -70},
+  {lon: 29.5, lat: -25.0, text: 'Transvaal', t: T('S7_04', 'Boer'), until: E('S7_04') + 1, size: 28},
+  {lon: 26.5, lat: -29.0, text: 'Orange Free State', t: T('S7_04', 'Boer'), until: E('S7_04') + 1, size: 20},
+  {lon: -6.0, lat: 32.0, text: 'Morocco', t: T('S8_01', 'Morocco'), until: S8b, size: 30},
+  {lon: 18.0, lat: 27.0, text: 'Libya', t: T('S8_02', 'Libya'), until: S8b, size: 36},
+];
+
+export type CityEv = {lon: number; lat: number; name: string; minScale?: number; capital?: boolean; side?: 'r' | 'l' | 'b' | 't'; t?: number; until?: number};
+const AF0 = FIRST_VO + 2, AF1 = T('S8_03', 'borders');
+export const CITIES: CityEv[] = ([
+  {lon: 3.05, lat: 36.75, name: 'Algiers', capital: true, minScale: 1300},
+  {lon: 10.18, lat: 36.8, name: 'Tunis', side: 'r'},
+  {lon: 13.19, lat: 32.9, name: 'Tripoli'},
+  {lon: 31.24, lat: 30.05, name: 'Cairo', capital: true, minScale: 1200, side: 'r'},
+  {lon: 29.92, lat: 31.2, name: 'Alexandria', side: 'l'},
+  {lon: 38.75, lat: 9.03, name: 'Addis Ababa', capital: true, minScale: 1300},
+  {lon: 39.45, lat: 15.6, name: 'Massawa', side: 'r'},
+  {lon: 45.34, lat: 2.05, name: 'Mogadishu'},
+  {lon: 39.2, lat: -6.16, name: 'Zanzibar', side: 'r'},
+  {lon: 39.66, lat: -4.05, name: 'Mombasa', side: 'r'},
+  {lon: 15.3, lat: -4.33, name: 'Léopoldville', side: 'b'},
+  {lon: 13.05, lat: -5.85, name: 'Boma', side: 'l'},
+  {lon: 13.23, lat: -8.84, name: 'Luanda', side: 'l'},
+  {lon: 3.39, lat: 6.45, name: 'Lagos', side: 'b'},
+  {lon: -0.19, lat: 5.6, name: 'Accra', side: 'b'},
+  {lon: -17.44, lat: 14.69, name: 'Dakar', side: 'l'},
+  {lon: -3.0, lat: 16.77, name: 'Timbuktu'},
+  {lon: -13.23, lat: 8.48, name: 'Freetown', side: 'l'},
+  {lon: 18.42, lat: -33.93, name: 'Cape Town', capital: true, minScale: 1200, side: 'b'},
+  {lon: 31.02, lat: -29.86, name: 'Durban', side: 'r'},
+  {lon: 28.19, lat: -25.75, name: 'Pretoria'},
+  {lon: 28.04, lat: -26.2, name: 'Johannesburg', side: 'b'},
+  {lon: 17.08, lat: -22.56, name: 'Windhoek'},
+  {lon: 31.05, lat: -17.83, name: 'Salisbury'},
+  {lon: 28.58, lat: -20.15, name: 'Bulawayo'},
+  {lon: -5.0, lat: 34.03, name: 'Fez'},
+  {lon: 32.58, lat: -25.97, name: 'Lourenço Marques', side: 'r'},
+  {lon: 47.53, lat: -18.9, name: 'Antananarivo'},
+  {lon: 8.52, lat: 12.0, name: 'Kano'},
+  {lon: 15.28, lat: -4.27, name: 'Brazzaville', side: 't'},
+  {lon: 25.2, lat: 0.52, name: 'Stanley Falls', side: 'r'},
+  // Europe
+  {lon: 13.4, lat: 52.52, name: 'Berlin', capital: true, minScale: 1200},
+  {lon: 2.35, lat: 48.86, name: 'Paris', capital: true, minScale: 1200, side: 'l'},
+  {lon: -0.13, lat: 51.5, name: 'London', capital: true, minScale: 1200, side: 'l'},
+  {lon: 4.35, lat: 50.85, name: 'Brussels', side: 'r', minScale: 1400},
+  {lon: 12.5, lat: 41.9, name: 'Rome', capital: true, minScale: 1200},
+  {lon: -9.14, lat: 38.72, name: 'Lisbon', side: 'l'},
+  {lon: -3.7, lat: 40.42, name: 'Madrid'},
+  {lon: 16.37, lat: 48.21, name: 'Vienna'},
+  {lon: 28.98, lat: 41.01, name: 'Constantinople', side: 'r'},
+] as CityEv[]).map((c) => ({t: AF0, until: AF1, minScale: 1550, ...c}));
+
+export type CalloutEv = {lon: number; lat: number; text: string; sub?: string; t: number; until: number; dx?: number; dy?: number};
+export const CALLOUTS: CalloutEv[] = [
+  {lon: 32.55, lat: 30.3, text: 'Suez Canal', sub: 'opened 1869', t: T('S2_01', 'Suez'), until: E('S2_01') + 0.5, dx: -230, dy: -150},
+  {lon: 13.4, lat: 52.52, text: 'Berlin Conference', sub: 'Nov 1884 – Feb 1885', t: T('S4_01', 'Berlin'), until: E('S4_01') + 0.5, dx: -200, dy: -110},
+  {lon: 15.3, lat: -4.33, text: 'Léopoldville', sub: 'station founded 1881', t: T('S3_02', 'stations'), until: E('S3_02') + 0.5, dx: -190, dy: 120},
+  {lon: 32.1, lat: 9.9, text: 'Fashoda', sub: 'Sept – Nov 1898', t: T('S5_05', 'Fashoda'), until: E('S5_05') + 0.5, dx: 190, dy: -110},
+  {lon: 30.65, lat: -28.35, text: 'Isandlwana', sub: '22 January 1879', t: T('S6_01', 'Isandlwana'), until: E('S6_01') + 0.5, dx: 190, dy: -130},
+  {lon: -8.5, lat: 10.0, text: 'Samori Touré', sub: 'Wassoulou Empire 1882 – 1898', t: T('S6_02', 'Samori'), until: E('S6_02') + 0.5, dx: 170, dy: -130},
+  {lon: 32.53, lat: 15.6, text: 'Fall of Khartoum', sub: '26 January 1885', t: T('S6_03', 'Khartoum'), until: T('S6_03', 'Omdurman') - 0.3, dx: 200, dy: -110},
+  {lon: 32.48, lat: 15.65, text: 'Omdurman', sub: '2 September 1898', t: T('S6_03', 'Omdurman'), until: E('S6_03') + 0.5, dx: 200, dy: 120},
+  {lon: 38.9, lat: 14.17, text: 'Adwa', sub: '1 March 1896', t: T('S6_04', 'Adwa'), until: E('S6_04') + 0.5, dx: 170, dy: -150},
+  {lon: 17.2, lat: -20.4, text: 'Waterberg', sub: 'extermination order · Oct 1904', t: T('S7_03', 'extermination'), until: E('S7_03') + 0.3, dx: 170, dy: -120},
+  {lon: 26.2, lat: -29.1, text: 'Bloemfontein camp', sub: '1900 – 1902', t: T('S7_04', 'concentration'), until: E('S7_04') + 0.3, dx: 190, dy: 110},
+  {lon: -9.6, lat: 30.42, text: 'Agadir', sub: 'SMS Panther · July 1911', t: T('S8_01', 'Agadir'), until: E('S8_01') + 0.5, dx: 180, dy: 120},
+];
+
+export type RouteEv = {pts: [number, number][]; t: number; until: number; color?: string; width?: number; dashed?: boolean; drawDur?: number; head?: boolean};
+const GOLD = '#ffd166', RED = '#ff6b4a', BLUE = '#6fb0ff', GREEN = '#7ee081', WHITE = '#ffffff';
+export const ROUTES: RouteEv[] = [
+  // Livingstone's crossing 1853–56 (Luanda → Victoria Falls → Quelimane)
+  {pts: [[13.2, -8.8], [20.0, -12.5], [25.85, -17.92], [33.5, -16.5], [36.9, -17.9]], t: T('S1_03', 'Livingstone'), until: E('S1_03') + 0.5, color: GOLD, width: 7, dashed: true, drawDur: 70},
+  // Stanley down the Congo 1874–77
+  {pts: [[39.2, -6.16], [33.0, -1.5], [26.2, -4.2], [25.2, 0.52], [20.0, 1.5], [16.5, -1.5], [15.3, -4.33], [13.05, -5.85]], t: T('S3_02', 'Stanley'), until: E('S3_03') + 0.5, color: GOLD, width: 8, drawDur: 90},
+  // Brazza for France: Gabon coast → Brazzaville
+  {pts: [[9.45, 0.4], [12.0, -1.2], [15.28, -4.27]], t: T('S3_03', 'France'), until: E('S3_03') + 0.5, color: BLUE, width: 7, drawDur: 40},
+  // Rhodes' Cape-to-Cairo dream
+  {pts: [[18.42, -33.93], [25.0, -29.0], [28.58, -20.15], [29.5, -8.0], [31.5, 0.5], [32.53, 15.6], [31.24, 30.05]], t: T('S5_03', 'Cape'), until: E('S5_03') + 0.5, color: RED, width: 7, dashed: true, drawDur: 70},
+  // French columns across the Sahara (1898–1900): from Algeria, from Senegal, from the Congo → Lake Chad
+  {pts: [[3.05, 36.75], [2.5, 27.2], [5.5, 20.0], [8.0, 17.0], [13.5, 13.5]], t: T('S5_04', 'Algeria'), until: E('S5_04') + 0.5, color: BLUE, width: 8, drawDur: 60},
+  {pts: [[-16.5, 16.0], [-3.0, 16.77], [2.0, 14.0], [9.0, 13.8], [13.5, 13.5]], t: T('S5_04', 'Senegal'), until: E('S5_04') + 0.5, color: BLUE, width: 8, drawDur: 70},
+  {pts: [[15.28, -4.27], [18.6, 4.4], [16.5, 9.5], [13.5, 13.5]], t: T('S5_04', 'columns'), until: E('S5_04') + 0.5, color: BLUE, width: 8, drawDur: 50},
+  // Marchand to Fashoda; Kitchener up the Nile
+  {pts: [[15.28, -4.27], [18.6, 4.4], [25.0, 7.5], [32.1, 9.9]], t: T('S5_05', 'French'), until: E('S5_05') + 0.5, color: BLUE, width: 8, drawDur: 60},
+  {pts: [[31.24, 30.05], [31.3, 21.8], [32.48, 15.65], [32.1, 9.9]], t: T('S5_05', 'Kitchener'), until: E('S5_05') + 0.5, color: RED, width: 8, drawDur: 45},
+  // Italy from Eritrea toward Adwa
+  {pts: [[39.45, 15.6], [38.9, 14.17]], t: T('S6_04', 'Italian'), until: E('S6_04') + 0.5, color: GREEN, width: 8, drawDur: 30},
+  {pts: [[38.75, 9.03], [39.5, 12.5], [38.9, 14.17]], t: T('S6_04', 'Menelik'), until: E('S6_04') + 0.5, color: GOLD, width: 8, drawDur: 40},
+  // Zulu war: British column from Natal; Zulu impi from Ulundi
+  {pts: [[30.4, -29.6], [30.5, -28.35], [30.65, -28.35]], t: T('S6_01', 'British'), until: E('S6_01') + 0.5, color: RED, width: 8, drawDur: 30},
+  {pts: [[31.4, -28.3], [30.75, -28.3]], t: T('S6_01', 'Zulu') + 0.6, until: E('S6_01') + 0.5, color: GOLD, width: 8, drawDur: 25},
+  // Mahdists to Khartoum; Kitchener to Omdurman
+  {pts: [[30.0, 13.0], [32.53, 15.6]], t: T('S6_03', 'Khartoum') - 0.5, until: T('S6_03', 'Omdurman'), color: GOLD, width: 8, drawDur: 30},
+  {pts: [[31.24, 30.05], [31.3, 21.8], [33.9, 19.6], [32.48, 15.65]], t: T('S6_03', 'Kitchener'), until: E('S6_03') + 0.5, color: RED, width: 8, drawDur: 45},
+  // Samori moving east
+  {pts: [[-9.5, 10.5], [-6.0, 9.0], [-3.5, 8.5]], t: T('S6_02', 'eastward'), until: E('S6_02') + 0.5, color: GOLD, width: 7, dashed: true, drawDur: 40},
+  // Panther to Agadir
+  {pts: [[-5.4, 35.9], [-7.5, 33.5], [-9.9, 30.6]], t: T('S8_01', 'gunboat'), until: E('S8_01') + 0.5, color: '#cfcfcf', width: 7, drawDur: 35},
+];
+
+export type PulseEv = {lon: number; lat: number; t: number; until: number; color?: string};
+export const PULSES: PulseEv[] = [
+  {lon: 30.65, lat: -28.35, t: T('S6_01', 'Isandlwana'), until: E('S6_01') + 0.5},
+  {lon: 32.48, lat: 15.65, t: T('S6_03', 'Omdurman'), until: E('S6_03') + 0.5},
+  {lon: 38.9, lat: 14.17, t: T('S6_04', 'Adwa'), until: E('S6_04') + 0.5},
+  {lon: 32.1, lat: 9.9, t: T('S5_05', 'Fashoda'), until: E('S5_05') + 0.5, color: '#ffd166'},
+  {lon: 13.4, lat: 52.52, t: T('S4_01', 'Berlin'), until: E('S4_01') + 0.5, color: '#ffd166'},
+  {lon: -9.6, lat: 30.42, t: T('S8_01', 'Agadir'), until: E('S8_01') + 0.5},
+];
