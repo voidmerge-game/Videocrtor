@@ -1,4 +1,5 @@
 import React, {createContext, useContext, useMemo} from 'react';
+import type {Rect} from '../lib/labels';
 import {geoOrthographic, geoPath, geoGraticule10, geoDistance, geoArea, GeoProjection} from 'd3-geo';
 import {AbsoluteFill} from 'remotion';
 import {C, W, H} from '../theme';
@@ -40,10 +41,13 @@ export type Layer = {
 
 type Ctx = {projection: GeoProjection; cam: Cam; visible: (lon: number, lat: number) => boolean};
 const MapCtx = createContext<Ctx | null>(null);
+/** screen rectangles that flags / city labels must stay clear of (country names) */
+export const AvoidCtx = createContext<Rect[]>([]);
 export const useMap = () => {
   const c = useContext(MapCtx);
   if (!c) throw new Error('useMap outside WorldMap');
-  return c;
+  const avoid = useContext(AvoidCtx);
+  return {...c, avoid};
 };
 
 export const WorldMap: React.FC<{

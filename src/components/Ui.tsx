@@ -3,6 +3,7 @@ import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig,
 import {C, FONT, POWER_NAME, Power} from '../theme';
 import {FlagSvg} from './Flags';
 import {Marker, useMap} from './WorldMap';
+import {pushOut} from '../lib/labels';
 import {fadeInOut, easeOutCubic, clamp01} from '../lib/anim';
 
 /* ---------- Unit flag on the map (v5): waving cloth, no pole, soft shadow; fades in over 6 f with a small settle ---------- */
@@ -10,7 +11,7 @@ export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: num
   lon, lat, power, at, width = 54, label, until,
 }) => {
   const frame = useCurrentFrame();
-  const {cam} = useMap();
+  const {cam, projection, avoid} = useMap();
   const f = frame - at;
   if (f < 0) return null;
   if (until !== undefined && frame > until) return null;
@@ -23,9 +24,13 @@ export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: num
   const w = width * k, h = (w * 2) / 3;
   const phase = Math.floor(frame / 5) % 3; // slow cloth flutter
   const labelOp = interpolate(f, [6, 18], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  // never sit on a country name: slide out of its rectangle
+  const p = projection([lon, lat]) ?? [0, 0];
+  const bh = h + (label ? 24 * k : 0);
+  const [dx, dy] = pushOut({x: p[0] - w / 2 - 4, y: p[1] - bh / 2 - 4, w: w + 8, h: bh + 8}, avoid);
   return (
     <Marker lon={lon} lat={lat}>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: op, transform: `scale(${scale})`}}>
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: op, transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${scale})`}}>
         <div style={{position: 'relative', width: w, height: h, filter: `url(#flagWave${phase}) drop-shadow(${3 * k}px ${5 * k}px ${5 * k}px rgba(0,0,0,0.6))`}}>
           <FlagSvg power={power} width={w} />
           {/* cloth folds */}

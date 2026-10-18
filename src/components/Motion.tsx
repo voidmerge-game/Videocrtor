@@ -4,46 +4,36 @@
  *  - Route: animated great-circle arrow (expeditions, campaigns, fleets)
  *  - City: dot + small label, only shown when the camera is close enough
  */
+import {layoutFitted, layoutManual, layoutRect, intersects, LINE_H, type Fit, type Rect} from '../lib/labels';
 import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import {geoInterpolate} from 'd3-geo';
-import {useMap, Marker} from './WorldMap';
+import {useMap, Marker, AvoidCtx} from './WorldMap';
 import {FONT, C, W, H} from '../theme';
 import {clamp01, easeOutCubic} from '../lib/anim';
 
 const fadeIO = (f: number, len: number, a = 10, b = 12) => Math.min(clamp01(f / a), clamp01((len - f) / b));
 
 /* ---------- Big region label (printed on the map: dark on light terrain, white on dark fills) ---------- */
-type Fit = {th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number; r: number; bh: number[]; ba: number[]};
-const OFFS = [0, 0.3, 0.6, 1.0, 1.5, 2.2, 3.0];
-/** free length (deg) along a direction for a text band of half-height `halfH` deg — min over the band */
-const bandLen = (band: number[], halfH: number) => {
-  let L = band[0];
-  for (let i = 1; i < OFFS.length; i++) {
-    if (OFFS[i] <= halfH) L = Math.min(L, band[i]);
-    else { const f = (halfH - OFFS[i - 1]) / (OFFS[i] - OFFS[i - 1]); L = Math.min(L, band[i - 1] + (band[i] - band[i - 1]) * f); return L; }
+
+/* ---------- LabelGuard: computes the screen rectangles of all visible country names for this frame and
+ *  hands them to flags / city labels (which move out of the way) ---------- */
+export type GuardLabel = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number; fit?: Fit};
+export const LabelGuard: React.FC<{labels: GuardLabel[]; fps: number; children: React.ReactNode}> = ({labels, fps, children}) => {
+  const frame = useCurrentFrame();
+  const {cam, projection, visible} = useMap();
+  const rects: Rect[] = [];
+  const ppd = (cam.scale * Math.PI) / 180;
+  for (const b of labels) {
+    const at = Math.round(b.t * fps), until = b.until !== undefined ? Math.round(b.until * fps) : undefined;
+    if (frame < at || (until !== undefined && frame > until) || cam.scale < (b.minScale ?? 0) || !visible(b.lon, b.lat)) continue;
+    const L = b.fit ? layoutFitted(b.text.toUpperCase(), b.fit, ppd) : layoutManual(b.text.toUpperCase(), b.size ?? 40, b.rot ?? 0, cam.scale);
+    if (!L) continue;
+    const p = projection([b.lon, b.lat]);
+    if (!p) continue;
+    rects.push(layoutRect(p[0], p[1], L, 8));
   }
-  return halfH > OFFS[OFFS.length - 1] ? L * 0.6 : L;
-};
-const split2 = (label: string): string[] | null => {
-  const w = label.split(' ');
-  if (w.length < 2) return null;
-  let best: string[] | null = null, bestLen = Infinity;
-  for (let k = 1; k < w.length; k++) { const a = w.slice(0, k).join(' '), b = w.slice(k).join(' '); const m = Math.max(a.length, b.length); if (m < bestLen) { bestLen = m; best = [a, b]; } }
-  return best;
-};
-const CHAR_EM = 1.02; // Montserrat 700 caps advance (~0.74em) + 0.28em tracking
-/** largest font (px) for `lines` of text, fully inside the territory along a direction with band table `band` */
-const fitFont = (lines: string[], band: number[], ppd: number) => {
-  const chars = Math.max(...lines.map((l) => l.length));
-  let lo = 6, hi = 130;
-  const ok = (f: number) => {
-    const halfH = (lines.length * 1.15 * f) / 2 / ppd;
-    return chars * CHAR_EM * f <= 0.88 * bandLen(band, halfH) * ppd; // the band table is 0 where the text would cross the border
-  };
-  if (!ok(lo)) return 0;
-  for (let it = 0; it < 14; it++) { const mid = (lo + hi) / 2; if (ok(mid)) lo = mid; else hi = mid; }
-  return lo;
+  return <AvoidCtx.Provider value={rects}>{children}</AvoidCtx.Provider>;
 };
 
 export const BigLabel: React.FC<{
@@ -56,36 +46,16 @@ export const BigLabel: React.FC<{
   const op = until !== undefined ? fadeIO(f, until - at, 14, 14) : clamp01(f / 14);
   const light = tone === 'light';
   const label = text.toUpperCase();
-  const ppd = (cam.scale * Math.PI) / 180; // px per degree
-  // v5.3: when the territory polygon is known the name is ALWAYS fully inside it — we pick the layout
-  // (one or two lines, horizontal or along the main axis) that allows the largest font; too small → not drawn.
-  let fontPx: number, rotDeg: number, lines: string[];
-  if (fit) {
-    const two = split2(label);
-    const cands: {f: number; rot: number; lines: string[]}[] = [];
-    const h1 = fitFont([label], fit.bh, ppd); cands.push({f: h1, rot: 0, lines: [label]});
-    if (two) cands.push({f: fitFont(two, fit.bh, ppd) * 0.9, rot: 0, lines: two});
-    if (Math.abs(fit.th) > 12) {
-      const a1 = fitFont([label], fit.ba, ppd); cands.push({f: a1 / 1.4, rot: -fit.th, lines: [label]});
-      if (two) cands.push({f: (fitFont(two, fit.ba, ppd) * 0.9) / 1.4, rot: -fit.th, lines: two});
-    }
-    cands.sort((p, q) => q.f - p.f);
-    const best = cands[0];
-    // undo the preference penalties to get the real font size
-    const real = best.rot === 0 ? (best.lines.length === 1 ? best.f : best.f / 0.9) : (best.lines.length === 1 ? best.f * 1.4 : (best.f * 1.4) / 0.9);
-    fontPx = Math.min(120, real); rotDeg = best.rot; lines = best.lines;
-    if (fontPx < 13) return null;
-  } else {
-    fontPx = Math.min(120, size * 1.2 * Math.pow(cam.scale / 2400, 0.7));
-    rotDeg = rot; lines = [label];
-  }
+  const ppd = (cam.scale * Math.PI) / 180;
+  const L = fit ? layoutFitted(label, fit, ppd) : layoutManual(label, size, rot, cam.scale);
+  if (!L) return null;
   const track = 0.28;
   return (
     <Marker lon={lon} lat={lat}>
       <div
         style={{
-          opacity: op, transform: `rotate(${rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap', textAlign: 'center',
-          fontFamily: FONT.map, fontWeight: 700, fontSize: fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: 1.15,
+          opacity: op, transform: `rotate(${L.rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap', textAlign: 'center',
+          fontFamily: FONT.map, fontWeight: 700, fontSize: L.fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: LINE_H,
           color: light ? 'rgba(246,243,238,0.97)' : 'rgba(14,10,8,0.9)',
           textShadow: light
             ? '0 2px 2px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.5)'
@@ -93,7 +63,7 @@ export const BigLabel: React.FC<{
           paddingLeft: `${track}em`,
         }}
       >
-        {lines.map((l, i) => <div key={i}>{l}</div>)}
+        {L.lines.map((l, i) => <div key={i}>{l}</div>)}
       </div>
     </Marker>
   );
@@ -104,21 +74,31 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
   lon, lat, name, at, until, minScale = 1500, capital = false, side = 'r',
 }) => {
   const frame = useCurrentFrame();
-  const {cam} = useMap();
+  const {cam, projection, avoid} = useMap();
   if (frame < at || (until !== undefined && frame > until)) return null;
   const vis = clamp01((cam.scale - minScale) / 250);
   if (vis <= 0) return null;
   const op = vis * (until !== undefined ? fadeIO(frame - at, until - at, 10, 10) : clamp01((frame - at) / 10));
   const dot = capital ? 16 : 11;
+  const fs = capital ? 26 : 22;
+  const tw = name.length * fs * 0.78, th = fs * 1.2;
+  // pick the first side (preferred first) whose text box does not touch a country name
+  const p = projection([lon, lat]) ?? [0, 0];
+  const rectFor = (sd: 'r' | 'l' | 'b' | 't') =>
+    sd === 'r' ? {x: p[0] + dot / 2 + 6, y: p[1] - th / 2, w: tw, h: th} :
+    sd === 'l' ? {x: p[0] - dot / 2 - 6 - tw, y: p[1] - th / 2, w: tw, h: th} :
+    sd === 'b' ? {x: p[0] - tw / 2, y: p[1] + dot / 2 + 4, w: tw, h: th} : {x: p[0] - tw / 2, y: p[1] - dot / 2 - 4 - th, w: tw, h: th};
+  const order: ('r' | 'l' | 'b' | 't')[] = [side, ...(['r', 'l', 'b', 't'] as const).filter((x) => x !== side)];
+  const use = order.find((sd) => !avoid.some((a) => intersects(rectFor(sd), a))) ?? side;
   const pos: React.CSSProperties =
-    side === 'r' ? {left: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
-    side === 'l' ? {right: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
-    side === 'b' ? {top: dot + 4, left: '50%', transform: 'translateX(-50%)'} : {bottom: dot + 4, left: '50%', transform: 'translateX(-50%)'};
+    use === 'r' ? {left: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
+    use === 'l' ? {right: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
+    use === 'b' ? {top: dot + 4, left: '50%', transform: 'translateX(-50%)'} : {bottom: dot + 4, left: '50%', transform: 'translateX(-50%)'};
   return (
     <Marker lon={lon} lat={lat}>
       <div style={{position: 'relative', width: dot, height: dot, opacity: op}}>
         <div style={{width: dot, height: dot, borderRadius: capital ? 1 : dot, background: '#fff', boxShadow: '0 0 0 2.5px rgba(10,8,6,0.9), 0 2px 5px rgba(0,0,0,0.6)', border: capital ? '3px solid #141210' : undefined, boxSizing: 'border-box'}} />
-        <div style={{position: 'absolute', whiteSpace: 'nowrap', fontFamily: FONT.map, fontSize: capital ? 26 : 22, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8)', fontWeight: 600, ...pos}}>
+        <div style={{position: 'absolute', whiteSpace: 'nowrap', fontFamily: FONT.map, fontSize: fs, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8)', fontWeight: 600, ...pos}}>
           {name}
         </div>
       </div>

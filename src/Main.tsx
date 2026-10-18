@@ -8,7 +8,7 @@ import {FlagDrop, MapLabel, YearBadge, TitleCard, Grain, WallArchive, QuoteCard,
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
 import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, ARCHIVE, QUOTES, yearAt, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
-import {BigLabel, City, Callout, Route, Pulse} from './components/Motion';
+import {BigLabel, City, Callout, Route, Pulse, LabelGuard} from './components/Motion';
 
 export const MAIN_DURATION_SEC = TOTAL;
 
@@ -192,26 +192,28 @@ export const Main: React.FC = () => {
     <AbsoluteFill style={{background: '#050a12'}}>
       <AbsoluteFill style={moveBlur > 0.2 ? {filter: `blur(${moveBlur.toFixed(1)}px)`, transform: `scale(${1 + moveBlur * 0.006})`} : undefined}>
       <WorldMap cam={cam} land={land} layers={layers} vignette={vignette} atlas={atlas} clouds={atlas} cloudDrift={t * 0.012}>
-        {/* city dots (only when the camera is close) */}
-        {CITIES.map((c, i) => (
-          <City key={`c${i}`} lon={c.lon} lat={c.lat} name={c.name} at={Math.round((c.t ?? 0) * fps)} until={c.until ? Math.round(c.until * fps) : undefined} minScale={c.minScale} capital={c.capital} side={c.side} />
-        ))}
-        {/* small labels kept only for cities/seas; big region names come from BIG */}
-        {LABELS.filter((l) => l.kind !== 'region' && !DUP_LABELS.has(l.text)).map((l, i) => (
-          <MapLabel key={i} lon={l.lon} lat={l.lat} text={l.text} at={Math.round(l.t * fps)} until={l.until ? Math.round(l.until * fps) : undefined} kind={l.kind ?? 'city'} size={l.size ?? 26} />
-        ))}
-        {BIG.map((b, i) => (
-          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} fit={b.fit} tone={LIGHT_LABELS.has(b.text) ? 'light' : 'dark'} />
-        ))}
         {ROUTES.map((r, i) => (
           <Route key={`r${i}`} pts={r.pts} at={Math.round(r.t * fps)} until={Math.round(r.until * fps)} color={r.color} width={r.width} dashed={r.dashed} drawDur={r.drawDur} head={r.head} />
         ))}
         {PULSES.map((p, i) => (
           <Pulse key={`p${i}`} lon={p.lon} lat={p.lat} at={Math.round(p.t * fps)} until={Math.round(p.until * fps)} color={p.color} />
         ))}
-        {[...FLAGS, ...FLAGS_EXTRA].map((f, i) => (
-          <FlagDrop key={i} lon={f.lon} lat={f.lat} power={f.power} at={Math.round(f.t * fps)} until={f.until ? Math.round(f.until * fps) : undefined} label={f.label} width={f.w ?? 72} />
+        {/* country names — always inside their borders */}
+        {BIG.map((b, i) => (
+          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} fit={b.fit} tone={LIGHT_LABELS.has(b.text) ? 'light' : 'dark'} />
         ))}
+        {/* everything below keeps clear of the country names (LabelGuard = collision rectangles for this frame) */}
+        <LabelGuard labels={BIG} fps={fps}>
+          {CITIES.map((c, i) => (
+            <City key={`c${i}`} lon={c.lon} lat={c.lat} name={c.name} at={Math.round((c.t ?? 0) * fps)} until={c.until ? Math.round(c.until * fps) : undefined} minScale={c.minScale} capital={c.capital} side={c.side} />
+          ))}
+          {LABELS.filter((l) => l.kind !== 'region' && !DUP_LABELS.has(l.text)).map((l, i) => (
+            <MapLabel key={i} lon={l.lon} lat={l.lat} text={l.text} at={Math.round(l.t * fps)} until={l.until ? Math.round(l.until * fps) : undefined} kind={l.kind ?? 'city'} size={l.size ?? 26} />
+          ))}
+          {[...FLAGS, ...FLAGS_EXTRA].map((f, i) => (
+            <FlagDrop key={i} lon={f.lon} lat={f.lat} power={f.power} at={Math.round(f.t * fps)} until={f.until ? Math.round(f.until * fps) : undefined} label={f.label} width={f.w ?? 72} />
+          ))}
+        </LabelGuard>
         {CALLOUTS.map((c, i) => (
           <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={0} dy={-270} />
         ))}
