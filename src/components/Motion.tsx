@@ -9,6 +9,7 @@ import {namesAt} from '../lib/names';
 import React from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 import {reservedAt} from '../lib/reserve';
+import {flagRectsAt} from '../lib/flags';
 import {geoInterpolate} from 'd3-geo';
 import {useMap, Marker, AvoidCtx} from './WorldMap';
 import {FONT, C, W, H} from '../theme';
@@ -22,8 +23,11 @@ export const LabelGuard: React.FC<{fps: number; children: React.ReactNode}> = ({
   const {cam, projection} = useMap();
   const rects: Rect[] = namesAt(frame, fps, cam, projection).map((n) => ({x: n.rect.x - 2, y: n.rect.y - 2, w: n.rect.w + 4, h: n.rect.h + 4}));
   for (const r of reservedAt(frame / fps)) rects.push(r);
-  return <AvoidCtx.Provider value={rects}>{children}</AvoidCtx.Provider>;
+  const flags = flagRectsAt(frame, fps, cam, (ll) => projection(ll) as [number, number] | null, rects);
+  return <AvoidCtx.Provider value={rects}><FlagCtx.Provider value={flags}>{children}</FlagCtx.Provider></AvoidCtx.Provider>;
 };
+/** rectangles of the flags drawn this frame (cities and callouts keep clear of them; flags themselves use AvoidCtx) */
+export const FlagCtx = React.createContext<Rect[]>([]);
 
 /** The country-name layer. One decision function (lib/names.ts) → always inside the polygon, never overlapping anything. */
 export const Names: React.FC<{fps: number; light: Set<string>}> = ({fps, light}) => {
@@ -60,7 +64,9 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
   lon, lat, name, at, until, minScale = 1500, capital = false, side = 'r',
 }) => {
   const frame = useCurrentFrame();
-  const {cam, projection, avoid} = useMap();
+  const {cam, projection, avoid: avoid0} = useMap();
+  const flags = React.useContext(FlagCtx);
+  const avoid = React.useMemo(() => [...avoid0, ...flags], [avoid0, flags]);
   if (frame < at || (until !== undefined && frame > until)) return null;
   const vis = clamp01((cam.scale - minScale) / 250);
   if (vis <= 0) return null;
@@ -104,10 +110,16 @@ export const Callout: React.FC<{
   dx?: number; dy?: number;
 }> = ({lon, lat, text, sub, at, until, dx = 0, dy = -250}) => {
   const frame = useCurrentFrame();
-  const {projection, visible, avoid} = useMap();
+  const {fps} = useVideoConfig();
+  const {projection, visible, avoid: avoid0} = useMap();
+  const flags = React.useContext(FlagCtx);
+  const avoid = React.useMemo(() => [...avoid0, ...flags], [avoid0, flags]);
   if (frame < at || frame > until || !visible(lon, lat)) return null;
   const p = projection([lon, lat]);
   if (!p) return null;
+  // v6: the anchor itself must be on screen and not under a card / badge — otherwise the callout is dropped
+  if (p[0] < 30 || p[0] > W - 30 || p[1] < 30 || p[1] > H - 30) return null;
+  if (reservedAt(frame / fps).some((r) => p[0] >= r.x && p[0] <= r.x + r.w && p[1] >= r.y && p[1] <= r.y + r.h)) return null;
   const f = frame - at;
   const op = fadeIO(f, until - at, 2, 10);
   const wipe = easeOutCubic(clamp01(f / 5));                 // box reveal

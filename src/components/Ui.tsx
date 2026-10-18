@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig, staticFile, OffthreadVideo, Loop, Sequence} from 'remotion';
 import {C, FONT, POWER_NAME, Power} from '../theme';
 import {FlagSvg} from './Flags';
 import {Marker, useMap} from './WorldMap';
@@ -177,9 +177,55 @@ export const ArchiveFrame: React.FC<{
 /* ---------- Archive card over the map (v5, measured from the reference):
  *  a white rectangle grows from the card centre (7 f, ease-out) while the caption fades in, then the white wipes L→R with
  *  motion blur (3 f) revealing the picture. Thick black frame + thin inner white line; caption INSIDE the bottom of the frame. ---------- */
+
+/* ---------- v6 archive media: real film clips (looped, flicker, gate weave) or photos with a 2.5D parallax ---------- */
+const hash01 = (n: number) => { const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+export const ArchiveMedia: React.FC<{
+  src: string; video?: string; f: number; len: number; sepia?: number; zoom?: number; at: number; clipSec?: number;
+}> = ({src, video, f, len, sepia = 0.25, zoom = 1.1, at, clipSec = 8.5}) => {
+  const {fps} = useVideoConfig();
+  const p = f / Math.max(1, len);
+  if (video) {
+    const flicker = 0.955 + 0.045 * hash01(f) * 0.6 + 0.02 * Math.sin(f * 1.7);
+    const weaveX = 1.2 * Math.sin(f * 0.9) + 0.6 * (hash01(f + 7) - 0.5), weaveY = 0.9 * Math.sin(f * 1.3 + 1) + 0.6 * (hash01(f + 3) - 0.5);
+    const frames = Math.round(clipSec * fps) - 2;
+    return (
+      <>
+        <Sequence from={at} layout="none">
+          <Loop durationInFrames={frames} layout="none">
+            <OffthreadVideo
+              src={staticFile(video)}
+              muted
+              style={{width: '100%', height: '100%', objectFit: 'cover', transform: `translate(${weaveX}px, ${weaveY}px) scale(1.04)`, filter: `sepia(${sepia + 0.12}) contrast(1.1) brightness(${flicker})`}}
+            />
+          </Loop>
+        </Sequence>
+        {/* scratches + dust */}
+        <div style={{position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.35, background: `linear-gradient(90deg, transparent ${(hash01(f * 3) * 100).toFixed(1)}%, rgba(255,255,255,0.25) ${(hash01(f * 3) * 100 + 0.15).toFixed(2)}%, transparent ${(hash01(f * 3) * 100 + 0.3).toFixed(2)}%)`}} />
+        <div style={{position: 'absolute', left: 14, top: 12, display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px', background: 'rgba(0,0,0,0.55)', borderRadius: 3}}>
+          <div style={{width: 9, height: 9, borderRadius: 5, background: '#e2574c', boxShadow: '0 0 8px #e2574c', opacity: 0.7 + 0.3 * Math.sin(f * 0.25)}} />
+          <div style={{fontFamily: FONT.map, fontWeight: 700, fontSize: 13, letterSpacing: 2, color: '#fff'}}>ARCHIVE FILM</div>
+        </div>
+      </>
+    );
+  }
+  // 2.5D photo: slow push-in, drift, and a settling 3D tilt; the vignette drifts opposite to the picture (parallax)
+  const kb = 1 + (zoom - 1) * p;
+  const dx = (p - 0.5) * 2.2, dy = (p - 0.5) * -1.2;
+  return (
+    <>
+      <Img
+        src={src.startsWith('http') ? src : staticFile(src)}
+        style={{width: '100%', height: '100%', objectFit: 'cover', transform: `translate(${dx}%, ${dy}%) scale(${kb * 1.04})`, transformOrigin: '50% 40%', filter: `sepia(${sepia}) contrast(1.06) saturate(0.9)`}}
+      />
+      <div style={{position: 'absolute', inset: -40, transform: `translate(${-dx * 1.6}%, ${-dy * 1.6}%)`, boxShadow: 'inset 0 0 90px 30px rgba(0,0,0,0.55)', pointerEvents: 'none'}} />
+    </>
+  );
+};
+
 export const CardPop: React.FC<{
-  src: string; caption?: string; sub?: string; at: number; until: number; x?: number; y?: number; w?: number; h?: number; zoom?: number; sepia?: number;
-}> = ({src, caption, sub, at, until, x = 1080, y = 150, w = 720, h = 540, zoom = 1.1, sepia = 0.25}) => {
+  src: string; video?: string; caption?: string; sub?: string; at: number; until: number; x?: number; y?: number; w?: number; h?: number; zoom?: number; sepia?: number;
+}> = ({src, video, caption, sub, at, until, x = 1080, y = 150, w = 720, h = 540, zoom = 1.1, sepia = 0.25}) => {
   const frame = useCurrentFrame();
   if (frame < at || frame > until) return null;
   const f = frame - at;
@@ -187,19 +233,16 @@ export const CardPop: React.FC<{
   const out = interpolate(f, [len - 10, len], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const grow = easeOutCubic(clamp01(f / 7));
   const wipe = easeOutCubic(clamp01((f - 7) / 3));
-  const kb = 1 + (zoom - 1) * (f / Math.max(1, len));
+  const tilt = (x < 960 ? 1 : -1) * (5 * (1 - easeOutCubic(clamp01(f / 40))) + 1.2);
   const border = 16, capH = caption ? (sub ? 74 : 52) : border;
   const capOp = interpolate(f, [2, 9], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <div style={{position: 'absolute', left: x, top: y, width: w, height: h, opacity: out, transform: `scale(${0.08 + 0.92 * grow})`, transformOrigin: '50% 50%'}}>
+    <div style={{position: 'absolute', left: x, top: y, width: w, height: h, opacity: out, transform: `perspective(1600px) rotateY(${tilt}deg) scale(${0.08 + 0.92 * grow})`, transformOrigin: '50% 50%'}}>
       {/* frame */}
       <div style={{position: 'absolute', inset: 0, background: '#0a0a0a', boxShadow: '0 26px 60px rgba(0,0,0,0.65), 0 4px 14px rgba(0,0,0,0.5)'}} />
       <div style={{position: 'absolute', left: border, top: border, right: border, bottom: capH, overflow: 'hidden', background: '#000', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.75)'}}>
-        <Img
-          src={src.startsWith('http') ? src : staticFile(src)}
-          style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${kb})`, transformOrigin: '50% 40%', filter: `sepia(${sepia}) contrast(1.06) saturate(0.9)`}}
-        />
-        <div style={{position: 'absolute', inset: 0, boxShadow: 'inset 0 0 70px rgba(0,0,0,0.5)'}} />
+        <ArchiveMedia src={src} video={video} f={f} len={len} sepia={sepia} zoom={zoom} at={at} />
+        <div style={{position: 'absolute', inset: 0, boxShadow: 'inset 0 0 70px rgba(0,0,0,0.5)', pointerEvents: 'none'}} />
         {/* white flash that wipes away to reveal the picture */}
         {wipe < 1 && (
           <div style={{position: 'absolute', inset: -10, background: '#f4f4f4', clipPath: `inset(0 0 0 ${wipe * 100}%)`, filter: `blur(${wipe * 9}px)`}} />

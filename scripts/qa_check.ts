@@ -10,6 +10,7 @@ const pip = (x: number, y: number, r: number[][]) => { let c = false; for (let i
 const containsLL = (g: any, lon: number, lat: number) => { const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates; for (const p of polys) if (pip(lon, lat, p[0]) && !p.slice(1).some((h: number[][]) => pip(lon, lat, h))) return true; return false; };
 import * as topojson from 'topojson-client';
 import {BIG, CITIES, FLAGS, FLAGS_EXTRA, CALLOUTS, CAM4} from '../src/events';
+import {flagRectsAt} from '../src/lib/flags';
 import {TOTAL} from '../src/timeline';
 import {camWithDrift} from '../src/lib/anim';
 import {layoutCorners, intersects, pushOut, calloutPlacements, type Rect} from '../src/lib/labels';
@@ -60,6 +61,9 @@ for (let t = 0; t <= TOTAL; t = +(t + step).toFixed(3)) {
     if (!drawnNames.some((n) => n.ev === b)) hidden.set(b.text, (hidden.get(b.text) ?? 0) + 1);
   }
   const avoid: Rect[] = [...names.map((n) => ({...n.rect, x: n.rect.x - 2, y: n.rect.y - 2, w: n.rect.w + 4, h: n.rect.h + 4})), ...reserved];
+  // ---- flags first (shared geometry) → cities and callouts must also keep clear of them
+  const flagRects = flagRectsAt(frame, fps, cam, proj as any, avoid);
+  const avoidF: Rect[] = [...avoid, ...flagRects];
   // ---- cities (same side rule as Motion.tsx City)
   for (const c of CITIES) {
     const at = Math.round((c.t ?? 0) * fps), until = c.until ? Math.round(c.until * fps) : undefined;
@@ -70,9 +74,10 @@ for (let t = 0; t <= TOTAL; t = +(t + step).toFixed(3)) {
     const rectFor = (sd: string): Rect => sd === 'r' ? {x: p[0] + dot / 2 + 6, y: p[1] - th / 2, w: tw, h: th} : sd === 'l' ? {x: p[0] - dot / 2 - 6 - tw, y: p[1] - th / 2, w: tw, h: th} : sd === 'b' ? {x: p[0] - tw / 2, y: p[1] + dot / 2 + 4, w: tw, h: th} : {x: p[0] - tw / 2, y: p[1] - dot / 2 - 4 - th, w: tw, h: th};
     const side = c.side ?? 'r';
     const order = [side, ...['r', 'l', 'b', 't'].filter((x) => x !== side)];
-    const found = order.find((sd) => !avoid.some((a) => intersects(rectFor(sd), a)));
+    const found = order.find((sd) => !avoidF.some((a) => intersects(rectFor(sd), a)));
     if (!found) continue; // text hidden by the component
     for (const n of names) if (intersects(rectFor(found), n.rect)) viol.push({t, kind: 'CITY×NAME', what: `${c.name} × ${n.text}`});
+    for (const fr of flagRects) if (intersects(rectFor(found), fr)) viol.push({t, kind: 'CITY×FLAG', what: `${c.name}`});
   }
   // ---- flags (FlagDrop geometry)
   for (const f of [...FLAGS, ...FLAGS_EXTRA]) {
@@ -94,9 +99,11 @@ for (let t = 0; t <= TOTAL; t = +(t + step).toFixed(3)) {
     const fs1 = 32, fs2 = 26, boxW = 48 + Math.max(c.text.length * fs1 * 0.66, (c.sub ?? '').length * fs2 * 0.62), boxH = c.sub ? 104 : 66;
     const dx = c.dx ?? 0, dy = c.dy ?? -270, [x, y] = p;
     const cands = calloutPlacements(x, y, dx, dy, boxW, boxH, W, H).map((c) => c.rect);
-    const pick = cands.find((r) => !avoid.some((a) => intersects(r, a)));
+    if (x < 30 || x > W - 30 || y < 30 || y > H - 30 || reserved.some((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)) { hidden.set('callout ' + c.text, (hidden.get('callout ' + c.text) ?? 0) + 1); continue; }
+    const pick = cands.find((r) => !avoidF.some((a) => intersects(r, a)));
     if (!pick) { hidden.set('callout ' + c.text, (hidden.get('callout ' + c.text) ?? 0) + 1); continue; }
     for (const n of names) if (intersects(pick, n.rect)) viol.push({t, kind: 'CALLOUT×NAME', what: `${c.text} × ${n.text}`});
+    for (const fr of flagRects) if (intersects(pick, fr)) viol.push({t, kind: 'CALLOUT×FLAG', what: `${c.text}`});
   }
 }
 const byKind: Record<string, number> = {};

@@ -192,7 +192,7 @@ export const CAPTIONS: CapEv[] = [
 ];
 
 /* ---------------- archive frames ---------------- */
-export type ArcEv = {src: string; caption: string; t: number; until: number; x?: number; y?: number; w?: number; h?: number; from?: 'left' | 'right' | 'bottom'; sepia?: number; wall?: boolean; sign?: string};
+export type ArcEv = {src: string; video?: string; caption: string; t: number; until: number; x?: number; y?: number; w?: number; h?: number; from?: 'left' | 'right' | 'bottom'; sepia?: number; wall?: boolean; sign?: string};
 const R = {x: 1110, y: 140, w: 720, h: 560}; // right-side slot
 const Lf = {x: 90, y: 140, w: 720, h: 560}; // left-side slot
 const Pt_ = {x: 1210, y: 120, w: 560, h: 700}; // portrait slot
@@ -212,8 +212,19 @@ export const ARCHIVE: ArcEv[] = [
   {src: 'archive/nsala.jpg', caption: 'Nsala of Wala, Congo Free State, 1904 — A. S. Harris', t: T('S7_01', 'quotas'), until: E('S7_01') + 0.5, ...R, from: 'right', w: 780, h: 480, wall: true},
   {src: 'archive/morel.jpg', caption: 'E. D. Morel, Congo Reform Association', t: T('S7_02', 'Morel'), until: E('S7_02') + 0.3, ...Pt_, from: 'right', w: 560, h: 520, wall: true},
   {src: 'archive/herero.jpg', caption: 'Herero prisoners, c. 1904', t: T('S7_03', 'Herero'), until: E('S7_03') + 0.3, ...Lf, from: 'left', w: 600, h: 450, wall: true, sign: 'DEUTSCH-SÜDWESTAFRIKA'},
-  {src: 'archive/boer_camp.jpg', caption: 'Bloemfontein concentration camp, c. 1901', t: T('S7_04', 'Boer'), until: E('S7_04') + 0.3, ...R, from: 'right', wall: true, sign: 'ORANGE RIVER COLONY'},
+  {src: 'archive/clips/modder_1899.jpg', video: 'archive/clips/modder_1899.mp4', caption: 'British troops crossing the Modder River — 1899', t: T('S7_04') + 0.3, until: T('S7_04', 'Boer') + 0.4, ...Lf, from: 'left'},
+  {src: 'archive/boer_camp.jpg', caption: 'Bloemfontein concentration camp, c. 1901', t: T('S7_04', 'Boer') + 1.0, until: E('S7_04') + 0.3, ...R, from: 'right', wall: true, sign: 'ORANGE RIVER COLONY'},
   {src: 'archive/panther.jpg', caption: 'SMS Panther', t: T('S8_01', 'gunboat'), until: T('S8_01', 'Twice', 2) + 1.5, ...R, from: 'right'},
+  // ---- v6: real archive film (public domain / CC0) ----
+  {src: 'archive/clips/caravane_1897.jpg', video: 'archive/clips/caravane_1897.mp4', caption: 'Camel caravan, Egypt — Lumière, 1897', t: T('S1_02', 'string') - 0.2, until: T('S1_02', 'Cape') - 0.3, ...R, from: 'right'},
+  {src: 'archive/clips/kiel_1897.jpg', video: 'archive/clips/kiel_1897.mp4', caption: 'Launch of the Fürst Bismarck, Kiel — 1897', t: T('S2_03', 'Industrial') - 0.2, until: T('S2_03', 'Third') - 0.3, ...Lf, from: 'left'},
+  {src: 'archive/clips/pyramids_1897.jpg', video: 'archive/clips/pyramids_1897.mp4', caption: 'Giza, Egypt — Lumière, 1897', t: T('S5_01', 'Egypt') - 0.2, until: E('S5_01') + 0.3, ...Lf, from: 'left'},
+  {src: 'archive/clips/victoria_1900.jpg', video: 'archive/clips/victoria_1900.mp4', caption: 'Queen Victoria — 1900', t: T('S5_03') + 0.2, until: T('S5_03', 'Rhodes') - 0.4, ...Lf, from: 'left'},
+  {src: 'archive/clips/paris_1898.jpg', video: 'archive/clips/paris_1898.mp4', caption: 'Champs-Élysées, Paris — 1898', t: T('S5_05', 'Paris') + 0.2, until: E('S5_05') + 0.3, ...R, from: 'right'},
+  {src: 'archive/clips/morocco_cavalry_1912.jpg', video: 'archive/clips/morocco_cavalry_1912.mp4', caption: 'Cavalry in Morocco — Archives de la Planète, 1912', t: T('S8_01', 'Twice') - 0.2, until: T('S8_01', 'gunboat') - 0.4, ...R, from: 'right'},
+  {src: 'archive/clips/morocco_caravan_1912.jpg', video: 'archive/clips/morocco_caravan_1912.mp4', caption: 'Caravan, Morocco — Archives de la Planète, 1912', t: T('S8_01', 'Twice', 2) + 1.8, until: E('S8_01') + 0.3, ...R, from: 'right'},
+  {src: 'archive/clips/istanbul_1897.jpg', video: 'archive/clips/istanbul_1897.mp4', caption: 'Constantinople, Ottoman Empire — 1897', t: T('S8_02', 'France') - 0.2, until: T('S8_02', 'seven') - 0.3, ...Lf, from: 'left'},
+  {src: 'archive/clips/force_publique_1916.jpg', video: 'archive/clips/force_publique_1916.mp4', caption: 'Force Publique, Belgian Congo — 1914–18', t: T('S8_02', 'seven') + 0.2, until: E('S8_02') + 0.3, ...R, from: 'right'},
 ];
 
 /* ---------------- quote cards ---------------- */
@@ -526,7 +537,7 @@ export const CALLOUTS: CalloutEv[] = [
   {lon: 32.55, lat: 30.3, text: 'Suez Canal', sub: 'opened 1869', t: T('S2_01', 'Suez'), until: E('S2_01') + 0.5, dx: -230, dy: -150},
   {lon: 13.4, lat: 52.52, text: 'Berlin Conference', sub: 'Nov 1884 – Feb 1885', t: T('S4_01', 'Berlin'), until: E('S4_01') + 0.5, dx: -200, dy: -110},
   {lon: 15.3, lat: -4.33, text: 'Léopoldville', sub: 'station founded 1881', t: T('S3_02', 'stations'), until: E('S3_02') + 0.5, dx: -190, dy: 120},
-  {lon: 32.1, lat: 9.9, text: 'Fashoda', sub: 'Sept – Nov 1898', t: T('S5_05', 'Fashoda'), until: E('S5_05') + 0.5, dx: 190, dy: -110},
+  {lon: 32.1, lat: 9.9, text: 'Fashoda', sub: 'Sept – Nov 1898', t: T('S5_05', 'Fashoda'), until: T('S5_05', 'Paris') - 0.2, dx: 190, dy: -110},
   {lon: 30.65, lat: -28.35, text: 'Isandlwana', sub: '22 January 1879', t: T('S6_01', 'Isandlwana'), until: E('S6_01') + 0.5, dx: 190, dy: -130},
   {lon: -8.5, lat: 10.0, text: 'Samori Touré', sub: 'Wassoulou Empire 1882 – 1898', t: T('S6_02', 'Samori'), until: E('S6_02') + 0.5, dx: 170, dy: -130},
   {lon: 32.53, lat: 15.6, text: 'Fall of Khartoum', sub: '26 January 1885', t: T('S6_03', 'Khartoum'), until: T('S6_03', 'Omdurman') - 0.3, dx: 200, dy: -110},

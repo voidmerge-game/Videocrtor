@@ -19,16 +19,24 @@ export const namesAt = (frame: number, fps: number, cam: Cam, projection: GeoPro
     const d = geoDistance([b.lon, b.lat], [cam.lon, cam.lat]);
     if (d > Math.PI / 2 - 0.05) continue;
     // fit against the real on-screen metrics at this spot (foreshortening + tilt of the parallels)
-    const L = layoutFitted(b.label ?? b.text.toUpperCase(), b.fit, dirScaleAt((ll) => projection(ll) as [number, number] | null, b.lon, b.lat, b.fit.cs));
-    if (!L) continue;
-    const [lon, lat] = shiftedLonLat(b.lon, b.lat, L, b.fit.cs);
+    const L0 = layoutFitted(b.label ?? b.text.toUpperCase(), b.fit, dirScaleAt((ll) => projection(ll) as [number, number] | null, b.lon, b.lat, b.fit.cs));
+    if (!L0) continue;
+    const [lon, lat] = shiftedLonLat(b.lon, b.lat, L0, b.fit.cs);
     const p = projection([lon, lat]);
     if (!p) continue;
-    const rect = layoutRect(p[0], p[1], L, 6);
-    if (rect.x > 1920 || rect.y > 1080 || rect.x + rect.w < 0 || rect.y + rect.h < 0) continue; // off-screen
     const f = frame - at;
     const io = until !== undefined ? Math.min(1, f / 14, (until - frame) / 14) : Math.min(1, f / 14);
-    const hide = reserveFade(t, reserved, (r) => intersects(rect, r));
+    // a card/badge in the way: first try a smaller size (still centred inside the polygon band), then fade/hide
+    let L = L0, rect = layoutRect(p[0], p[1], L0, 6), hide = reserveFade(t, reserved, (r) => intersects(rect, r));
+    if (hide < 1) {
+      for (const k of [0.8, 0.65, 0.5]) {
+        if (L0.fontPx * k < 14) break;
+        const Lk = {...L0, fontPx: L0.fontPx * k};
+        const rk = layoutRect(p[0], p[1], Lk, 6);
+        if (reserveFade(t, reserved, (r) => intersects(rk, r)) >= 1) { L = Lk; rect = rk; hide = 1; break; }
+      }
+    }
+    if (rect.x > 1920 || rect.y > 1080 || rect.x + rect.w < 0 || rect.y + rect.h < 0) continue; // off-screen
     const vis = Math.max(0, io) * hide;
     if (vis <= 0.01) continue;
     cand.push({ev: b, label: b.label ?? b.text.toUpperCase(), lon, lat, x: p[0], y: p[1], L, rect, vis});

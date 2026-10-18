@@ -14,3 +14,4 @@ v5.3 labels strictly inside; NO RENDER until user confirms 2026-10-18 14:23:36
 2026-10-18T15:13:15Z v5.5 fbfd52e — FULL RENDER dispatched (render_parallel, audio reused from 39120070111) after user approval ('وأخيراً نجحت')
 2026-10-18T16:11:30Z run 39139475690 SUCCESS but stitch used only 10 of 12 audio chunks (audio 481 s) and -shortest cut video to 567 s -> fixed stitch; re-stitch only (reuse video 39139475690 + audio 39120070111)
 2026-10-18T16:18:58Z FINAL v5.5 delivered: Drive 1IB48AImVdcXOSRbKjpQyAI1MYj-dMF6t (749.6 MB, 577.63 s, run 39143931349 stitch of video 39139475690 + audio 39120070111)
+Rule: after every turn start: git fetch + git reset FETCH_HEAD + checkout stale files

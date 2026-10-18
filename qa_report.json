@@ -1,13 +1,13 @@
 {
  "step": 0.1,
  "frames": 5777,
- "drawn": 11951,
+ "drawn": 11504,
  "byKind": {},
  "viol": [],
  "hidden": [
   [
    "Sokoto Caliphate",
-   6
+   1
   ],
   [
    "Zulu",
@@ -22,16 +22,24 @@
    282
   ],
   [
-   "Egypt",
-   66
+   "Ethiopia",
+   119
   ],
   [
-   "Ethiopia",
-   49
+   "flag portugal",
+   1
+  ],
+  [
+   "Egypt",
+   127
   ],
   [
    "Ottoman Empire",
-   89
+   62
+  ],
+  [
+   "callout Suez Canal",
+   10
   ],
   [
    "France",
@@ -43,27 +51,51 @@
   ],
   [
    "Germany",
-   60
+   59
   ],
   [
    "Italy",
-   7
+   5
   ],
   [
    "French Congo",
    124
   ],
   [
+   "callout Berlin Conference",
+   13
+  ],
+  [
    "Congo Free State",
-   8
+   7
   ],
   [
    "Tunisia",
-   6
+   54
   ],
   [
    "Kamerun",
-   306
+   292
+  ],
+  [
+   "Togo",
+   365
+  ],
+  [
+   "Gold Coast",
+   79
+  ],
+  [
+   "Nigeria",
+   81
+  ],
+  [
+   "flag germany",
+   2
+  ],
+  [
+   "German S.W. Africa",
+   4
   ],
   [
    "Nyasaland",
@@ -71,11 +103,7 @@
   ],
   [
    "German East Africa",
-   123
-  ],
-  [
-   "Togo",
-   306
+   154
   ],
   [
    "Bechuanaland",
@@ -91,39 +119,31 @@
   ],
   [
    "Uganda",
-   7
+   58
   ],
   [
    "flag britain",
    2
   ],
   [
-   "Nigeria",
-   67
-  ],
-  [
-   "Gold Coast",
-   58
-  ],
-  [
    "Algeria",
-   6
+   23
   ],
   [
    "Liberia",
-   340
+   341
   ],
   [
    "flag france",
-   57
+   58
   ],
   [
    "French West Africa",
-   52
+   65
   ],
   [
    "French Equatorial Africa",
-   101
+   96
   ],
   [
    "Angola",
@@ -147,38 +167,54 @@
   ],
   [
    "Madagascar",
-   14
+   6
   ],
   [
    "Zululand",
    61
   ],
   [
+   "callout Isandlwana",
+   11
+  ],
+  [
+   "callout Samori Touré",
+   8
+  ],
+  [
    "Mahdist Sudan",
-   81
+   80
   ],
   [
    "callout Waterberg",
    2
   ],
   [
+   "callout Bloemfontein camp",
+   3
+  ],
+  [
    "Morocco",
-   12
+   37
+  ],
+  [
+   "callout Agadir",
+   4
   ],
   [
    "Libya",
    1
   ],
   [
-   "Rhodesia",
-   1
-  ],
-  [
    "Sudan",
-   1
+   53
   ],
   [
    "Belgian Congo",
+   53
+  ],
+  [
+   "Rhodesia",
    1
   ]
  ]

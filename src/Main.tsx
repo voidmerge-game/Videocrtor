@@ -245,7 +245,7 @@ export const Main: React.FC = () => {
           const prev = ARCHIVE[(i + ARCHIVE.length - 1) % ARCHIVE.length].src, next = ARCHIVE[(i + 1) % ARCHIVE.length].src;
           return <WallArchive key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} sides={[prev, next]} sepia={a.sepia ?? 0.25} sign={a.sign} />;
         }
-        return <CardPop key={i} src={a.src} caption={cap} sub={sub} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} x={a.x} y={a.y} w={a.w} h={a.h} sepia={a.sepia ?? 0.25} />;
+        return <CardPop key={i} src={a.src} video={a.video} caption={cap} sub={sub} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} x={a.x} y={a.y} w={a.w} h={a.h} sepia={a.sepia ?? 0.25} />;
       })}
       <Counter t={t} />
 
