@@ -5,11 +5,11 @@ import type {Cam} from './WorldMap';
 
 /** Equirectangular earth texture, reprojected per-frame onto an orthographic globe (bilinear sampling). */
 
-type Tex = {data: Uint8ClampedArray; w: number; h: number};
-const TEXS: Record<string, Tex> = {};
+export type Tex = {data: Uint8ClampedArray; w: number; h: number};
+export const TEXS: Record<string, Tex> = {};
 const PROMS: Record<string, Promise<void>> = {};
 
-const loadTex = (src: string) => {
+export const loadTex = (src: string) => {
   if (!PROMS[src]) {
     PROMS[src] = new Promise<void>((resolve, reject) => {
       const img = new Image();

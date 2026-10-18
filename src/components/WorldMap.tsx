@@ -5,12 +5,9 @@ import {AbsoluteFill} from 'remotion';
 import {C, W, H} from '../theme';
 import type {FC} from '../lib/geo';
 import type {Feature, Geometry} from 'geojson';
-import {RasterGlobe} from './RasterGlobe';
+import {EarthGlobe} from './EarthGlobe';
 
 export type Cam = {lon: number; lat: number; scale: number};
-const AFRICA_HD = {lon0: -30, lon1: 65, lat0: -42, lat1: 58};
-const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
-const cloudBounds = (drift: number, dLon: number, dLat: number) => ({lon0: AFRICA_HD.lon0 + drift + dLon, lon1: AFRICA_HD.lon1 + drift + dLon, lat0: AFRICA_HD.lat0 + dLat, lat1: AFRICA_HD.lat1 + dLat});
 
 export type Layer = {
   id: string;
@@ -91,23 +88,8 @@ export const WorldMap: React.FC<{
   return (
     <MapCtx.Provider value={{projection, cam, visible}}>
       <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, ${C.oceanLight} 0%, ${C.ocean} 55%, #050d16 100%)`}}>
-        {/* ---- satellite globe (fades out as atlas mixes in) ---- */}
-        {raster && atlas < 1 && <RasterGlobe cam={cam} opacity={1 - atlas} />}
-        {/* ---- v4 terrain: baked terracotta relief + ocean (world, then HD Africa/Europe tile) ---- */}
-        {raster && atlas > 0 && <RasterGlobe cam={cam} src="data/terrain_world.jpg" light={0.18} opacity={atlas} />}
-        {raster && atlas > 0 && cam.scale > 800 && (
-          <RasterGlobe cam={cam} src="data/terrain_africa.jpg" light={0.18} opacity={atlas * clamp01((cam.scale - 800) / 400)} bounds={AFRICA_HD} />
-        )}
-        {/* v5: drifting cloud layer with a displaced shadow (reference look) */}
-        {raster && clouds > 0 && cam.scale > 800 && (
-          <>
-            <RasterGlobe cam={cam} src="data/clouds_africa.png" light={0} tint={[0, 0, 0]} opacity={clouds * 0.42 * clamp01((cam.scale - 800) / 400)} bounds={cloudBounds(cloudDrift, 0.22, -0.18)} />
-            <RasterGlobe cam={cam} src="data/clouds_africa.png" light={0} opacity={clouds * 0.92 * clamp01((cam.scale - 800) / 400)} bounds={cloudBounds(cloudDrift, 0, 0)} />
-          </>
-        )}
-        {raster && clouds > 0 && cam.scale <= 800 && (
-          <RasterGlobe cam={cam} src="data/clouds_world.png" light={0.3} opacity={clouds * 0.9} />
-        )}
+        {/* ---- v6 realistic earth (Blue Marble + relief lighting + ocean specular + clouds + atmosphere) ---- */}
+        {raster && <EarthGlobe cam={cam} params={{cloudDrift, cloudK: clouds * (0.8 - 0.45 * Math.min(1, Math.max(0, (cam.scale - 1400) / 1600))), shadowK: 0.45}} />}
         <svg width={W} height={H} style={{position: 'absolute', inset: 0}}>
           <defs>
             <radialGradient id="atmo" cx="50%" cy="50%" r="50%">
@@ -238,7 +220,7 @@ export const WorldMap: React.FC<{
             {/* crisp coastline in atlas mode */}
             {atlas > 0 && <path d={landPath} fill="none" stroke="rgba(255,240,225,0.18)" strokeWidth={1} opacity={atlas} />}
             {/* lighting */}
-            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.55 - 0.42 * atlas : 1} />
+            <path d={sphere} fill="url(#shade)" opacity={raster ? 0.12 : 1} />
           </g>
           {/* limb */}
           <path d={sphere} fill="none" stroke="rgba(160,200,255,0.35)" strokeWidth={2} />

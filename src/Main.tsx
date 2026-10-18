@@ -45,6 +45,8 @@ const shade = (hex: string, name: string) => {
   return `rgb(${r},${g},${b})`;
 };
 
+/** v6: political colour over the realistic earth — translucent wash + lighter multiply so relief/vegetation read through */
+const WASH = 0.32, FK = 0.6;
 const EU_FILL: Record<string, string> = {...POWER_FILL, austria: '#a08a5a', neutral: '#9a988c', russia: '#7c8a6e'};
 
 const splitCaption = (c: string): [string, string | undefined] => {
@@ -151,8 +153,8 @@ export const Main: React.FC = () => {
       },
       strokeFn: (f) => (OWNER_1880[f.properties.NAME] ? 'rgba(240,228,210,0.9)' : 'rgba(240,228,210,0.75)'),
       strokeWidth: 1.3,
-      blend: 'multiply', wash: 0.42, strokeOnTop: true, shadow: true,
-      opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.9 : 0.8) * pre1880On * preFadeOut,
+      blend: 'multiply', wash: WASH, strokeOnTop: true, shadow: true,
+      opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.9 : 0.8) * FK * pre1880On * preFadeOut,
     });
     // v6: European powers c.1884 (real borders, same style) — Ottoman lands come from the 1880 layer
     L.push({
@@ -160,8 +162,8 @@ export const Main: React.FC = () => {
       filter: (f) => f.properties.NAME !== 'Ottoman Empire',
       fill: (f) => shade(EU_FILL[f.properties.SUBJECTO] ?? '#9a988c', f.properties.NAME),
       stroke: 'rgba(240,228,210,0.9)', strokeWidth: 1.3,
-      blend: 'multiply', wash: 0.42, strokeOnTop: true, shadow: true,
-      opacity: (f) => (f.properties.SUBJECTO === 'neutral' || f.properties.SUBJECTO === 'russia' ? 0.55 : 0.88) * pre1880On,
+      blend: 'multiply', wash: WASH, strokeOnTop: true, shadow: true,
+      opacity: (f) => (f.properties.SUBJECTO === 'neutral' || f.properties.SUBJECTO === 'russia' ? 0.55 : 0.88) * FK * pre1880On,
     });
     // 1914 territories revealed over time
     L.push({
@@ -169,7 +171,7 @@ export const Main: React.FC = () => {
       filter: (f) => AFRICA_1914.has(f.properties.NAME),
       fill: (f) => shade(POWER_FILL[OWNER_1914[f.properties.NAME]], f.properties.NAME),
       stroke: 'rgba(240,228,210,0.9)', strokeWidth: 1.3,
-      blend: 'multiply', wash: 0.45, strokeOnTop: true, shadow: true,
+      blend: 'multiply', wash: WASH, strokeOnTop: true, shadow: true,
       emphasis: (f) => {
         const a = acqOf(f.properties.NAME);
         if (!a) return 0;
@@ -181,9 +183,9 @@ export const Main: React.FC = () => {
           // Ethiopia & Liberia glow in scene 6 and at the 1914 summary
           const a = prog(frame, T('S6_04', 'Ethiopia') * fps, (T('S6_04', 'Ethiopia') + 1.5) * fps) * (1 - prog(frame, E('S6_04') * fps, (E('S6_04') + 3) * fps));
           const b = prog(frame, T('S8_02', 'except') * fps, (T('S8_02', 'except') + 1.5) * fps);
-          return 0.9 * Math.max(a, b) * (1 - modernOn * 0.6);
+          return 0.9 * FK * Math.max(a, b) * (1 - modernOn * 0.6);
         }
-        return 0.95 * (0.55 + 0.45 * postMul) * (1 - modernOn * 0.45);
+        return 0.95 * FK * (0.55 + 0.45 * postMul) * (1 - modernOn * 0.45);
       },
       reveal: (f) => {
         const a = acqOf(f.properties.NAME);
