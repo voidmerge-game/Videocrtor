@@ -133,8 +133,6 @@ export const LABELS: LabelEv[] = [
   {lon: -1.3, lat: 7.0, text: 'Asante', t: T('S1_01', 'Asante'), until: S1e, kind: 'region', size: 24},
   {lon: 38.5, lat: 10.5, text: 'Ethiopia', t: T('S1_01', 'Ethiopians'), until: S1e, kind: 'region', size: 28},
   {lon: 32.0, lat: 0.3, text: 'Buganda', t: T('S1_01', 'Ethiopians') + 1.0, until: S1e, kind: 'region', size: 22},
-  {lon: 23.0, lat: 3.0, text: 'Congo Basin', t: T('S1_03', 'blank'), until: S1e, kind: 'sea', size: 28},
-  {lon: 2.0, lat: 23.0, text: 'Sahara', t: T('S1_03', 'blank') + 0.5, until: S1e, kind: 'sea', size: 34},
   // Scene 2
   {lon: 32.55, lat: 30.3, text: 'Suez Canal', t: T('S2_01', 'Suez'), until: E('S2_01') + 1, kind: 'city', size: 26},
   {lon: -0.1, lat: 51.5, text: 'London', t: T('S2_03', 'Britain'), until: E('S2_03') + 1},
@@ -378,9 +376,9 @@ const ZOOM = (k: CamKey): CamKey => {
 };
 export const CAM3: CamKey[] = CAM.map(ZOOM);
 
-export type LabelFit = {lon: number; lat: number; th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number; r: number; bh: number[]; ba: number[]};
-export type BigEv = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number; fit?: LabelFit};
-const LP = LABEL_POS as Record<string, Record<string, LabelFit>>;
+export type LabelFit = {lon: number; lat: number; cs: number; th: number; L0: number; Lv: number; La: number; Lp: number; ratio: number; r: number; bh: [number, number][]; ba: [number, number][]};
+export type BigEv = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number; fit?: LabelFit; fitKey?: [string, string]; label?: string};
+const LP = LABEL_POS as unknown as Record<string, Record<string, LabelFit>>;
 /** which polygon a label belongs to (era dataset, feature NAME); labels not listed keep their manual placement */
 const FIT_OF: Record<string, [string, string]> = {
   'Sokoto Caliphate': ['1880', 'Sokoto Caliphate'], Asante: ['1880', 'Asante'], Buganda: ['1880', 'Buganda'], Zulu: ['1880', 'Zululand'], Zululand: ['1880', 'Zululand'],
@@ -391,16 +389,24 @@ const FIT_OF: Record<string, [string, string]> = {
   'French West Africa': ['1914', 'French West Africa'], Algeria: ['1914', 'Algeria'], Madagascar: ['1914', 'Madagascar (France)'], Eritrea: ['1914', 'Eritrea'],
   'Italian Somaliland': ['1914', 'Italian Somaliland'], Angola: ['1914', 'Angola'], Mozambique: ['1914', 'Mozambique'], 'Río de Oro': ['1914', 'Rio De Oro'],
   Sudan: ['1914', 'Anglo-Egyptian Sudan'], 'Mahdist Sudan': ['1914', 'Anglo-Egyptian Sudan'], 'Congo Free State': ['1914', 'Belgian Congo'], Libya: ['1914', 'Libya'],
-  Morocco: ['1914', 'Morocco'], 'French Equatorial Africa': ['1914', 'French Equatorial Africa'],
+  Morocco: ['1914', 'Morocco'], 'French Equatorial Africa': ['1914', 'French Equatorial Africa'], Egypt: ['1914', 'Egypt'],
   'Belgian Congo': ['1914', 'Belgian Congo'], Uganda: ['1914', 'Uganda'], Bechuanaland: ['1914', 'Botswana'], Nyasaland: ['1914', 'Malawi'],
   Liberia: ['1914', 'Liberia'], 'Sierra Leone': ['1914', 'Sierra Leone'],
+  // Europe (europe_1884.json) + Ottoman/Egypt/Morocco from the 1880 layer
+  Britain: ['europe', 'Britain'], France: ['europe', 'France'], Germany: ['europe', 'Germany'], Italy: ['europe', 'Italy'], 'Austria-Hungary': ['europe', 'Austria-Hungary'],
+  Spain: ['europe', 'Spain'], Portugal: ['europe', 'Portugal'], Belgium: ['europe', 'Belgium'],
+  'Ottoman Empire': ['1880', 'Ottoman Empire'], 'French Congo': ['1880', 'Congo'],
 };
+/** names whose polygon depends on the layer shown at that moment (1870–1884 map vs 1914 map) */
+const ERA80: Record<string, string> = {Egypt: 'Egypt', Morocco: 'Morocco', Ethiopia: 'Ethiopia', Liberia: 'Liberia', 'Sierra Leone': 'Sierra Leone', 'Sokoto Caliphate': 'Sokoto Caliphate'};
 const ETH14: [string, string] = ['1914', 'Abyssinia'], ETH80: [string, string] = ['1880', 'Ethiopia'];
 const withFit = (e: BigEv): BigEv => {
-  const key = e.text === 'Ethiopia' ? (e.t < T('S5_01') ? ETH80 : ETH14) : FIT_OF[e.text];
+  const key: [string, string] | undefined = e.t < T('S5_01') && ERA80[e.text] ? ['1880', ERA80[e.text]] : e.text === 'Ethiopia' ? ETH14 : FIT_OF[e.text];
   const f = key ? LP[key[0]]?.[key[1]] : undefined;
-  return f ? {...e, lon: f.lon, lat: f.lat, fit: f} : e;
+  if (!f) console.warn(`[labels] NO FIT for "${e.text}" at t=${e.t.toFixed(1)} — it will not be drawn`);
+  return f ? {...e, lon: f.lon, lat: f.lat, fit: f, fitKey: key} : {...e, fit: undefined};
 };
+void ETH80;
 const S5e = E('S5_07') + 1.0; // partition labels stay until the 1900 summary ends
 const S8a = T('S8_02', 'By'), S8b = T('S8_03', 'borders') + 1.5;
 const both = (lon: number, lat: number, text: string, t: number, size = 40, rot = 0): BigEv[] => [
@@ -416,8 +422,6 @@ export const BIG: BigEv[] = ([
   {lon: 32.3, lat: 0.8, text: 'Buganda', t: T('S1_01', 'Ethiopians') + 1, until: E('S1_03') + 1, size: 26},
   {lon: 29.5, lat: 27.0, text: 'Egypt', t: T('S1_02', 'Europeans'), until: E('S1_03') + 1, size: 36},
   {lon: -6.0, lat: 32.0, text: 'Morocco', t: T('S1_02', 'Europeans'), until: E('S1_03') + 1, size: 30},
-  {lon: 3.0, lat: 22.0, text: 'Sahara', t: T('S1_03', 'blank'), until: E('S1_03') + 1, size: 54, rot: -8},
-  {lon: 22.5, lat: 1.5, text: 'Congo Basin', t: T('S1_03', 'blank') + 0.6, until: E('S1_03') + 1, size: 34},
   // Europe (scenes 2–4)
   {lon: -1.8, lat: 53.0, text: 'Britain', t: T('S2_03', 'Britain'), until: E('S4_01') + 1, size: 40, rot: -70},
   {lon: 2.2, lat: 46.6, text: 'France', t: T('S2_03', 'France'), until: E('S4_01') + 1, size: 44},

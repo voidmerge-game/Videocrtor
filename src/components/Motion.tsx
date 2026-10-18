@@ -4,9 +4,11 @@
  *  - Route: animated great-circle arrow (expeditions, campaigns, fleets)
  *  - City: dot + small label, only shown when the camera is close enough
  */
-import {layoutFitted, layoutManual, layoutRect, intersects, LINE_H, type Fit, type Rect} from '../lib/labels';
+import {intersects, calloutPlacements, LINE_H, type Rect} from '../lib/labels';
+import {namesAt} from '../lib/names';
 import React from 'react';
-import {useCurrentFrame} from 'remotion';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {reservedAt} from '../lib/reserve';
 import {geoInterpolate} from 'd3-geo';
 import {useMap, Marker, AvoidCtx} from './WorldMap';
 import {FONT, C, W, H} from '../theme';
@@ -14,58 +16,42 @@ import {clamp01, easeOutCubic} from '../lib/anim';
 
 const fadeIO = (f: number, len: number, a = 10, b = 12) => Math.min(clamp01(f / a), clamp01((len - f) / b));
 
-/* ---------- Big region label (printed on the map: dark on light terrain, white on dark fills) ---------- */
-
-/* ---------- LabelGuard: computes the screen rectangles of all visible country names for this frame and
- *  hands them to flags / city labels (which move out of the way) ---------- */
-export type GuardLabel = {lon: number; lat: number; text: string; t: number; until?: number; size?: number; rot?: number; minScale?: number; fit?: Fit};
-export const LabelGuard: React.FC<{labels: GuardLabel[]; fps: number; children: React.ReactNode}> = ({labels, fps, children}) => {
+/** Collision rectangles for this frame: all drawn country names (+ cards/badge/counter). Everything inside keeps clear of them. */
+export const LabelGuard: React.FC<{fps: number; children: React.ReactNode}> = ({fps, children}) => {
   const frame = useCurrentFrame();
-  const {cam, projection, visible} = useMap();
-  const rects: Rect[] = [];
-  const ppd = (cam.scale * Math.PI) / 180;
-  for (const b of labels) {
-    const at = Math.round(b.t * fps), until = b.until !== undefined ? Math.round(b.until * fps) : undefined;
-    if (frame < at || (until !== undefined && frame > until) || cam.scale < (b.minScale ?? 0) || !visible(b.lon, b.lat)) continue;
-    const L = b.fit ? layoutFitted(b.text.toUpperCase(), b.fit, ppd) : layoutManual(b.text.toUpperCase(), b.size ?? 40, b.rot ?? 0, cam.scale);
-    if (!L) continue;
-    const p = projection([b.lon, b.lat]);
-    if (!p) continue;
-    rects.push(layoutRect(p[0], p[1], L, 8));
-  }
+  const {cam, projection} = useMap();
+  const rects: Rect[] = namesAt(frame, fps, cam, projection).map((n) => ({x: n.rect.x - 2, y: n.rect.y - 2, w: n.rect.w + 4, h: n.rect.h + 4}));
+  for (const r of reservedAt(frame / fps)) rects.push(r);
   return <AvoidCtx.Provider value={rects}>{children}</AvoidCtx.Provider>;
 };
 
-export const BigLabel: React.FC<{
-  lon: number; lat: number; text: string; at: number; until?: number; size?: number; rot?: number; tone?: 'dark' | 'light'; minScale?: number; fit?: Fit;
-}> = ({lon, lat, text, at, until, size = 40, rot = 0, tone = 'dark', minScale = 0, fit}) => {
+/** The country-name layer. One decision function (lib/names.ts) → always inside the polygon, never overlapping anything. */
+export const Names: React.FC<{fps: number; light: Set<string>}> = ({fps, light}) => {
   const frame = useCurrentFrame();
-  const {cam} = useMap();
-  const f = frame - at;
-  if (f < 0 || (until !== undefined && frame > until) || cam.scale < minScale) return null;
-  const op = until !== undefined ? fadeIO(f, until - at, 14, 14) : clamp01(f / 14);
-  const light = tone === 'light';
-  const label = text.toUpperCase();
-  const ppd = (cam.scale * Math.PI) / 180;
-  const L = fit ? layoutFitted(label, fit, ppd) : layoutManual(label, size, rot, cam.scale);
-  if (!L) return null;
+  const {cam, projection} = useMap();
+  const names = namesAt(frame, fps, cam, projection);
   const track = 0.28;
   return (
-    <Marker lon={lon} lat={lat}>
-      <div
-        style={{
-          opacity: op, transform: `rotate(${L.rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap', textAlign: 'center',
-          fontFamily: FONT.map, fontWeight: 700, fontSize: L.fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: LINE_H,
-          color: light ? 'rgba(246,243,238,0.97)' : 'rgba(14,10,8,0.9)',
-          textShadow: light
-            ? '0 2px 2px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.5)'
-            : '0 1px 0 rgba(255,255,255,0.25), 0 0 10px rgba(255,240,225,0.35)',
-          paddingLeft: `${track}em`,
-        }}
-      >
-        {L.lines.map((l, i) => <div key={i}>{l}</div>)}
-      </div>
-    </Marker>
+    <>
+      {names.map((n) => {
+        const isLight = light.has(n.ev.text);
+        return (
+          <div key={`${n.ev.text}@${n.ev.t}`} style={{position: 'absolute', left: n.x, top: n.y, transform: 'translate(-50%, -50%)', pointerEvents: 'none'}}>
+            <div
+              style={{
+                opacity: n.vis, transform: `rotate(${n.L.rotDeg}deg)`, transformOrigin: '50% 50%', whiteSpace: 'nowrap', textAlign: 'center',
+                fontFamily: FONT.map, fontWeight: 700, fontSize: n.L.fontPx, letterSpacing: `${track}em`, textTransform: 'uppercase', lineHeight: LINE_H,
+                color: isLight ? 'rgba(246,243,238,0.97)' : 'rgba(14,10,8,0.9)',
+                textShadow: isLight ? '0 2px 2px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.5)' : '0 1px 0 rgba(255,255,255,0.25), 0 0 10px rgba(255,240,225,0.35)',
+                paddingLeft: `${track}em`,
+              }}
+            >
+              {n.L.lines.map((l, i) => <div key={i}>{l}</div>)}
+            </div>
+          </div>
+        );
+      })}
+    </>
   );
 };
 
@@ -89,7 +75,11 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
     sd === 'l' ? {x: p[0] - dot / 2 - 6 - tw, y: p[1] - th / 2, w: tw, h: th} :
     sd === 'b' ? {x: p[0] - tw / 2, y: p[1] + dot / 2 + 4, w: tw, h: th} : {x: p[0] - tw / 2, y: p[1] - dot / 2 - 4 - th, w: tw, h: th};
   const order: ('r' | 'l' | 'b' | 't')[] = [side, ...(['r', 'l', 'b', 't'] as const).filter((x) => x !== side)];
-  const use = order.find((sd) => !avoid.some((a) => intersects(rectFor(sd), a))) ?? side;
+  const found = order.find((sd) => !avoid.some((a) => intersects(rectFor(sd), a)));
+  const use = found ?? side;
+  const dotRect = {x: p[0] - dot, y: p[1] - dot, w: dot * 2, h: dot * 2};
+  if (avoid.some((a) => intersects(dotRect, a))) return null; // the point itself is covered (card/name) -> skip this city for now
+  const showText = !!found;
   const pos: React.CSSProperties =
     use === 'r' ? {left: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
     use === 'l' ? {right: dot + 6, top: '50%', transform: 'translateY(-50%)'} :
@@ -98,9 +88,9 @@ export const City: React.FC<{lon: number; lat: number; name: string; at: number;
     <Marker lon={lon} lat={lat}>
       <div style={{position: 'relative', width: dot, height: dot, opacity: op}}>
         <div style={{width: dot, height: dot, borderRadius: capital ? 1 : dot, background: '#fff', boxShadow: '0 0 0 2.5px rgba(10,8,6,0.9), 0 2px 5px rgba(0,0,0,0.6)', border: capital ? '3px solid #141210' : undefined, boxSizing: 'border-box'}} />
-        <div style={{position: 'absolute', whiteSpace: 'nowrap', fontFamily: FONT.map, fontSize: fs, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8)', fontWeight: 600, ...pos}}>
+        {showText && <div style={{position: 'absolute', whiteSpace: 'nowrap', fontFamily: FONT.map, fontSize: fs, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8)', fontWeight: 600, ...pos}}>
           {name}
-        </div>
+        </div>}
       </div>
     </Marker>
   );
@@ -114,7 +104,7 @@ export const Callout: React.FC<{
   dx?: number; dy?: number;
 }> = ({lon, lat, text, sub, at, until, dx = 0, dy = -250}) => {
   const frame = useCurrentFrame();
-  const {projection, visible} = useMap();
+  const {projection, visible, avoid} = useMap();
   if (frame < at || frame > until || !visible(lon, lat)) return null;
   const p = projection([lon, lat]);
   if (!p) return null;
@@ -128,9 +118,11 @@ export const Callout: React.FC<{
   const fs1 = 32, fs2 = 26;
   const boxW = 48 + Math.max(text.length * fs1 * 0.66, (sub ?? '').length * fs2 * 0.62);
   const boxH = sub ? 104 : 66;
-  let bx = x + dx, by = y + dy;
-  if (by - boxH / 2 < 96) by = y - dy;                       // keep on screen: flip below the point
-  if (bx < boxW / 2 + 40) bx = boxW / 2 + 40; else if (bx > W - boxW / 2 - 40) bx = W - boxW / 2 - 40;
+  // candidate placements (shared with the QA checker); the first whose box touches no name/card/badge wins
+  const cands = calloutPlacements(x, y, dx, dy, boxW, boxH, W, H);
+  const pick = cands.find((c) => !avoid.some((a) => intersects(c.rect, a)));
+  if (!pick) return null;
+  const {bx, by} = pick;
   // stem from the nearest box edge to the point
   const ang = Math.atan2(y - by, x - bx);
   const edge = Math.min(Math.abs((boxW / 2) / Math.max(1e-3, Math.cos(ang))), Math.abs((boxH / 2) / Math.max(1e-3, Math.sin(ang))));
@@ -216,7 +208,7 @@ export const Route: React.FC<{
 /* ---------- Pulse marker (battle / event) ---------- */
 export const Pulse: React.FC<{lon: number; lat: number; at: number; until: number; color?: string}> = ({lon, lat, at, until, color = '#ffffff'}) => {
   const frame = useCurrentFrame();
-  const {projection, visible} = useMap();
+  const {projection, visible, avoid} = useMap();
   if (frame < at || frame > until || !visible(lon, lat)) return null;
   const p = projection([lon, lat]);
   if (!p) return null;

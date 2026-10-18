@@ -27,7 +27,9 @@ export const FlagDrop: React.FC<{lon: number; lat: number; power: Power; at: num
   // never sit on a country name: slide out of its rectangle
   const p = projection([lon, lat]) ?? [0, 0];
   const bh = h + (label ? 24 * k : 0);
-  const [dx, dy] = pushOut({x: p[0] - w / 2 - 4, y: p[1] - bh / 2 - 4, w: w + 8, h: bh + 8}, avoid);
+  const moved = pushOut({x: p[0] - w / 2 - 4, y: p[1] - bh / 2 - 4, w: w + 8, h: bh + 8}, avoid);
+  if (!moved) return null; // no clean spot near its territory → better no flag than a flag on a name
+  const [dx, dy] = moved;
   return (
     <Marker lon={lon} lat={lat}>
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: op, transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${scale})`}}>

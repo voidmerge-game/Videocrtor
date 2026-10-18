@@ -37,3 +37,11 @@ export const camAt = (keys: CamKey[], tSec: number) => {
   }
   return keys[keys.length - 1];
 };
+
+/** v5 camera = keyframes + slow organic drift (screen-pixel amplitudes converted to degrees). Pure: shared by Main and the QA checker. */
+export const camWithDrift = (keys: CamKey[], t: number) => {
+  const c = camAt(keys, t);
+  const degPerPx = 57.2958 / c.scale;
+  const dz = 1 + 0.012 * Math.sin(t * 0.21) + 0.006 * Math.sin(t * 0.53);
+  return {...c, lon: c.lon + (16 * Math.sin(t * 0.17) + 6 * Math.sin(t * 0.41)) * degPerPx, lat: c.lat + (11 * Math.cos(t * 0.13) + 5 * Math.cos(t * 0.37)) * degPerPx, scale: c.scale * dz};
+};

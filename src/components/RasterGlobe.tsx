@@ -91,7 +91,7 @@ export const RasterGlobe: React.FC<{cam: Cam; res?: number; opacity?: number; sr
   const [handle] = useState(() => delayRender('raster-globe'));
   const [ready, setReady] = useState(!!TEXS[src]);
   useEffect(() => {
-    loadTex(src).then(() => { setReady(true); continueRender(handle); }).catch(() => continueRender(handle));
+    loadTex(src).then(() => { setReady(true); continueRender(handle); }).catch((e) => { console.error('RASTER-FAIL', src, String(e)); continueRender(handle); });
   }, [handle, src]);
   const w = Math.round(W * res), h = Math.round(H * res);
   useLayoutEffect(() => {

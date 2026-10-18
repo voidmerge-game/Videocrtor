@@ -14,24 +14,30 @@ const ringArea = (r: Ring) => { let a = 0; for (let i = 0, n = r.length; i < n; 
 const inside = (x: number, y: number, r: Ring) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; } return c; };
 const segDist = (x: number, y: number, r: Ring) => { let d = Infinity; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; const dx = xj - xi, dy = yj - yi; const l2 = dx * dx + dy * dy || 1e-12; let t = ((x - xi) * dx + (y - yi) * dy) / l2; t = Math.max(0, Math.min(1, t)); const px = xi + t * dx - x, py = yi + t * dy - y; d = Math.min(d, px * px + py * py); } return Math.sqrt(d); };
 
+const OFFS = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.3, 1.6, 2.0, 2.5, 3.0, 3.6]; // must match src/lib/labels.ts
 const fit = (geom: any) => {
   const polys: Ring[][] = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
-  let best: Ring | null = null, bestA = 0;
-  for (const p of polys) { const a = ringArea(p[0]); if (a > bestA) { bestA = a; best = p[0]; } }
-  if (!best) return null;
+  let bestP: Ring[] | null = null, bestA = 0;
+  for (const p of polys) { const a = ringArea(p[0]); if (a > bestA) { bestA = a; bestP = p; } }
+  if (!bestP) return null;
+  const best = bestP[0];
   const latc = best.reduce((s, p) => s + p[1], 0) / best.length;
   const cs = Math.cos((latc * Math.PI) / 180);
   const ring: Ring = best.map(([lo, la]) => [lo * cs, la]);
+  const holes: Ring[] = bestP.slice(1).map((h) => h.map(([lo, la]) => [lo * cs, la] as [number, number]));
+  // inside = in the outer ring and in no hole (Lesotho inside South Africa, Gambia inside French West Africa, ...)
+  const insideP = (x: number, y: number) => inside(x, y, ring) && !holes.some((h) => inside(x, y, h));
   const xs = ring.map((p) => p[0]), ys = ring.map((p) => p[1]);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   const N = 70; const P: [number, number][] = [];
-  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const x = x0 + ((i + 0.5) / N) * (x1 - x0), y = y0 + ((j + 0.5) / N) * (y1 - y0); if (inside(x, y, ring)) P.push([x, y]); }
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const x = x0 + ((i + 0.5) / N) * (x1 - x0), y = y0 + ((j + 0.5) / N) * (y1 - y0); if (insideP(x, y)) P.push([x, y]); }
   if (P.length < 4) return null;
+  const distAll = (x: number, y: number) => Math.min(segDist(x, y, ring), ...holes.map((h) => segDist(x, y, h)));
   // pole of inaccessibility
   let pole = P[0], pd = -1;
-  for (const [x, y] of P) { const d = segDist(x, y, ring); if (d > pd) { pd = d; pole = [x, y]; } }
+  for (const [x, y] of P) { const d = distAll(x, y); if (d > pd) { pd = d; pole = [x, y]; } }
   const step = Math.max(x1 - x0, y1 - y0) / N;
-  for (let i = -4; i <= 4; i++) for (let j = -4; j <= 4; j++) { const x = pole[0] + (i * step) / 4, y = pole[1] + (j * step) / 4; if (inside(x, y, ring)) { const d = segDist(x, y, ring); if (d > pd) { pd = d; pole = [x, y]; } } }
+  for (let i = -4; i <= 4; i++) for (let j = -4; j <= 4; j++) { const x = pole[0] + (i * step) / 4, y = pole[1] + (j * step) / 4; if (insideP(x, y)) { const d = distAll(x, y); if (d > pd) { pd = d; pole = [x, y]; } } }
   // PCA
   const mx = P.reduce((s, p) => s + p[0], 0) / P.length, my = P.reduce((s, p) => s + p[1], 0) / P.length;
   let sxx = 0, syy = 0, sxy = 0;
@@ -39,29 +45,38 @@ const fit = (geom: any) => {
   const th = 0.5 * Math.atan2(2 * sxy, sxx - syy);
   const l1 = (sxx + syy) / 2 + Math.sqrt(((sxx - syy) / 2) ** 2 + sxy ** 2), l2 = (sxx + syy) / 2 - Math.sqrt(((sxx - syy) / 2) ** 2 + sxy ** 2);
   const ratio = Math.sqrt(l1 / Math.max(l2, 1e-9));
-  // free length through a point p along direction ang (both ways), 0 if p is outside
-  const rayFrom = (px: number, py: number, ang: number) => {
-    if (!inside(px, py, ring)) return 0;
-    const u = [Math.cos(ang), Math.sin(ang)]; let L = 0;
-    for (const sgn of [1, -1]) { let d = 0; const st = step / 3; while (d < 200) { d += st; if (!inside(px + sgn * u[0] * d, py + sgn * u[1] * d, ring)) break; } L += d - st; }
-    return L;
+  // free segment through a point p along direction ang: [lo, hi] (signed distances, [0,0] if p is outside)
+  const ST = 0.03; // degrees
+  const segFrom = (px: number, py: number, ang: number): [number, number] => {
+    if (!insideP(px, py)) return [0, 0];
+    const u = [Math.cos(ang), Math.sin(ang)]; const out: number[] = [];
+    for (const sgn of [1, -1]) { let d = 0; while (d < 120) { d += ST; if (!insideP(px + sgn * u[0] * d, py + sgn * u[1] * d)) break; } out.push(d - ST); }
+    return [-out[1], out[0]];
   };
-  // free length along `ang` within a band of half-height `off` (perpendicular offsets), min over the band
-  const OFFS = [0, 0.3, 0.6, 1.0, 1.5, 2.2, 3.0];
-  const band = (ang: number) => OFFS.map((off) => {
+  const rayFrom = (px: number, py: number, ang: number) => { const [lo, hi] = segFrom(px, py, ang); return hi - lo; };
+  // rows[i] = free segment common to ALL rays at perpendicular offsets |o| ≤ OFFS[i] (cast every 0.06°) → a text block of that
+  // half-height placed on the segment is inside everywhere; cumulative so rows shrink monotonically
+  const band = (ang: number) => {
     const nx = -Math.sin(ang), ny = Math.cos(ang);
-    let L = Infinity;
-    for (const o of off === 0 ? [0] : [-off, -off / 2, 0, off / 2, off]) L = Math.min(L, rayFrom(pole[0] + nx * o, pole[1] + ny * o, ang));
-    return +L.toFixed(2);
-  });
+    const rows: [number, number][] = [];
+    let lo = -Infinity, hi = Infinity, o = 0;
+    for (const off of OFFS) {
+      while (o <= off + 1e-9) {
+        for (const sg of o === 0 ? [0] : [-o, o]) { const [a, b] = segFrom(pole[0] + nx * sg, pole[1] + ny * sg, ang); lo = Math.max(lo, a); hi = Math.min(hi, b); }
+        o = +(o + 0.06).toFixed(4);
+      }
+      rows.push([+lo.toFixed(2), +Math.max(lo, hi).toFixed(2)]);
+    }
+    return rows;
+  };
   let a = (th * 180) / Math.PI; // math angle (y up); CSS rotation = -a
   while (a > 90) a -= 180; while (a <= -90) a += 180;
   const L0 = rayFrom(pole[0], pole[1], 0), Lv = rayFrom(pole[0], pole[1], Math.PI / 2), Laxis = rayFrom(pole[0], pole[1], th), Lperp = rayFrom(pole[0], pole[1], th + Math.PI / 2);
-  return {lon: +(pole[0] / cs).toFixed(3), lat: +pole[1].toFixed(3), th: +a.toFixed(1), L0: +L0.toFixed(2), Lv: +Lv.toFixed(2), La: +Laxis.toFixed(2), Lp: +Lperp.toFixed(2), ratio: +ratio.toFixed(2), r: +pd.toFixed(2), bh: band(0), ba: band(th)};
+  return {lon: +(pole[0] / cs).toFixed(3), lat: +pole[1].toFixed(3), cs: +cs.toFixed(4), th: +a.toFixed(1), L0: +L0.toFixed(2), Lv: +Lv.toFixed(2), La: +Laxis.toFixed(2), Lp: +Lperp.toFixed(2), ratio: +ratio.toFixed(2), r: +pd.toFixed(2), bh: band(0), ba: band(th)};
 };
 
 const out: Record<string, Record<string, any>> = {};
-for (const [file, obj, key] of [['africa_1880', 'w1880', '1880'], ['africa_1900', 'w1900', '1900'], ['colonies_1914', 'w1914', '1914']] as const) {
+for (const [file, obj, key] of [['africa_1880', 'w1880', '1880'], ['africa_1900', 'w1900', '1900'], ['colonies_1914', 'w1914', '1914'], ['europe_1884', 'w1884', 'europe']] as const) {
   out[key] = {};
   for (const f of load(file, obj)) { const n = f.properties?.NAME; if (!n) continue; const r = fit(f.geometry); if (r) out[key][n] = r; }
 }

@@ -2,13 +2,13 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {AbsoluteFill, Audio, Sequence, continueRender, delayRender, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {WorldMap, Layer} from './components/WorldMap';
 import {useTopo} from './lib/geo';
-import {camAt, prog, clamp01, easeOutCubic} from './lib/anim';
+import {camAt, camWithDrift, prog, clamp01, easeOutCubic} from './lib/anim';
 import {C, FONT, Power} from './theme';
 import {FlagDrop, MapLabel, YearBadge, TitleCard, Grain, WallArchive, QuoteCard, CardPop} from './components/Ui';
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
 import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, ARCHIVE, QUOTES, yearAt, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
-import {BigLabel, City, Callout, Route, Pulse, LabelGuard} from './components/Motion';
+import {Names, City, Callout, Route, Pulse, LabelGuard} from './components/Motion';
 
 export const MAIN_DURATION_SEC = TOTAL;
 
@@ -44,6 +44,8 @@ const shade = (hex: string, name: string) => {
   const r = Math.min(255, Math.round(((n >> 16) & 255) * k)), g = Math.min(255, Math.round(((n >> 8) & 255) * k)), b = Math.min(255, Math.round((n & 255) * k));
   return `rgb(${r},${g},${b})`;
 };
+
+const EU_FILL: Record<string, string> = {...POWER_FILL, austria: '#a08a5a', neutral: '#9a988c', russia: '#7c8a6e'};
 
 const splitCaption = (c: string): [string, string | undefined] => {
   const i = c.indexOf(' — ');
@@ -113,15 +115,11 @@ export const Main: React.FC = () => {
   const land = useTopo('land_world');
   const af1880 = useTopo('africa_1880');
   const af1914 = useTopo('colonies_1914');
+  const eu1884 = useTopo('europe_1884');
   const modern = useTopo('countries_world');
 
   // v5: the camera never rests — a slow organic drift (in screen pixels, converted to degrees) on top of the keyframes
-  const cam = (() => {
-    const c = camAt(CAM4, t);
-    const degPerPx = 57.2958 / c.scale;
-    const dz = 1 + 0.012 * Math.sin(t * 0.21) + 0.006 * Math.sin(t * 0.53);
-    return {...c, lon: c.lon + (16 * Math.sin(t * 0.17) + 6 * Math.sin(t * 0.41)) * degPerPx, lat: c.lat + (11 * Math.cos(t * 0.13) + 5 * Math.cos(t * 0.37)) * degPerPx, scale: c.scale * dz};
-  })();
+  const cam = camWithDrift(CAM4, t);
   // v5: fast camera moves get a motion blur (reference: radial blur on the zoom in/out between regions)
   const moveBlur = (() => {
     const a = camAt(CAM4, t - 1 / fps), b = camAt(CAM4, t + 1 / fps);
@@ -155,6 +153,15 @@ export const Main: React.FC = () => {
       strokeWidth: 1.3,
       blend: 'multiply', wash: 0.42, strokeOnTop: true, shadow: true,
       opacity: (f) => (OWNER_1880[f.properties.NAME] ? 0.9 : 0.8) * pre1880On * preFadeOut,
+    });
+    // v6: European powers c.1884 (real borders, same style) — Ottoman lands come from the 1880 layer
+    L.push({
+      id: 'europe', fc: eu1884,
+      filter: (f) => f.properties.NAME !== 'Ottoman Empire',
+      fill: (f) => shade(EU_FILL[f.properties.SUBJECTO] ?? '#9a988c', f.properties.NAME),
+      stroke: 'rgba(240,228,210,0.9)', strokeWidth: 1.3,
+      blend: 'multiply', wash: 0.42, strokeOnTop: true, shadow: true,
+      opacity: (f) => (f.properties.SUBJECTO === 'neutral' || f.properties.SUBJECTO === 'russia' ? 0.55 : 0.88) * pre1880On,
     });
     // 1914 territories revealed over time
     L.push({
@@ -193,7 +200,7 @@ export const Main: React.FC = () => {
       opacity: () => modernOn,
     });
     return L;
-  }, [af1880, af1914, modern, frame, fps, pre1880On, preFadeOut, modernOn, postMul]);
+  }, [af1880, af1914, eu1884, modern, frame, fps, pre1880On, preFadeOut, modernOn, postMul]);
 
   const vignette = quoteOn ? 0.9 : 0.55;
 
@@ -208,11 +215,9 @@ export const Main: React.FC = () => {
           <Pulse key={`p${i}`} lon={p.lon} lat={p.lat} at={Math.round(p.t * fps)} until={Math.round(p.until * fps)} color={p.color} />
         ))}
         {/* country names — always inside their borders */}
-        {BIG.map((b, i) => (
-          <BigLabel key={`b${i}`} lon={b.lon} lat={b.lat} text={b.text} at={Math.round(b.t * fps)} until={b.until ? Math.round(b.until * fps) : undefined} size={b.size} rot={b.rot} minScale={b.minScale} fit={b.fit} tone={LIGHT_LABELS.has(b.text) ? 'light' : 'dark'} />
-        ))}
+        <Names fps={fps} light={LIGHT_LABELS} />
         {/* everything below keeps clear of the country names (LabelGuard = collision rectangles for this frame) */}
-        <LabelGuard labels={BIG} fps={fps}>
+        <LabelGuard fps={fps}>
           {CITIES.map((c, i) => (
             <City key={`c${i}`} lon={c.lon} lat={c.lat} name={c.name} at={Math.round((c.t ?? 0) * fps)} until={c.until ? Math.round(c.until * fps) : undefined} minScale={c.minScale} capital={c.capital} side={c.side} />
           ))}
@@ -222,10 +227,10 @@ export const Main: React.FC = () => {
           {[...FLAGS, ...FLAGS_EXTRA].map((f, i) => (
             <FlagDrop key={i} lon={f.lon} lat={f.lat} power={f.power} at={Math.round(f.t * fps)} until={f.until ? Math.round(f.until * fps) : undefined} label={f.label} width={f.w ?? 72} />
           ))}
+          {CALLOUTS.map((c, i) => (
+            <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={c.dx ?? 0} dy={c.dy ?? -270} />
+          ))}
         </LabelGuard>
-        {CALLOUTS.map((c, i) => (
-          <Callout key={`k${i}`} lon={c.lon} lat={c.lat} text={c.text} sub={c.sub} at={Math.round(c.t * fps)} until={Math.round(c.until * fps)} dx={0} dy={-270} />
-        ))}
       </WorldMap>
       </AbsoluteFill>
 
