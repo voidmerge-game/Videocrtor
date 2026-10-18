@@ -1,0 +1,27 @@
+{
+  "name": "videocrtor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "still": "remotion still",
+    "render": "remotion render"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.230",
+    "@remotion/fonts": "4.0.230",
+    "d3-geo": "3.1.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.230",
+    "topojson-client": "3.1.0"
+  },
+  "devDependencies": {
+    "@types/d3-geo": "3.1.0",
+    "@types/geojson": "7946.0.14",
+    "@types/react": "18.3.12",
+    "@types/topojson-client": "3.1.5",
+    "@types/topojson-specification": "1.0.5",
+    "typescript": "5.6.3"
+  }
+}
