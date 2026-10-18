@@ -90,3 +90,11 @@ All clips are public domain or CC0, obtained from Wikimedia Commons; trimmed to 
 | force_publique_1916.mp4 | Belgian campaigns in Africa (1914-1918) | Belgian Army film, 1914–18 | Public domain |
 
 Earth textures (v6): NASA Blue Marble Next Generation (July 2004, topography + bathymetry), NASA Black Marble 2016 (night lights), Natural Earth GRAY_HR_SR_OB shaded relief — all public domain.
+
+War-room table backdrop (v6, `public/tex/warroom_table.jpg`): AI-generated image created for this production (no third-party rights).
+Sound effects: see the SFX section above (same files as v5.5; additional placements only). 1914 land-share chart: computed by us from the project's own 1914 boundary data (`public/data/colonies_1914.json`, spherical areas).
+
+## v6 FINAL — delivery record
+- Video: The_Scramble_for_Africa_v6_1080p.mp4 — 1920×1080, 30 fps, 17329 frames, 577.63 s (9:37.6), H.264 CRF 18 + AAC 48 kHz stereo, 981.5 MB.
+- Rendered on GitHub Actions: render_parallel run 39157374856, commit d36d46f (20 video chunks + 20 audio chunks + stitch).
+- Automated label QA at commit a40038c: 5777 samples (0.1 s), 10472 name draws, 0 violations (no name outside its border, no overlap with cards / flags / cities / HUD).
