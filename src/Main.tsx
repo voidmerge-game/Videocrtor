@@ -4,7 +4,7 @@ import {WorldMap, Layer} from './components/WorldMap';
 import {useTopo} from './lib/geo';
 import {camAt, camWithDrift, prog, clamp01, easeOutCubic} from './lib/anim';
 import {C, FONT, Power} from './theme';
-import {FlagDrop, MapLabel, YearBadge, TitleCard, Grain, WallArchive, QuoteCard, CardPop} from './components/Ui';
+import {FlagDrop, MapLabel, YearBadge, TitleCard, Grain, TableArchive, QuoteCard, CardPop} from './components/Ui';
 import {ensureFonts} from './lib/fonts';
 import {PARAS, TOTAL, FIRST_VO, COLD_OPEN, END_VO, OUTRO, T, E, P, voActive} from './timeline';
 import {OWNER_1880, OWNER_1914, AFRICA_1914, acqOf, FLAGS, LABELS, ARCHIVE, QUOTES, yearAt, CAM4, SFX, MUSIC, BIG, CITIES, CALLOUTS, ROUTES, PULSES, LIGHT_LABELS, FLAGS_EXTRA} from './events';
@@ -243,7 +243,7 @@ export const Main: React.FC = () => {
         const [cap, sub] = splitCaption(a.caption);
         if (a.wall) {
           const prev = ARCHIVE[(i + ARCHIVE.length - 1) % ARCHIVE.length].src, next = ARCHIVE[(i + 1) % ARCHIVE.length].src;
-          return <WallArchive key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} sides={[prev, next]} sepia={a.sepia ?? 0.25} sign={a.sign} />;
+          return <TableArchive key={i} src={a.src} caption={a.caption} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} sides={[prev, next]} sepia={a.sepia ?? 0.25} sign={a.sign} />;
         }
         return <CardPop key={i} src={a.src} video={a.video} caption={cap} sub={sub} at={Math.round(a.t * fps)} until={Math.round(a.until * fps)} x={a.x} y={a.y} w={a.w} h={a.h} sepia={a.sepia ?? 0.25} />;
       })}

@@ -258,39 +258,10 @@ export const CardPop: React.FC<{
   );
 };
 
-/* ---------- Archive on a brick wall (v5, rebuilt from the reference f0066): photographic brick, wall top edge with a dusty rim and a
- *  dark sky + skyline silhouette above, central spotlight + heavy vignette, feathered photo, tilted posters, street plaque,
- *  caption typed INSIDE the photo at ~7 chars/s. Enter: defocus → focus; exit: fade. ---------- */
-const Skyline: React.FC = () => (
-  <svg width={1920} height={200} viewBox="0 0 1920 200" style={{position: 'absolute', left: 0, top: 0}}>
-    <defs>
-      <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#1c1512" />
-        <stop offset="0.7" stopColor="#4a3026" />
-        <stop offset="1" stopColor="#704834" />
-      </linearGradient>
-    </defs>
-    <rect width="1920" height="200" fill="url(#skyG)" />
-    <g fill="#0b0806">
-      {/* flat-roofed houses */}
-      <rect x="0" y="150" width="260" height="60" /><rect x="40" y="128" width="90" height="30" /><rect x="300" y="140" width="180" height="70" />
-      <rect x="520" y="156" width="140" height="60" /><rect x="1180" y="150" width="200" height="60" /><rect x="1420" y="136" width="120" height="80" />
-      <rect x="1600" y="150" width="320" height="60" /><rect x="1700" y="124" width="70" height="40" />
-      {/* minaret + dome */}
-      <rect x="700" y="60" width="26" height="150" /><rect x="692" y="90" width="42" height="10" /><rect x="694" y="52" width="38" height="8" /><polygon points="713,20 700,52 726,52" />
-      <path d="M760 150 q90 -110 180 0 z" /><rect x="740" y="146" width="220" height="70" /><rect x="848" y="26" width="4" height="22" /><circle cx="850" cy="24" r="5" />
-      <rect x="1040" y="90" width="22" height="120" /><polygon points="1051,60 1040,90 1062,90" />
-      {/* low trees */}
-      {[150, 470, 980, 1120, 1560, 1860].map((x, i) => (
-        <g key={i} transform={`translate(${x} ${i % 2 ? 150 : 140})`}>
-          <ellipse cx="0" cy="0" rx="34" ry="22" /><ellipse cx="22" cy="6" rx="26" ry="16" /><rect x="-3" y="10" width="6" height="40" />
-        </g>
-      ))}
-    </g>
-  </svg>
-);
-
-export const WallArchive: React.FC<{
+/* ---------- v6: Archive on the war-room table — a photographic print placed on a lamp-lit mahogany desk (public/tex/warroom_table.jpg),
+ *  seen obliquely; smaller prints and a paper tag lie around it; lamp flicker, dolly-in, defocus → focus on entry; caption typed inside the print. ---------- */
+const noise01 = (n: number) => { const x = Math.sin(n * 91.17 + 11.3) * 43758.5453; return x - Math.floor(x); };
+export const TableArchive: React.FC<{
   src: string; caption?: string; at: number; until: number; sides?: [string, string]; sepia?: number; w?: number; h?: number; sign?: string;
 }> = ({src, caption, at, until, sides, sepia = 0.25, w = 780, h = 570, sign = 'CONGO FREE STATE'}) => {
   const frame = useCurrentFrame();
@@ -298,57 +269,64 @@ export const WallArchive: React.FC<{
   const f = frame - at;
   const len = until - at;
   const op = fadeInOut(f, len, 6, 12);
-  const focus = easeOutCubic(clamp01(f / 36));              // defocus → focus on entry (reference: ~1.3 s)
-  const push = 1 + 0.06 * (f / Math.max(1, len));           // slow dolly-in on the wall
-  const kb = 1.03 + 0.07 * (f / Math.max(1, len));          // Ken Burns on the photo
-  const WALL_TOP = 130;
-  const feather = `linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%)`;
-  const cx = 960, cy = WALL_TOP + (1080 - WALL_TOP) / 2 - 20;
-  const typed = caption ? caption.slice(0, Math.max(0, Math.floor((f - 24) / 3))) : '';
-  const poster = (p: string, x: number, y: number, pw: number, ph: number, rot: number, bright = 0.62) => (
-    <div style={{position: 'absolute', left: x, top: y, width: pw, height: ph, transform: `rotate(${rot}deg)`, boxShadow: '0 14px 30px rgba(0,0,0,0.7)', background: '#1a1512', border: '6px solid #e8dcc8', boxSizing: 'border-box'}}>
-      <Img src={staticFile(p)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: `sepia(0.5) brightness(${bright}) contrast(1.05)`}} />
-    </div>
-  );
+  const focus = easeOutCubic(clamp01(f / 30));
+  const push = 1 + 0.05 * (f / Math.max(1, len));
+  const place = easeOutCubic(clamp01((f - 4) / 14));            // the print is laid down onto the table
+  const lift = 1 - place;                                        // 1 = still in the air
+  const kb = 1.02 + 0.05 * (f / Math.max(1, len));
+  const lamp = 0.93 + 0.05 * noise01(Math.floor(f / 2)) + 0.02 * Math.sin(f * 0.6);
+  const typed = caption ? caption.slice(0, Math.max(0, Math.floor((f - 22) / 3))) : '';
+  // table plane: the backdrop is shot ~65° from vertical → prints are foreshortened with a perspective rotateX
+  const plane = (rot: number) => `perspective(2200px) rotateX(26deg) rotateZ(${rot}deg)`;
+  const cx = 950, cy = 585;
+  const print = (p: string, x: number, y: number, pw: number, ph: number, rot: number, bright = 0.8, delay = 0) => {
+    const pl = easeOutCubic(clamp01((f - delay) / 12));
+    return (
+      <div style={{position: 'absolute', left: x, top: y, width: pw, height: ph, transformOrigin: '50% 50%', transform: `${plane(rot)} translateY(${-40 * (1 - pl)}px)`, opacity: pl, background: '#efe6d2', padding: 7, boxSizing: 'border-box', boxShadow: `0 ${10 + 30 * (1 - pl)}px ${24 + 40 * (1 - pl)}px rgba(0,0,0,${0.55 + 0.2 * (1 - pl)})`}}>
+        <Img src={staticFile(p)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: `sepia(0.55) brightness(${bright}) contrast(1.05)`}} />
+      </div>
+    );
+  };
   return (
-    <AbsoluteFill style={{opacity: op, overflow: 'hidden', background: '#000'}}>
-      <div style={{position: 'absolute', inset: 0, transform: `scale(${push})`, transformOrigin: '50% 55%', filter: focus < 1 ? `blur(${(1 - focus) * 10}px)` : undefined}}>
-        {/* sky + skyline above the wall */}
-        <div style={{position: 'absolute', left: 0, top: WALL_TOP - 200, width: 1920, height: 200}}><Skyline /></div>
-        {/* wall */}
-        <div style={{position: 'absolute', left: 0, top: WALL_TOP, width: 1920, height: 1080 - WALL_TOP, overflow: 'hidden', boxShadow: '0 -6px 14px rgba(0,0,0,0.6)'}}>
-          <Img src={staticFile('tex/brick_wall_photo.jpg')} style={{position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.78) saturate(0.9)'}} />
-          {/* dusty rim on the top course */}
-          <div style={{position: 'absolute', left: 0, top: 0, width: '100%', height: 9, background: 'linear-gradient(#e9dcc6, #b9a98f)', opacity: 0.85}} />
-        </div>
-        {/* street plaque */}
-        <div style={{position: 'absolute', left: 70, top: WALL_TOP + 110, padding: '10px 22px', background: '#1d2a44', border: '3px solid #e8e2d4', color: '#f1ece2', fontFamily: FONT.map, fontWeight: 700, fontSize: 22, letterSpacing: 2, boxShadow: '0 8px 18px rgba(0,0,0,0.6)', transform: 'rotate(-1.5deg)'}}>{sign}</div>
-        {sides && poster(sides[0], 110, WALL_TOP + 230, 250, 340, -3)}
-        {sides && poster(sides[1], 1560, WALL_TOP + 200, 260, 350, 2.5, 0.55)}
-        {sides && poster(sides[0], 1400, WALL_TOP + 560, 190, 130, -2, 0.5)}
-        {/* soft shadow behind the photo */}
-        <div style={{position: 'absolute', left: cx - w / 2 - 30, top: cy - h / 2 - 10, width: w + 60, height: h + 60, background: 'rgba(0,0,0,0.6)', filter: 'blur(30px)', borderRadius: 60}} />
+    <AbsoluteFill style={{opacity: op, overflow: 'hidden', background: '#070504'}}>
+      <div style={{position: 'absolute', inset: 0, transform: `scale(${push})`, transformOrigin: '50% 55%', filter: focus < 1 ? `blur(${(1 - focus) * 9}px)` : undefined}}>
+        <Img src={staticFile('tex/warroom_table.jpg')} style={{position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, objectFit: 'cover', filter: `brightness(${0.92 * lamp}) saturate(0.95)`}} />
+        {/* lamp pool (flickers with the bulb) */}
+        <div style={{position: 'absolute', inset: 0, background: `radial-gradient(ellipse 36% 44% at 30% 22%, rgba(255,196,120,${0.16 * lamp}) 0%, rgba(255,180,100,0) 70%)`, mixBlendMode: 'screen'}} />
+        {/* smaller prints lying around */}
+        {sides && print(sides[0], 1250, 150, 250, 180, 7, 0.7, 10)}
+        {sides && print(sides[1], 520, 790, 230, 170, -9, 0.65, 16)}
+        {/* the main print: a photographic paper with a warm border, laid down onto the table */}
         <div
           style={{
-            position: 'absolute', left: cx - w / 2, top: cy - h / 2, width: w, height: h, overflow: 'hidden',
-            WebkitMaskImage: feather, maskImage: feather, WebkitMaskComposite: 'source-in', maskComposite: 'intersect',
+            position: 'absolute', left: cx - w / 2, top: cy - h / 2, width: w, height: h, padding: 16, boxSizing: 'border-box', background: '#f1e9d6',
+            transformOrigin: '50% 50%', transform: `${plane(-2.5)} translateY(${-70 * lift}px) scale(${1 + 0.08 * lift})`,
+            boxShadow: `0 ${14 + 50 * lift}px ${34 + 60 * lift}px rgba(0,0,0,${0.6 + 0.2 * lift}), 0 2px 6px rgba(0,0,0,0.5)`,
+            filter: lift > 0 ? `blur(${lift * 2}px)` : undefined,
           }}
         >
-          <Img
-            src={src.startsWith('http') ? src : staticFile(src)}
-            style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${kb})`, transformOrigin: '50% 45%', filter: `sepia(${sepia}) contrast(1.08) saturate(0.85) brightness(1.02)`}}
-          />
-          <div style={{position: 'absolute', inset: 0, boxShadow: 'inset 0 0 80px rgba(0,0,0,0.45)'}} />
-          {caption && <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 150, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.55))'}} />}
-          {caption && (
-            <div style={{position: 'absolute', left: 30, right: 30, bottom: 44, textAlign: 'center', fontFamily: FONT.map, fontWeight: 700, fontSize: 30, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 2px 4px #000, 0 0 16px rgba(0,0,0,0.9)', lineHeight: 1.25}}>
-              {typed}
-            </div>
-          )}
+          <div style={{position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: '#000'}}>
+            <Img
+              src={src.startsWith('http') ? src : staticFile(src)}
+              style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${kb})`, transformOrigin: '50% 45%', filter: `sepia(${sepia + 0.1}) contrast(1.08) saturate(0.85) brightness(1.0)`}}
+            />
+            {/* paper sheen from the lamp + worn edges */}
+            <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(115deg, rgba(255,230,190,0.16) 0%, rgba(255,255,255,0) 35%, rgba(0,0,0,0.12) 100%)', pointerEvents: 'none'}} />
+            <div style={{position: 'absolute', inset: 0, boxShadow: 'inset 0 0 60px rgba(60,40,20,0.45)', pointerEvents: 'none'}} />
+            {caption && <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 150, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.6))'}} />}
+            {caption && (
+              <div style={{position: 'absolute', left: 30, right: 30, bottom: 30, textAlign: 'center', fontFamily: FONT.map, fontWeight: 700, fontSize: 28, letterSpacing: 2.5, color: '#fff', textTransform: 'uppercase', textShadow: '0 2px 4px #000, 0 0 16px rgba(0,0,0,0.9)', lineHeight: 1.25}}>
+                {typed}
+              </div>
+            )}
+          </div>
         </div>
-        {/* spotlight + vignette */}
-        <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 48% 60% at 50% 50%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.9) 100%)'}} />
-        <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.6))'}} />
+        {/* paper tag with the territory name */}
+        <div style={{position: 'absolute', left: cx + w / 2 - 40, top: cy + h / 2 + 18, padding: '10px 22px', background: '#e9dfc6', color: '#2a2018', fontFamily: FONT.map, fontWeight: 700, fontSize: 21, letterSpacing: 2.5, boxShadow: '0 10px 22px rgba(0,0,0,0.6)', transform: plane(-6), opacity: easeOutCubic(clamp01((f - 20) / 10))}}>
+          {sign}
+        </div>
+        {/* vignette */}
+        <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 70% at 50% 52%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.35) 75%, rgba(0,0,0,0.8) 100%)', pointerEvents: 'none'}} />
       </div>
     </AbsoluteFill>
   );
