@@ -65,3 +65,11 @@ T. Pakenham, *The Scramble for Africa* (1991); A. Hochschild, *King Leopold's Gh
 - Terrain: Natural Earth I (NE1_50M_SR_W) colour raster + Natural Earth GRAY_HR_SR_OB shaded relief (public domain), re-tinted/combined by us (`public/data/terrain_world.jpg`, `terrain_africa.jpg`).
 - Font: Montserrat (Julieta Ulanovsky et al.), SIL Open Font License 1.1.
 - Brick-wall texture: procedurally generated for this project (no third-party asset).
+
+## v5 / final (v5.5) — supersedes the v4 notes above where they differ
+- Terrain: NASA Blue Marble Next Generation (July 2004, topography + bathymetry, public domain — NASA Earth Observatory / Reto Stöckli) combined with Natural Earth GRAY_HR_SR_OB shaded relief (public domain), warm-graded by us (`public/data/terrain_africa.jpg`, `terrain_world.jpg`).
+- Clouds: NASA Blue Marble cloud composite (`cloud_combined`, public domain).
+- Brick-wall backdrop (`public/tex/brick_wall_photo.jpg`): AI-generated image produced for this project (no third-party asset).
+- Country-name / caption fonts: Montserrat (SIL OFL 1.1), Barlow (SIL OFL 1.1), Cinzel (SIL OFL 1.1), Special Elite (Apache 2.0).
+- Historical boundaries: 1914 colonial units assembled by us from Natural Earth 1:50m admin-0 (public domain); 1870/1880 African polities drawn by us.
+- Final render: Remotion (company licence not required for individual/non-commercial use — see remotion.dev/license), x264 CRF 18, 1920×1080, 30 fps, 577.6 s. Commit fbfd52e.
