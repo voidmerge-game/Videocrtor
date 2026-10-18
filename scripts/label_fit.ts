@@ -47,7 +47,7 @@ const fit = (geom: any) => {
 };
 
 const out: Record<string, Record<string, any>> = {};
-for (const [file, obj, key] of [['africa_1880', 'w1880', '1880'], ['africa_1900', 'w1900', '1900'], ['africa_1914', 'w1914', '1914']] as const) {
+for (const [file, obj, key] of [['africa_1880', 'w1880', '1880'], ['africa_1900', 'w1900', '1900'], ['colonies_1914', 'w1914', '1914']] as const) {
   out[key] = {};
   for (const f of load(file, obj)) { const n = f.properties?.NAME; if (!n) continue; const r = fit(f.geometry); if (r) out[key][n] = r; }
 }

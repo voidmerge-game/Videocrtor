@@ -7,3 +7,5 @@ drive final id 1q2psUEjEG3i606r0KRee6pfoJOhWBhJT; video run 39111203659; audio r
 - changes: CAM3 (closer camera), BIG spaced labels, CITIES, CALLOUTS, ROUTES (animated arrows), PULSES, HD Africa relief layer
 v5 render_parallel dispatched 2026-10-18 13:39:10 commit cd233bc reuse_audio 39120070111
 run 39132472217 CANCELLED (labels wrong); v5.1 render_parallel run 39133352853 dispatched 2026-10-18 13:51:10 commit 8801b3f reuse_audio 39120070111
+runs 39133352853 + 39133990418 CANCELLED; v5.2 render_parallel run 39134032023 dispatched 2026-10-18 14:00:32 commit 0f2f103 reuse_audio 39120070111
+run 39134032023 CANCELLED by user request 2026-10-18 14:03:25 — do NOT render until user confirms
