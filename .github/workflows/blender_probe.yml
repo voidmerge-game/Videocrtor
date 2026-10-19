@@ -1,0 +1,56 @@
+name: blender_probe
+on:
+  workflow_dispatch:
+    inputs:
+      samples:
+        description: cycles samples
+        default: "16"
+      res:
+        description: width
+        default: "1920"
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps
+        run: |
+          pip install -q numpy scipy tifffile pillow pyshp
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libegl1 libgl1-mesa-dri libxkbcommon0 libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libsm6 >/dev/null
+          nproc; free -g | head -2
+      - name: blender
+        run: |
+          curl -sL --retry 3 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
+          mkdir -p /opt/bl && tar -xJf /tmp/blender.tar.xz -C /opt/bl --strip-components=1
+          /opt/bl/blender -b --version | head -1
+      - name: textures
+        env:
+          TEX: /tmp/tex/
+          FONT: public/fonts/Cinzel.ttf
+        run: python mongols/blender/gen_textures.py
+      - name: render cycles
+        env:
+          TEX: /tmp/tex/
+        run: |
+          mkdir -p out
+          for S in ${{ github.event.inputs.samples }} 32; do
+            RES=${{ github.event.inputs.res }} SAMPLES=$S DIST=16 OUT=$PWD/out/cycles_s$S.png /opt/bl/blender -b --python mongols/blender/build_map.py 2>&1 | grep -E "RENDER_SECONDS|rror" | tee -a out/times.txt
+          done
+          GX=1500 GY=800 RES=${{ github.event.inputs.res }} SAMPLES=${{ github.event.inputs.samples }} DIST=16 OUT=$PWD/out/cycles_hires_grid.png /opt/bl/blender -b --python mongols/blender/build_map.py 2>&1 | grep -E "RENDER_SECONDS|rror" | tee -a out/times.txt
+      - name: render eevee (software GL)
+        continue-on-error: true
+        env:
+          TEX: /tmp/tex/
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          GALLIUM_DRIVER: llvmpipe
+        run: |
+          sed -e "s/sc.render.engine='CYCLES'/sc.render.engine='BLENDER_EEVEE_NEXT'/" -e "s/sc.cycles.samples=SAMPLES/sc.eevee.taa_render_samples=SAMPLES; sc.eevee.use_shadows=True/" -e "s/sc.cycles.use_denoising=True; sc.cycles.denoiser='OPENIMAGEDENOISE'; //" mongols/blender/build_map.py > /tmp/build_eevee.py
+          RES=${{ github.event.inputs.res }} SAMPLES=16 DIST=16 OUT=$PWD/out/eevee_s16.png timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" /opt/bl/blender -b --python /tmp/build_eevee.py 2>&1 | grep -E "RENDER_SECONDS|rror|EGL|GPU" | tee -a out/times.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blender_probe
+          path: out
