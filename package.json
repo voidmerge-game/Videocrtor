@@ -10,8 +10,11 @@
   "dependencies": {
     "@remotion/cli": "4.0.230",
     "@remotion/fonts": "4.0.230",
+    "@turf/turf": "^7.4.0",
     "d3-geo": "3.1.1",
+    "maplibre-gl": "^5.24.0",
     "polygon-clipping": "^0.15.7",
+    "polylabel": "^2.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "remotion": "4.0.230",
