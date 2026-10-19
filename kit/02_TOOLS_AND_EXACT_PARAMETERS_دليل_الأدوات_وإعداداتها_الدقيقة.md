@@ -86,6 +86,7 @@ npx remotion still /tmp/rbundle Main out.png --frame=N --scale=0.5 --log=error -
 - مسح بصري إلزامي: لقطة كل ~10 s للفيلم كله (≈ 60 لقطة) تُجمع في contact sheets وتُعرض على المستخدم قبل طلب إذن الرندر.
 
 ## J. الرندر والتسليم
+- **الوصول إلى GitHub = bash + curl + git فقط** (لا موصل). التوكن يصل بلصقه في المحادثة → يُحفظ فوراً في `~/.secrets/gh_token` (600) دون طباعة → `GET /user` لاستخراج `login` → `POST /user/repos` لإنشاء المستودع إن لزم (بروتوكول كامل في الملف 00، الفقرة 3).
 - **GitHub API**: `POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/render_parallel.yml/dispatches` body `{"ref":"main","inputs":{"composition":"Main","scale":"1","crf":"18","chunks":"20","out_name":"<name>.mp4","reuse_video_run_id":"","reuse_audio_run_id":""}}`؛ headers `Authorization: Bearer $T`, `Accept: application/vnd.github+json`. **لا تُطلق في نفس الأمر مع `git push`** (انتظر وصول الـ commit).
 - كل قطعة: `npx remotion render src/index.ts Main out/chunk_i.mp4 --frames=a-b --muted --scale=1 --crf=18 --codec=h264 --concurrency=4 --image-format=jpeg --jpeg-quality=95 --timeout=120000`؛ الصوت: `--codec=wav` بنفس النطاقات؛ runner `ubuntu-latest`, node 20, `timeout-minutes: 300`؛ 20 قطعة ≈ 40 دقيقة لفيلم 9:38.
 - **الدمج** (stitch): concat `-c copy` للفيديو والصوت، ثم `ffmpeg -i video_only.mp4 -i audio_full.wav -map 0:v:0 -map 1:a:0 -c:v copy -af apad -t "$VD" -c:a aac -b:a 256k -ar 48000 -movflags +faststart out.mp4` (**ممنوع `-shortest`** — قصّ الذيل في v5.5).

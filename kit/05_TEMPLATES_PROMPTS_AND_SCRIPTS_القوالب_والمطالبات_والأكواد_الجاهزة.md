@@ -90,7 +90,18 @@ export const MUSIC: Music[] = [ {src: 'audio/music/{{Track}}.mp3', t: T('S1_01')
 ثوابت لا تُلمس: `R/Lf/Pt_`, `HOLD`, `K`, قواعد `withFit/FIT_OF`, `SCENES_FOR_DEBUG`.
 
 ## 5. أمر إطلاق التشغيلات على GitHub
+(التوكن محفوظ مسبقاً في `~/.secrets/gh_token` وفق بروتوكول الملف 00 §3؛ `{{OWNER}}` = ناتج `GET /user` → `login`.)
 ```bash
+# استلام التوكن (يلصقه المستخدم في المحادثة) — احفظه هكذا ولا تطبعه أبداً:
+mkdir -p ~/.secrets && umask 077 && cat > ~/.secrets/gh_token <<'EOF_T'
+{{PASTE_TOKEN_HERE}}
+EOF_T
+chmod 600 ~/.secrets/gh_token
+T=$(cat ~/.secrets/gh_token); curl -s -H "Authorization: Bearer $T" https://api.github.com/user | python3 -c "import json,sys;print(json.load(sys.stdin)['login'])"
+# إنشاء المستودع الفارغ إن لم يكن موجوداً:
+curl -s -X POST -H "Authorization: Bearer $T" -H "Accept: application/vnd.github+json" https://api.github.com/user/repos -d '{"name":"{{REPO}}","private":true,"auto_init":false}' | python3 -c "import json,sys;print(json.load(sys.stdin).get('full_name'))"
+# أول دفع من مجلد ENGINE_SOURCE المزروع:
+git init -q -b main && git add -A && git -c user.name=agent -c user.email=agent@local commit -q -m "engine bootstrap" && git push -q "https://x-access-token:${T}@github.com/{{OWNER}}/{{REPO}}.git" HEAD:main 2>&1 | grep -v token
 T=$(cat ~/.secrets/gh_token); R={{OWNER/REPO}}   # المستودع الجديد الفارغ الذي أعطاه المستخدم
 # لقطات
 curl -s -X POST -H "Authorization: Bearer $T" -H "Accept: application/vnd.github+json" \
