@@ -29,7 +29,7 @@ sea_sh=np.array([0xb9,0xd4,0xdf])/255; sea_dp=np.array([0x5b,0x80,0x90])/255
 d=np.clip(-dem,0,3000)/3000; t=np.sqrt(d)[...,None]; sea=sea_sh*(1-t)+sea_dp*t
 mask=(dem<=0)[...,None]; col=np.where(mask,sea,land)
 sf=shapefile.Reader(T+"ne0/ne_10m_admin_0_countries.shp"); fields=[f[0] for f in sf.fields[1:]]
-fills={"Hungary":(0xc9,0xa9,0x3a),"Poland":(0x4a,0x86,0xa0),"Spain":(0x8e,0x39,0x62),"Morocco":(0x66,0xa6,0x6b),"Algeria":(0x9a,0xd0,0x5a)}
+fills={"Hungary":(0xc9,0xa9,0x3a),"Poland":(0x4a,0x86,0xa0),"Spain":(0xc9,0xa9,0x3a),"Portugal":(0x4a,0x86,0xa0),"Morocco":(0x66,0xa6,0x6b),"Algeria":(0x9a,0xd0,0x5a)}
 over=Image.new("RGBA",(W,H),(0,0,0,0)); od=ImageDraw.Draw(over); edge=Image.new("L",(W,H),0); ed=ImageDraw.Draw(edge)
 for sr in sf.iterShapeRecords():
     name=sr.record[fields.index("ADMIN")]
@@ -42,19 +42,34 @@ for sr in sf.iterShapeRecords():
 ov=np.asarray(over).astype(np.float32)/255; a=ov[...,3:4]*0.78; col=col*(1-a)+ov[...,:3]*a
 e=np.asarray(edge.filter(ImageFilter.GaussianBlur(1.2))).astype(np.float32)/255; col=col*(1-e[...,None]*0.55)
 img=Image.fromarray((np.clip(col,0,1)*255).astype(np.uint8)).convert("RGBA")
-def label(text,lon,lat,size,angle=0,italic=False,alpha=235):
-    f=ImageFont.truetype(FONT,size); pad=size; tw,th=f.getbbox(text)[2:]
-    im=Image.new("RGBA",(tw+2*pad,th+2*pad),(0,0,0,0)); dd=ImageDraw.Draw(im)
-    dd.text((pad,pad),text,font=f,fill=(20,25,30,255),stroke_width=max(2,size//14),stroke_fill=(20,25,30,255))
-    im=im.filter(ImageFilter.GaussianBlur(size/10)); dd=ImageDraw.Draw(im)
-    dd.text((pad,pad),text,font=f,fill=(255,255,255,alpha),stroke_width=max(1,size//40),stroke_fill=(60,60,60,alpha))
-    if italic: im=im.transform(im.size,Image.AFFINE,(1,0.22,-0.22*im.size[1]/2,0,1,0),Image.BICUBIC)
-    im=im.rotate(angle,expand=True,resample=Image.BICUBIC); x,y=xy(lon,lat)
-    img.alpha_composite(im,(int(x-im.size[0]/2),int(y-im.size[1]/2)))
-label("Castile",-4.2,40.6,64); label("Portugal",-8.2,39.6,34,angle=80); label("Marinid",-6.0,32.3,56,angle=-25)
-label("Tlemcen",1.2,34.6,40,angle=-10); label("Alboran Sea",-3.2,36.1,26,italic=True,alpha=200)
-label("Mediterranean Sea",4.5,38.3,28,italic=True,alpha=200); label("Bay of Biscay",-4.5,45.0,24,italic=True,alpha=200)
-label("Hungary",19.3,47.2,48); label("Poland",19.5,52.0,48)
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from label_fit import fit_label
+# polygon masks (one per named fill) for machine-verified label placement
+masks={}
+for sr in sf.iterShapeRecords():
+    name=sr.record[fields.index("ADMIN")]
+    if name not in fills: continue
+    m=Image.new("L",(W,H),0); md=ImageDraw.Draw(m); sh=sr.shape; parts=list(sh.parts)+[len(sh.points)]
+    for i in range(len(parts)-1):
+        ring=[xy(x,y) for x,y in sh.points[parts[i]:parts[i+1]]]
+        if len(ring)>=3: md.polygon(ring,fill=255)
+    masks[name]=np.asarray(m)>0
+sea_mask=mask[...,0]
+# (test names mapped onto modern stand-in polygons)
+LABELS=[("Castile","Spain",72),("Portugal","Portugal",40),("Marinid","Morocco",64),("Tlemcen","Algeria",56),("Hungary","Hungary",56),("Poland","Poland",56)]
+SEA=[("Alboran Sea",(-3.2,36.1),26),("Mediterranean Sea",(5.5,38.6),28),("Bay of Biscay",(-4.5,45.5),24)]
+report=[]
+for text,poly,mx in LABELS:
+    r=fit_label(masks[poly],text,FONT,max_size=mx)
+    if r is None: report.append((text,"FAIL")); continue
+    im=r.pop("img"); img.alpha_composite(im,(int(r["x"]-im.size[0]/2),int(r["y"]-im.size[1]/2))); report.append((text,r))
+for text,(lon,lat),mx in SEA:
+    r=fit_label(sea_mask,text,FONT,max_size=mx,min_size=14,italic=True,alpha=200,angle=0,prefer=xy(lon,lat))
+    if r is None: report.append((text,"FAIL")); continue
+    im=r.pop("img"); img.alpha_composite(im,(int(r["x"]-im.size[0]/2),int(r["y"]-im.size[1]/2))); report.append((text,r))
+fails=[t for t,r in report if r=="FAIL"]
+print("LABEL REPORT"); [print(" ",t,r) for t,r in report]
+if fails: raise SystemExit("LABELS NOT FITTED: %s"%fails)
 img.convert("RGB").save(T+"basecolor.png")
 rough=np.where(mask[...,0],0.35,0.85); rough=np.where(ov[...,3]>0.5,0.6,rough)
 Image.fromarray((rough*255).astype(np.uint8)).save(T+"rough.png"); print("textures ok")
