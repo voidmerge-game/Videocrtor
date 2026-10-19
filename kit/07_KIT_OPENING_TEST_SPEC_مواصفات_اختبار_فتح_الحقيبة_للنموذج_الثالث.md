@@ -40,7 +40,7 @@
   | SFX | thud لكل علم، tick لكل سنة، hit عند "Rome"، whoosh للعنوان |
 
 ## 3. خطوات التنفيذ (بعد "ابدأ")
-1. استنساخ المستودع المرجعي → فرع/مستودع `kit-test-italy`؛ طقس git؛ `npm ci`.
+1. استلام (مستودع فارغ + PAT جديد + مجلد Drive) من المستخدم → زرع `ENGINE_SOURCE/` من الـ zip في المستودع الفارغ → `npm ci` → `npx tsc --noEmit` → push أول؛ ثم إعادة توليد الأصول الثقيلة (خامات الأرض على Actions، الموسيقى، SFX).
 2. سكربت → `vo_chunks.json` → `add_voice` (إن لم يوجد voice_id) → `generate_speech` × 6 → Whisper → `paragraphs.json` → `ALIAS` (توقع: *Cavour → "cavore"*, *Solferino*, *Garibaldi*, *Marsala*).
 3. تنزيل NE admin-1 + admin-0 → `build_italy_1815.py`/`1871` → geo2topo → label_fit.
 4. Blue Marble B1+C1 + GRAY + clouds + night → `make_earth_v6.py` (REGION الجديد) — على GitHub Actions أو sandbox بـ memmap؛ ارفع الخامات إلى المستودع (Git LFS غير مطلوب: < 25 MB لكل ملف).

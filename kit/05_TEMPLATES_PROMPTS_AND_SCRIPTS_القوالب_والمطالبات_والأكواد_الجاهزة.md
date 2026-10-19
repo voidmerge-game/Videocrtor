@@ -1,6 +1,6 @@
 # 🧩 05 — القوالب والمطالبات والأكواد الجاهزة (Templates / Sub-Prompts / Scripts)
 
-الرمز `{{…}}` = **متغير الحلقة** (يتغير مع كل موضوع). كل ما عداه = **ثابت محرك** لا يُعدَّل. المستودع المرجعي الكامل (كل الكود الفعلي): `github.com/voidmerge-game/Videocrtor` فرع `main` (commit `b58427c`) — النموذج الثالث **ينسخه (fork/clone) كقاعدة** ويستبدل متغيرات الحلقة فقط.
+الرمز `{{…}}` = **متغير الحلقة** (يتغير مع كل موضوع). كل ما عداه = **ثابت محرك** لا يُعدَّل. الكود الفعلي الكامل موجود داخل الحقيبة في `ENGINE_SOURCE/` (نسخة من المستودع المرجعي عند commit `b58427c`) — النموذج الثالث **يزرعه في مستودعه الجديد الفارغ كقاعدة** ويستبدل متغيرات الحلقة فقط. (`{{OWNER/REPO}}` أدناه = مستودعه الجديد.)
 
 ---
 
@@ -91,7 +91,7 @@ export const MUSIC: Music[] = [ {src: 'audio/music/{{Track}}.mp3', t: T('S1_01')
 
 ## 5. أمر إطلاق التشغيلات على GitHub
 ```bash
-T=$(cat ~/.secrets/gh_token); R=voidmerge-game/Videocrtor   # {{OWNER/REPO}}
+T=$(cat ~/.secrets/gh_token); R={{OWNER/REPO}}   # المستودع الجديد الفارغ الذي أعطاه المستخدم
 # لقطات
 curl -s -X POST -H "Authorization: Bearer $T" -H "Accept: application/vnd.github+json" \
   https://api.github.com/repos/$R/actions/workflows/stills.yml/dispatches \
