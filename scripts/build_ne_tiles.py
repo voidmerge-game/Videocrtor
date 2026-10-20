@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 Image.MAX_IMAGE_PIXELS = None
 
-NE_HYP = 'https://naciscdn.org/naturalearth/50m/raster/HYP_50M_SR.zip'
+NE_HYP = os.environ.get('NE_RASTER_URL', 'https://naciscdn.org/naturalearth/50m/raster/NE2_50M_SR.zip')  # Natural Earth II: soft pastel land (closest to the reference)
 CLOUDS = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_8192.tif'
 CACHE = os.environ.get('NE_CACHE', '/var/tmp/ne_cache')
 
@@ -33,7 +33,7 @@ def fetch(url, name):
 
 
 def load_hyp():
-    z = zipfile.ZipFile(fetch(NE_HYP, 'HYP_50M_SR.zip'))
+    z = zipfile.ZipFile(fetch(NE_HYP, os.path.basename(NE_HYP)))
     tif = [n for n in z.namelist() if n.lower().endswith('.tif')][0]
     im = Image.open(io.BytesIO(z.read(tif))).convert('RGB')
     return np.asarray(im)  # H x W x 3, equirectangular, lon -180..180, lat 90..-90

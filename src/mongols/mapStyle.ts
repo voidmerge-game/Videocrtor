@@ -49,7 +49,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
   const minArea = opts.minAreaM2 ?? 2e10; // hide micro-states (< 20,000 km²)
   const bigEnough: FilterSpecification = ['>=', ['coalesce', ['get', 'area'], 1e20], minArea] as FilterSpecification;
   const labelLayout = {
-    'text-font': ['Cinzel Bold'],
+    'text-font': ['Garamond Bold'],
     'text-size': ['interpolate', ['linear'], ['zoom'], 4, 22, 7, 46] as unknown as number,
     'text-transform': 'none' as const,
     'text-letter-spacing': 0.08,
@@ -90,7 +90,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       {id: 'bg', type: 'background', paint: {'background-color': SEA_DEEP}},
       ...(opts.satellite
         ? [{id: 'sat', type: 'raster' as const, source: 'gibs', paint: {'raster-saturation': 0.2, 'raster-contrast': 0.1, 'raster-brightness-max': 0.95}}]
-        : [{id: 'hyp', type: 'raster' as const, source: 'hyp', paint: {'raster-saturation': 0.45, 'raster-contrast': 0.16, 'raster-brightness-min': 0.03, 'raster-brightness-max': 0.9}}]),
+        : [{id: 'hyp', type: 'raster' as const, source: 'hyp', paint: {'raster-saturation': 0.25, 'raster-contrast': 0.12, 'raster-brightness-min': 0.02, 'raster-brightness-max': 0.8}}]),
       // political fills (semi-opaque, flat) – imagery shows through
       {
         id: 'fb-fill', type: 'fill', source: 'fallback', filter: fbFilter,
@@ -137,7 +137,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
         filter: ['<=', ['get', 'rank'], ['interpolate', ['linear'], ['zoom'], 4.5, 1, 6, 3, 8, 6]],
         layout: {
           'icon-image': 'diamond', 'icon-size': ['interpolate', ['linear'], ['zoom'], 4, 0.45, 7, 0.8], 'icon-pitch-alignment': 'map', 'icon-rotation-alignment': 'map',
-          'text-field': ['get', 'name'], 'text-font': ['Cinzel Bold'], 'text-size': ['interpolate', ['linear'], ['zoom'], 4, 11, 7, 18],
+          'text-field': ['get', 'name'], 'text-font': ['Garamond Bold'], 'text-size': ['interpolate', ['linear'], ['zoom'], 4, 12, 7, 20],
           'text-anchor': 'left', 'text-offset': [0.9, 0], 'text-letter-spacing': 0.04, 'text-padding': 4,
           'text-pitch-alignment': 'map', 'text-rotation-alignment': 'map', 'text-optional': true,
           'symbol-sort-key': ['get', 'rank'],
@@ -148,10 +148,10 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
         id: 'labels', type: 'symbol', source: 'labels',
         layout: {
           'text-field': ['get', 'label'],
-          'text-font': ['Cinzel Bold'],
+          'text-font': ['Garamond Bold'],
           'text-size': ['get', 'size'],
           'text-rotate': ['get', 'angle'],
-          'text-letter-spacing': 0.08,
+          'text-letter-spacing': 0.06,
           'text-line-height': 1.15,
           'text-max-width': 100,
           'text-padding': 2,

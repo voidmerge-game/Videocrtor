@@ -19,7 +19,7 @@ export type FittedLabel = {
 };
 
 const TILE = 256;
-const CHAR_W = 0.74; // em per character (Cinzel ExtraBold, letter-spacing 0.08)
+const CHAR_W_DEFAULT = 0.56; // em per character (EB Garamond ExtraBold ~0.50 + letter-spacing 0.06)
 const LINE_H = 1.15;
 
 const toPx = (lon: number, lat: number, z: number): [number, number] => {
@@ -86,9 +86,9 @@ export function fitLabel(
   name: string,
   label: string,
   zoom: number,
-  opts: {maxSize?: number; minSize?: number; pad?: number} = {},
+  opts: {maxSize?: number; minSize?: number; pad?: number; charW?: number} = {},
 ): FittedLabel {
-  const maxSize = opts.maxSize ?? 56, minSize = opts.minSize ?? 10, pad = opts.pad ?? 4;
+  const maxSize = opts.maxSize ?? 56, minSize = opts.minSize ?? 10, pad = opts.pad ?? 4, CHAR_W = opts.charW ?? CHAR_W_DEFAULT;
   const polys: Position[][][] = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
   // project to px space
   const pxPolys = polys.map((p) => p.map((ring) => ring.map(([lon, lat]) => toPx(lon, lat, zoom))));

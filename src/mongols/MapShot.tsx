@@ -80,7 +80,7 @@ async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null) {
     }
     if (!g.geometry || (g.geometry.type === 'Polygon' ? g.geometry.coordinates.length === 0 : g.geometry.coordinates.length === 0)) continue;
     const label = name.replace(/^INDIAN OCEAN$/, 'Indian Ocean');
-    const l = fitLabel(g, name, label, zoom, {maxSize: 30, minSize: 12, pad: 10});
+    const l = fitLabel(g, name, label, zoom, {maxSize: 30, minSize: 12, pad: 10, charW: 0.58});
     if (l.fit) out.push(l);
   }
   (m.getSource('sea_labels') as maplibregl.GeoJSONSource).setData({
