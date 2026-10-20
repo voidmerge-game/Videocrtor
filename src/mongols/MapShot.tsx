@@ -198,7 +198,30 @@ async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null, me
   console.log('SEA_LABELS', JSON.stringify(out.map((l) => [l.name, Math.round(l.angle), l.size])));
 }
 
-async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number, measure: (t: string, s: number) => number) {
+/** screen boxes occupied by overlays (signposts) → lon/lat polygons the label fitter must avoid */
+const overlayKeepouts = (m: MLMap, overlays: OverlaySpec[]): Feature<Polygon>[] => {
+  const S = m.getContainer().clientWidth / 1920;
+  const out: Feature<Polygon>[] = [];
+  for (const o of overlays) {
+    const p = m.project([o.lng, o.lat]);
+    const l = p.x - 95 * S, r = p.x + 95 * S, t = p.y - 270 * S, b = p.y + 14 * S;
+    const pts: Position[] = [];
+    const N = 6;
+    const edge = (x0: number, y0: number, x1: number, y1: number) => {
+      for (let i = 0; i < N; i++) {
+        const k = i / N;
+        const ll = m.unproject([x0 + (x1 - x0) * k, y0 + (y1 - y0) * k]);
+        pts.push([ll.lng, ll.lat]);
+      }
+    };
+    edge(l, t, r, t); edge(r, t, r, b); edge(r, b, l, b); edge(l, b, l, t);
+    pts.push(pts[0]);
+    out.push(turf.polygon([pts]) as Feature<Polygon>);
+  }
+  return out;
+};
+
+async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number, measure: (t: string, s: number) => number, overlays: OverlaySpec[] = []) {
   const ohmPieces = m.querySourceFeatures('ohm_admin', {
     sourceLayer: 'boundaries',
     filter: [
@@ -216,6 +239,7 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
   const view = visibleBBox(m, -0.25); // expanded beyond the screen
   const viewPoly = visiblePolygon(m, -0.25);
   const labelPoly = visiblePolygon(m, 0.04); // labels must sit in the visible part
+  const keepouts = overlayKeepouts(m, overlays);
   const tolDeg = (360 / (256 * Math.pow(2, zoom))) * 0.15; // ~0.15 px (union speed only; shapes stay crisp)
   const byName = new Map<string, Feature<Polygon | MultiPolygon>[]>();
   for (const f of ohmPieces) {
@@ -279,7 +303,15 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
 
   const labels = realms.map((r) => {
     try {
-      const vis = clipToView(r.feature, labelPoly);
+      let vis = clipToView(r.feature, labelPoly);
+      for (const ko of keepouts) {
+        if (!vis) break;
+        try {
+          vis = (turf.difference(turf.featureCollection([vis, ko])) as Feature<Polygon | MultiPolygon> | null) ?? null;
+        } catch {
+          /* keep vis */
+        }
+      }
       if (!vis) return {name: r.name, label: r.name, lon: 0, lat: 0, angle: 0, size: 0, fit: false};
       return fitLabel(vis, r.name, palette[r.name + '@label'] ?? r.name, zoom, {measure});
     } catch (e) {
@@ -340,7 +372,7 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
           await applyCities(m, cityRenames, extraCities);
           const measureBold = await makeMeasurer('GaramondXB', 'fonts/EBGaramond-ExtraBold.ttf', 0.06);
           const measureItalic = await makeMeasurer('GaramondIt', 'fonts/EBGaramond-SemiBoldItalic.ttf', 0.12);
-          await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom, measureBold);
+          await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom, measureBold, overlays);
           await prepareSeas(m, from.zoom, seaNames.length > 0 ? seaNames : null, measureItalic);
         } catch (e) {
           console.log('FALLBACK_CLIP_ERROR', String(e));
