@@ -108,7 +108,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       // relief on top of the fills (reference: fills are flat but relief still reads)
       {
         id: 'hill', type: 'hillshade', source: 'hs',
-        paint: {'hillshade-exaggeration': 0.38, 'hillshade-shadow-color': '#2a261c', 'hillshade-highlight-color': '#f3ecd8', 'hillshade-accent-color': '#5a5444', 'hillshade-illumination-direction': 315},
+        paint: {'hillshade-exaggeration': 0.28, 'hillshade-shadow-color': '#2a261c', 'hillshade-highlight-color': '#f3ecd8', 'hillshade-accent-color': '#5a5444', 'hillshade-illumination-direction': 315},
       },
       // sea: flat two-tone, drawn above imagery+hillshade so the sea is clean
       {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 0.88}},
@@ -136,9 +136,9 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
         id: 'cities', type: 'symbol', source: 'cities', minzoom: 4.5,
         filter: ['<=', ['get', 'rank'], ['interpolate', ['linear'], ['zoom'], 4.5, 1, 6, 3, 8, 6]],
         layout: {
-          'icon-image': 'diamond', 'icon-size': ['interpolate', ['linear'], ['zoom'], 4, 0.45, 7, 0.8], 'icon-pitch-alignment': 'map', 'icon-rotation-alignment': 'map',
-          'text-field': ['get', 'name'], 'text-font': ['Garamond Bold'], 'text-size': ['interpolate', ['linear'], ['zoom'], 4, 12, 7, 20],
-          'text-anchor': 'left', 'text-offset': [0.9, 0], 'text-letter-spacing': 0.04, 'text-padding': 4,
+          'icon-image': 'diamond', 'icon-size': ['interpolate', ['linear'], ['zoom'], 4, 0.7, 7, 1.1], 'icon-pitch-alignment': 'map', 'icon-rotation-alignment': 'map',
+          'text-field': ['get', 'name'], 'text-font': ['Garamond Bold'], 'text-size': ['interpolate', ['linear'], ['zoom'], 4, 15, 7, 24],
+          'text-anchor': 'left', 'text-offset': [1.1, 0], 'text-letter-spacing': 0.04, 'text-padding': 4,
           'text-pitch-alignment': 'map', 'text-rotation-alignment': 'map', 'text-optional': true,
           'symbol-sort-key': ['get', 'rank'],
         },

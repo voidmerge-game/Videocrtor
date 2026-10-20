@@ -47,6 +47,22 @@ const unionAll = (feats: Feature<Polygon | MultiPolygon>[]): Feature<Polygon | M
  * 2) Fallback realms (aourednik 1200) minus everything OHM covers → OHM always wins.
  * 3) Fit one label per realm fully inside its polygon (size/rotation/line-breaks) → 'labels' source.
  */
+/** exact text width with the real label font (loaded via FontFace) incl. MapLibre letter-spacing (em) */
+async function makeMeasurer(family: string, file: string, letterSpacingEm: number) {
+  try {
+    const ff = new FontFace(family, `url(${staticFile(file)})`);
+    await ff.load();
+    document.fonts.add(ff);
+  } catch (e) {
+    console.log('FONT_LOAD_ERROR', family, String(e));
+  }
+  const ctx = document.createElement('canvas').getContext('2d')!;
+  return (text: string, size: number) => {
+    ctx.font = `${size}px "${family}"`;
+    return ctx.measureText(text).width + letterSpacingEm * size * Math.max(0, text.length - 1);
+  };
+}
+
 const makeDiamond = (size = 32): ImageData => {
   const c = document.createElement('canvas');
   c.width = size; c.height = size;
@@ -61,7 +77,7 @@ const makeDiamond = (size = 32): ImageData => {
   return ctx.getImageData(0, 0, size, size);
 };
 
-async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null) {
+async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null, measure: (t: string, s: number) => number) {
   const fc = (await (await fetch(staticFile('data/seas.json'))).json()) as FeatureCollection<Polygon | MultiPolygon>;
   const b = m.getBounds();
   const pad = 0.5;
@@ -80,7 +96,7 @@ async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null) {
     }
     if (!g.geometry || (g.geometry.type === 'Polygon' ? g.geometry.coordinates.length === 0 : g.geometry.coordinates.length === 0)) continue;
     const label = name.replace(/^INDIAN OCEAN$/, 'Indian Ocean');
-    const l = fitLabel(g, name, label, zoom, {maxSize: 30, minSize: 12, pad: 10, charW: 0.58});
+    const l = fitLabel(g, name, label, zoom, {maxSize: 30, minSize: 12, pad: 10, measure});
     if (l.fit) out.push(l);
   }
   (m.getSource('sea_labels') as maplibregl.GeoJSONSource).setData({
@@ -90,7 +106,7 @@ async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null) {
   console.log('SEA_LABELS', JSON.stringify(out.map((l) => [l.name, Math.round(l.angle), l.size])));
 }
 
-async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number) {
+async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number, measure: (t: string, s: number) => number) {
   const ohmPieces = m.querySourceFeatures('ohm_admin', {
     sourceLayer: 'boundaries',
     filter: [
@@ -140,7 +156,7 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
   }
   (m.getSource('fallback') as maplibregl.GeoJSONSource).setData({type: 'FeatureCollection', features: clipped});
 
-  const labels = realms.map((r) => fitLabel(r.feature, r.name, palette[r.name + '@label'] ?? r.name, zoom));
+  const labels = realms.map((r) => fitLabel(r.feature, r.name, palette[r.name + '@label'] ?? r.name, zoom, {measure}));
   // QA gate: a label that cannot be placed fully inside its border is NOT drawn (logged instead)
   (m.getSource('labels') as maplibregl.GeoJSONSource).setData({
     type: 'FeatureCollection',
@@ -186,8 +202,10 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
       m.once('idle', async () => {
         try {
           if (!m.hasImage('diamond')) m.addImage('diamond', makeDiamond(32), {pixelRatio: 2});
-          await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom);
-          await prepareSeas(m, from.zoom, seaNames.length > 0 ? seaNames : null);
+          const measureBold = await makeMeasurer('GaramondXB', 'fonts/EBGaramond-ExtraBold.ttf', 0.06);
+          const measureItalic = await makeMeasurer('GaramondIt', 'fonts/EBGaramond-SemiBoldItalic.ttf', 0.12);
+          await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom, measureBold);
+          await prepareSeas(m, from.zoom, seaNames.length > 0 ? seaNames : null, measureItalic);
         } catch (e) {
           console.log('FALLBACK_CLIP_ERROR', String(e));
         }
@@ -240,6 +258,19 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
           pointerEvents: 'none',
         }}
       />
+      {/* sheen: soft specular light from the upper-left (reference has a glossy highlight on the water) */}
+      <div
+        style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'soft-light',
+          background: 'linear-gradient(115deg, rgba(255,250,235,0.55) 0%, rgba(255,255,255,0.12) 40%, rgba(0,0,0,0.18) 100%)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'screen',
+          background: 'radial-gradient(ellipse 48% 38% at 42% 22%, rgba(255,250,236,0.16) 0%, rgba(255,250,236,0.05) 50%, rgba(255,250,236,0) 75%)',
+        }}
+      />
       {/* vignette */}
       <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.38) 100%)', pointerEvents: 'none'}} />
     </AbsoluteFill>
@@ -248,13 +279,13 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
 
 // Default test shot = the Iberia reference frame (Knowledgia v1, ~1241)
 export const IBERIA_PALETTE: Palette = {
-  'Crown of Castile': '#b0a235',
+  'Crown of Castile': '#bcab38',
   'Crown of Castile@label': 'Castile',
   'Crown of Aragon@label': 'Aragon',
   'Emirate of Granada@label': 'Granada',
   'Almohad Caliphate@label': 'Almohads',
   'Portugal@label': 'Portugal',
-  'Corona Castellae': '#b0a235',
+  'Corona Castellae': '#bcab38',
   'Kingdom of Portugal': '#4b7a8a',
   'Reino de Portugal': '#4b7a8a',
   'Crown of Aragon': '#883a5e',

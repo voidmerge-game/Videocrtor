@@ -86,9 +86,9 @@ export function fitLabel(
   name: string,
   label: string,
   zoom: number,
-  opts: {maxSize?: number; minSize?: number; pad?: number; charW?: number} = {},
+  opts: {maxSize?: number; minSize?: number; pad?: number; charW?: number; measure?: (text: string, size: number) => number} = {},
 ): FittedLabel {
-  const maxSize = opts.maxSize ?? 56, minSize = opts.minSize ?? 10, pad = opts.pad ?? 4, CHAR_W = opts.charW ?? CHAR_W_DEFAULT;
+  const maxSize = opts.maxSize ?? 72, minSize = opts.minSize ?? 10, pad = opts.pad ?? 4, CHAR_W = opts.charW ?? CHAR_W_DEFAULT;
   const polys: Position[][][] = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
   // project to px space
   const pxPolys = polys.map((p) => p.map((ring) => ring.map(([lon, lat]) => toPx(lon, lat, zoom))));
@@ -104,12 +104,13 @@ export function fitLabel(
   let best: FittedLabel | null = null;
   for (const lines of layouts) {
     const chars = Math.max(...lines.map((l) => l.length));
+    const widthAt = (size: number) => (opts.measure ? Math.max(...lines.map((l) => opts.measure!(l, size))) : size * CHAR_W * chars);
     for (const ang of angles) {
       // binary search largest size that fits
       let lo = minSize, hi = maxSize, ok = -1;
       for (let it = 0; it < 9; it++) {
         const mid = (lo + hi) / 2;
-        const w = mid * CHAR_W * chars + pad * 2, h = mid * LINE_H * lines.length + pad * 2;
+        const w = widthAt(mid) + pad * 2, h = mid * LINE_H * lines.length + pad * 2;
         if (boxInside(pxFeat, cx, cy, w, h, ang)) { ok = mid; lo = mid; } else hi = mid;
       }
       if (ok < 0) continue;
