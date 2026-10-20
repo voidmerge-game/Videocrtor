@@ -22,6 +22,8 @@ export type MapShotProps = {
   nativeLabels: boolean;
   /** realms taken from the fallback basemap (names as in world_1200.json) */
   fallbackNames: string[];
+  /** which sea names to show (empty = automatic by rank) */
+  seaNames: string[];
   /** 0..1 – how far along the move the frame is forced to (debug/stills). -1 = use frame */
   forceT: number;
 };
@@ -45,6 +47,49 @@ const unionAll = (feats: Feature<Polygon | MultiPolygon>[]): Feature<Polygon | M
  * 2) Fallback realms (aourednik 1200) minus everything OHM covers → OHM always wins.
  * 3) Fit one label per realm fully inside its polygon (size/rotation/line-breaks) → 'labels' source.
  */
+const makeDiamond = (size = 32): ImageData => {
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d')!;
+  const h = size / 2;
+  ctx.translate(h, h); ctx.rotate(Math.PI / 4);
+  const r = size * 0.28;
+  ctx.fillStyle = '#ffffff'; ctx.strokeStyle = 'rgba(20,16,10,0.9)'; ctx.lineWidth = size * 0.07;
+  ctx.beginPath(); ctx.rect(-r, -r, 2 * r, 2 * r); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(20,16,10,0.9)';
+  ctx.beginPath(); ctx.rect(-r * 0.38, -r * 0.38, r * 0.76, r * 0.76); ctx.fill();
+  return ctx.getImageData(0, 0, size, size);
+};
+
+async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null) {
+  const fc = (await (await fetch(staticFile('data/seas.json'))).json()) as FeatureCollection<Polygon | MultiPolygon>;
+  const b = m.getBounds();
+  const pad = 0.5;
+  const view: [number, number, number, number] = [b.getWest() - pad, b.getSouth() - pad, b.getEast() + pad, b.getNorth() + pad];
+  const out = [];
+  for (const f of fc.features) {
+    const name = String(f.properties?.name ?? '');
+    if (!name) continue;
+    if (seaNames && !seaNames.includes(name)) continue;
+    if (!seaNames && (f.properties?.rank ?? 9) > 4) continue;
+    let g: Feature<Polygon | MultiPolygon>;
+    try {
+      g = turf.bboxClip(f, view) as Feature<Polygon | MultiPolygon>;
+    } catch {
+      continue;
+    }
+    if (!g.geometry || (g.geometry.type === 'Polygon' ? g.geometry.coordinates.length === 0 : g.geometry.coordinates.length === 0)) continue;
+    const label = name.replace(/^INDIAN OCEAN$/, 'Indian Ocean');
+    const l = fitLabel(g, name, label, zoom, {maxSize: 30, minSize: 12, pad: 10});
+    if (l.fit) out.push(l);
+  }
+  (m.getSource('sea_labels') as maplibregl.GeoJSONSource).setData({
+    type: 'FeatureCollection',
+    features: out.map((l) => ({type: 'Feature', properties: {name: l.name, label: l.label, angle: l.angle, size: l.size}, geometry: {type: 'Point', coordinates: [l.lon, l.lat]}})),
+  });
+  console.log('SEA_LABELS', JSON.stringify(out.map((l) => [l.name, Math.round(l.angle), l.size])));
+}
+
 async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number) {
   const ohmPieces = m.querySourceFeatures('ohm_admin', {
     sourceLayer: 'boundaries',
@@ -112,7 +157,7 @@ const lerpKey = (a: CameraKey, b: CameraKey, t: number): CameraKey => ({
   bearing: a.bearing + (b.bearing - a.bearing) * t,
 });
 
-export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, forceT}) => {
+export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, forceT}) => {
   const ref = useRef<HTMLDivElement>(null);
   const frame = useCurrentFrame();
   const {durationInFrames, width, height} = useVideoConfig();
@@ -140,7 +185,9 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
       m.setTerrain({source: 'dem', exaggeration});
       m.once('idle', async () => {
         try {
+          if (!m.hasImage('diamond')) m.addImage('diamond', makeDiamond(32), {pixelRatio: 2});
           await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom);
+          await prepareSeas(m, from.zoom, seaNames.length > 0 ? seaNames : null);
         } catch (e) {
           console.log('FALLBACK_CLIP_ERROR', String(e));
         }
@@ -183,6 +230,18 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
   return (
     <AbsoluteFill style={{backgroundColor: SEA_DEEP}}>
       <div ref={ref} style={{position: 'absolute', width, height}} />
+      {/* horizon softening (DoF feel) – top 22% */}
+      <div
+        style={{
+          position: 'absolute', left: 0, top: 0, width, height: height * 0.22,
+          backdropFilter: 'blur(2.5px)', WebkitBackdropFilter: 'blur(2.5px)',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+      {/* vignette */}
+      <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.32) 100%)', pointerEvents: 'none'}} />
     </AbsoluteFill>
   );
 };
@@ -223,5 +282,6 @@ export const iberiaDefaults: MapShotProps = {
   adminLevels: [2],
   nativeLabels: false,
   fallbackNames: ['Portugal', 'Almohad Caliphate'],
+  seaNames: ['Bay of Biscay', 'Mediterranean Sea', 'Balearic Sea', 'Alboran Sea', 'North Atlantic Ocean', 'Strait of Gibraltar'],
   forceT: -1,
 };

@@ -41,7 +41,7 @@ export const fillColorExpr = (palette: Palette): ExpressionSpecification => {
   return m as ExpressionSpecification;
 };
 
-export type StyleOpts = {adminLevels?: number[]; nativeLabels?: boolean; fallbackNames?: string[]; minAreaM2?: number};
+export type StyleOpts = {adminLevels?: number[]; nativeLabels?: boolean; fallbackNames?: string[]; minAreaM2?: number; satellite?: boolean};
 
 export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {}): StyleSpecification => {
   const levels = opts.adminLevels ?? [2];
@@ -58,7 +58,9 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
     'text-max-width': 6,
     'text-padding': 12,
   };
-  const labelPaint = {'text-color': '#ffffff', 'text-halo-color': 'rgba(25,22,16,0.95)', 'text-halo-width': 2.4, 'text-halo-blur': 0.5};
+  const labelPaint = {'text-color': '#ffffff', 'text-halo-color': 'rgba(15,12,8,0.75)', 'text-halo-width': 2.2, 'text-halo-blur': 1.4};
+  const cityPaint = {'text-color': '#ffffff', 'text-halo-color': 'rgba(15,12,8,0.7)', 'text-halo-width': 1.4, 'text-halo-blur': 0.8};
+  const seaPaint = {'text-color': '#eaf4f7', 'text-halo-color': 'rgba(30,60,75,0.55)', 'text-halo-width': 1.2, 'text-halo-blur': 1.2};
   const fbFilter: FilterSpecification = ['in', ['get', 'name'], ['literal', fallbackNames]] as FilterSpecification;
   const lvl: FilterSpecification = ['in', ['get', 'admin_level'], ['literal', levels]] as FilterSpecification;
   const onlyNamed: FilterSpecification = ['has', 'name'] as FilterSpecification;
@@ -67,6 +69,11 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
     glyphs: GLYPHS,
     sources: {
       gibs: {type: 'raster', tiles: [GIBS_TILES], tileSize: 256, maxzoom: 8, attribution: 'NASA GIBS'},
+      // Natural Earth hypsometric tints (painterly, like the reference) – local tiles built by scripts/build_ne_tiles.py
+      hyp: {type: 'raster', tiles: [staticFile('tiles/hyp') + '/{z}/{x}/{y}.jpg'], tileSize: 256, minzoom: 3, maxzoom: 6, bounds: [-30, 5, 140, 75]},
+      wisps: {type: 'raster', tiles: [staticFile('tiles/wisps') + '/{z}/{x}/{y}.png'], tileSize: 256, minzoom: 3, maxzoom: 6, bounds: [-30, 5, 140, 75]},
+      cities: {type: 'geojson', data: staticFile('data/cities.json')},
+      sea_labels: {type: 'geojson', data: {type: 'FeatureCollection', features: []}},
       dem: {type: 'raster-dem', tiles: [TERRARIUM_TILES], tileSize: 256, encoding: 'terrarium', maxzoom: 12},
       hs: {type: 'raster-dem', tiles: [TERRARIUM_TILES], tileSize: 256, encoding: 'terrarium', maxzoom: 12},
       ocean: {type: 'geojson', data: staticFile('data/ne_10m_ocean.json')},
@@ -81,11 +88,13 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
     },
     layers: [
       {id: 'bg', type: 'background', paint: {'background-color': SEA_DEEP}},
-      {id: 'sat', type: 'raster', source: 'gibs', paint: {'raster-saturation': 0.2, 'raster-contrast': 0.1, 'raster-brightness-max': 0.95}},
+      ...(opts.satellite
+        ? [{id: 'sat', type: 'raster' as const, source: 'gibs', paint: {'raster-saturation': 0.2, 'raster-contrast': 0.1, 'raster-brightness-max': 0.95}}]
+        : [{id: 'hyp', type: 'raster' as const, source: 'hyp', paint: {'raster-saturation': -0.05, 'raster-contrast': 0.05, 'raster-brightness-min': 0.04}}]),
       // political fills (semi-opaque, flat) – imagery shows through
       {
         id: 'fb-fill', type: 'fill', source: 'fallback', filter: fbFilter,
-        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.82, 'fill-antialias': true},
+        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.86, 'fill-antialias': true},
       },
       {
         id: 'fb-line', type: 'line', source: 'fallback', filter: fbFilter,
@@ -94,16 +103,19 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       {
         id: 'realm-fill', type: 'fill', source: 'ohm_admin', 'source-layer': 'boundaries',
         filter: dateFilter(year, [lvl, onlyNamed, bigEnough]),
-        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.82, 'fill-antialias': true},
+        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.86, 'fill-antialias': true},
       },
       // relief on top of the fills (reference: fills are flat but relief still reads)
       {
         id: 'hill', type: 'hillshade', source: 'hs',
-        paint: {'hillshade-exaggeration': 0.4, 'hillshade-shadow-color': '#1f1d16', 'hillshade-highlight-color': '#fff6dc', 'hillshade-accent-color': '#4a4636', 'hillshade-illumination-direction': 300},
+        paint: {'hillshade-exaggeration': 0.32, 'hillshade-shadow-color': '#2a261c', 'hillshade-highlight-color': '#fff8e6', 'hillshade-accent-color': '#5a5444', 'hillshade-illumination-direction': 315},
       },
       // sea: flat two-tone, drawn above imagery+hillshade so the sea is clean
-      {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 1}},
-      {id: 'deep', type: 'fill', source: 'deep', paint: {'fill-color': SEA_DEEP, 'fill-opacity': 1}},
+      {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 0.82}},
+      {id: 'deep', type: 'fill', source: 'deep', paint: {'fill-color': SEA_DEEP, 'fill-opacity': 0.8}},
+      {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.42}},
+      // light halo on the water side of the coast (reference: pale shelf rim)
+      {id: 'coast-glow', type: 'line', source: 'ocean', paint: {'line-color': '#e9f2f4', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-opacity': 0.35}},
       // borders: dark outer edge + light inner rim (reference look)
       {
         id: 'realm-line', type: 'line', source: 'ohm_admin', 'source-layer': 'boundaries',
@@ -111,6 +123,27 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
         paint: {'line-color': '#2a2520', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 7, 2.2], 'line-opacity': 0.85},
       },
       {id: 'coast', type: 'line', source: 'ocean', paint: {'line-color': COAST, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.6, 7, 1.6], 'line-opacity': 0.9}},
+      {
+        id: 'sea-labels', type: 'symbol', source: 'sea_labels',
+        layout: {
+          'text-field': ['get', 'label'], 'text-font': ['Garamond Italic'], 'text-size': ['get', 'size'], 'text-rotate': ['get', 'angle'],
+          'text-letter-spacing': 0.12, 'text-line-height': 1.1, 'text-max-width': 100, 'text-padding': 2,
+          'text-pitch-alignment': 'map', 'text-rotation-alignment': 'map',
+        },
+        paint: seaPaint,
+      },
+      {
+        id: 'cities', type: 'symbol', source: 'cities', minzoom: 4.5,
+        filter: ['<=', ['get', 'rank'], ['interpolate', ['linear'], ['zoom'], 4.5, 1, 6, 3, 8, 6]],
+        layout: {
+          'icon-image': 'diamond', 'icon-size': ['interpolate', ['linear'], ['zoom'], 4, 0.45, 7, 0.8], 'icon-pitch-alignment': 'map', 'icon-rotation-alignment': 'map',
+          'text-field': ['get', 'name'], 'text-font': ['Cinzel Bold'], 'text-size': ['interpolate', ['linear'], ['zoom'], 4, 11, 7, 18],
+          'text-anchor': 'left', 'text-offset': [0.9, 0], 'text-letter-spacing': 0.04, 'text-padding': 4,
+          'text-pitch-alignment': 'map', 'text-rotation-alignment': 'map', 'text-optional': true,
+          'symbol-sort-key': ['get', 'rank'],
+        },
+        paint: cityPaint,
+      },
       {
         id: 'labels', type: 'symbol', source: 'labels',
         layout: {
