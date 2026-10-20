@@ -15,8 +15,8 @@ export const OHM_TILES = 'https://vtiles.openhistoricalmap.org/maps/ohm/{z}/{x}/
 export const GLYPHS = staticFile('glyphs') + '/{fontstack}/{range}.pbf'; // local Cinzel glyphs (generated with fontnik)
 
 // Knowledgia v1 palette (measured from the reference frames)
-export const SEA_DEEP = '#5b8090';
-export const SEA_SHELF = '#789aa7';
+export const SEA_DEEP = '#587d8e'; // measured from reference (91,126,143)
+export const SEA_SHELF = '#6b8e9e'; // measured (105,140,156)
 export const COAST = '#dce9ee';
 export const LAND_DEFAULT = '#8d8f7b';
 
@@ -90,11 +90,11 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       {id: 'bg', type: 'background', paint: {'background-color': SEA_DEEP}},
       ...(opts.satellite
         ? [{id: 'sat', type: 'raster' as const, source: 'gibs', paint: {'raster-saturation': 0.2, 'raster-contrast': 0.1, 'raster-brightness-max': 0.95}}]
-        : [{id: 'hyp', type: 'raster' as const, source: 'hyp', paint: {'raster-saturation': -0.05, 'raster-contrast': 0.05, 'raster-brightness-min': 0.04}}]),
+        : [{id: 'hyp', type: 'raster' as const, source: 'hyp', paint: {'raster-saturation': 0.45, 'raster-contrast': 0.16, 'raster-brightness-min': 0.03, 'raster-brightness-max': 0.9}}]),
       // political fills (semi-opaque, flat) – imagery shows through
       {
         id: 'fb-fill', type: 'fill', source: 'fallback', filter: fbFilter,
-        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.86, 'fill-antialias': true},
+        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.95, 'fill-antialias': true},
       },
       {
         id: 'fb-line', type: 'line', source: 'fallback', filter: fbFilter,
@@ -103,16 +103,16 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       {
         id: 'realm-fill', type: 'fill', source: 'ohm_admin', 'source-layer': 'boundaries',
         filter: dateFilter(year, [lvl, onlyNamed, bigEnough]),
-        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.86, 'fill-antialias': true},
+        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.95, 'fill-antialias': true},
       },
       // relief on top of the fills (reference: fills are flat but relief still reads)
       {
         id: 'hill', type: 'hillshade', source: 'hs',
-        paint: {'hillshade-exaggeration': 0.32, 'hillshade-shadow-color': '#2a261c', 'hillshade-highlight-color': '#fff8e6', 'hillshade-accent-color': '#5a5444', 'hillshade-illumination-direction': 315},
+        paint: {'hillshade-exaggeration': 0.38, 'hillshade-shadow-color': '#2a261c', 'hillshade-highlight-color': '#f3ecd8', 'hillshade-accent-color': '#5a5444', 'hillshade-illumination-direction': 315},
       },
       // sea: flat two-tone, drawn above imagery+hillshade so the sea is clean
-      {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 0.82}},
-      {id: 'deep', type: 'fill', source: 'deep', paint: {'fill-color': SEA_DEEP, 'fill-opacity': 0.8}},
+      {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 0.88}},
+      {id: 'deep', type: 'fill', source: 'deep', paint: {'fill-color': SEA_DEEP, 'fill-opacity': 0.86}},
       {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.42}},
       // light halo on the water side of the coast (reference: pale shelf rim)
       {id: 'coast-glow', type: 'line', source: 'ocean', paint: {'line-color': '#e9f2f4', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-opacity': 0.35}},

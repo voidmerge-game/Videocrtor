@@ -241,36 +241,36 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
         }}
       />
       {/* vignette */}
-      <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.32) 100%)', pointerEvents: 'none'}} />
+      <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.38) 100%)', pointerEvents: 'none'}} />
     </AbsoluteFill>
   );
 };
 
 // Default test shot = the Iberia reference frame (Knowledgia v1, ~1241)
 export const IBERIA_PALETTE: Palette = {
-  'Crown of Castile': '#c9a93a',
+  'Crown of Castile': '#b0a235',
   'Crown of Castile@label': 'Castile',
   'Crown of Aragon@label': 'Aragon',
   'Emirate of Granada@label': 'Granada',
   'Almohad Caliphate@label': 'Almohads',
   'Portugal@label': 'Portugal',
-  'Corona Castellae': '#c9a93a',
-  'Kingdom of Portugal': '#4a86a0',
-  'Reino de Portugal': '#4a86a0',
-  'Crown of Aragon': '#8e3962',
-  'Aragonum et Catalonie': '#8e3962',
-  'Kingdom of Navarre': '#6b7f3a',
+  'Corona Castellae': '#b0a235',
+  'Kingdom of Portugal': '#4b7a8a',
+  'Reino de Portugal': '#4b7a8a',
+  'Crown of Aragon': '#883a5e',
+  'Aragonum et Catalonie': '#883a5e',
+  'Kingdom of Navarre': '#7a8a3c',
   'Kingdom of Navarre@label': 'Navarre',
-  'Emirate of Granada': '#66a66b',
-  'مملكة غرناطة': '#66a66b',
-  'Hafsid': '#4a7442',
-  'Marinid': '#66a66b',
+  'Emirate of Granada': '#8cc478',
+  'مملكة غرناطة': '#8cc478',
+  'Hafsid': '#4f9a4a',
+  'Marinid': '#5aa850',
   'Kingdom of France': '#5f6f9a',
   // fallback basemap names (aourednik world_1200)
-  Portugal: '#4a86a0',
+  Portugal: '#4b7a8a',
   Navarre: '#6b7f3a',
   'Navarre@label': 'Navarre',
-  'Almohad Caliphate': '#4a7442',
+  'Almohad Caliphate': '#5aa850',
 };
 
 export const iberiaDefaults: MapShotProps = {
