@@ -3,6 +3,8 @@
 import maplibregl, {type Map as MLMap} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import React, {useEffect, useRef, useState} from 'react';
+import {Signpost, type SignpostSpec} from './Signpost';
+import {ensureFonts} from '../lib/fonts';
 import {AbsoluteFill, continueRender, delayRender, interpolate, useCurrentFrame, useVideoConfig, Easing} from 'remotion';
 import {buildStyle, SEA_DEEP, type Palette} from './mapStyle';
 import {fitLabel} from './labels';
@@ -30,7 +32,10 @@ export type MapShotProps = {
   extraCities: [string, number, number, number][];
   /** 0..1 – how far along the move the frame is forced to (debug/stills). -1 = use frame */
   forceT: number;
+  /** map-anchored overlays (signposts …) */
+  overlays: OverlaySpec[];
 };
+export type OverlaySpec = SignpostSpec;
 
 type Realm = {name: string; feature: Feature<Polygon | MultiPolygon>; source: 'ohm' | 'fallback'};
 
@@ -298,12 +303,17 @@ const lerpKey = (a: CameraKey, b: CameraKey, t: number): CameraKey => ({
   bearing: a.bearing + (b.bearing - a.bearing) * t,
 });
 
-export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, cityRenames, extraCities, forceT}) => {
+export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, cityRenames, extraCities, forceT, overlays}) => {
   const ref = useRef<HTMLDivElement>(null);
   const frame = useCurrentFrame();
   const {durationInFrames, width, height} = useVideoConfig();
   const [loadHandle] = useState(() => delayRender('MapLibre load', {timeoutInMilliseconds: 600000}));
   const [map, setMap] = useState<MLMap | null>(null);
+  const [anchors, setAnchors] = useState<Record<string, [number, number]>>({});
+  const [fontsHandle] = useState(() => delayRender('fonts', {timeoutInMilliseconds: 60000}));
+  useEffect(() => {
+    ensureFonts().then(() => continueRender(fontsHandle));
+  }, [fontsHandle]);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -367,9 +377,16 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
             easing: Easing.inOut(Easing.cubic),
           });
     map.jumpTo(lerpKey(from, to, t));
+    // project overlay anchors for this camera (sync after jumpTo)
+    const a: Record<string, [number, number]> = {};
+    for (const o of overlays) {
+      const p = map.project([o.lng, o.lat]);
+      a[o.id] = [p.x, p.y];
+    }
+    setAnchors(a);
     map.once('idle', () => continueRender(h));
     map.triggerRepaint();
-  }, [map, frame, forceT, from, to, durationInFrames]);
+  }, [map, frame, forceT, from, to, durationInFrames, overlays]);
 
   return (
     <AbsoluteFill style={{backgroundColor: SEA_DEEP}}>
@@ -399,6 +416,13 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
       />
       {/* vignette */}
       <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.38) 100%)', pointerEvents: 'none'}} />
+      {/* map-anchored overlays */}
+      {overlays.map((o) => {
+        const a = anchors[o.id];
+        if (!a) return null;
+        if (o.kind === 'signpost') return <Signpost key={o.id} spec={o} x={a[0]} y={a[1]} scale={width / 1920} />;
+        return null;
+      })}
     </AbsoluteFill>
   );
 };
@@ -443,6 +467,7 @@ export const iberiaDefaults: MapShotProps = {
   cityRenames: {},
   extraCities: [],
   forceT: -1,
+  overlays: [],
 };
 
 // Scene 1 — Eastern Europe, spring 1241 (Legnica 9 April, Mohi 11 April)
@@ -510,4 +535,7 @@ export const east1241Defaults: MapShotProps = {
     ['Pest', 19.05, 47.5, 2], ['Vladimir', 40.41, 56.13, 2], ['Sarai', 47.5, 48.2, 2], ['Ryazan', 39.74, 54.63, 3], ['Wrocław', 17.03, 51.11, 2],
   ],
   forceT: -1,
+  overlays: [
+    {kind: 'signpost', id: 'bela', lng: 19.05, lat: 47.5, name: 'King Béla IV\nof Hungary', portrait: 'mongols/portraits/bela4.jpg', crown: true, from: 0, to: 9999, cloth: '#6e1f24'},
+  ],
 };
