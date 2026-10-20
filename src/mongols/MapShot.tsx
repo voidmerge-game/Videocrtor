@@ -4,6 +4,7 @@ import maplibregl, {type Map as MLMap} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import React, {useEffect, useRef, useState} from 'react';
 import {Signpost, type SignpostSpec} from './Signpost';
+import {Card, YearTag, type CardSpec} from './Card';
 import {ensureFonts} from '../lib/fonts';
 import {AbsoluteFill, continueRender, delayRender, interpolate, useCurrentFrame, useVideoConfig, Easing} from 'remotion';
 import {buildStyle, SEA_DEEP, type Palette} from './mapStyle';
@@ -34,6 +35,10 @@ export type MapShotProps = {
   forceT: number;
   /** map-anchored overlays (signposts …) */
   overlays: OverlaySpec[];
+  /** screen-space cards */
+  cards: CardSpec[];
+  /** year tag text ('' = none) */
+  yearTag: string;
 };
 export type OverlaySpec = SignpostSpec;
 
@@ -199,12 +204,22 @@ async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null, me
 }
 
 /** screen boxes occupied by overlays (signposts) → lon/lat polygons the label fitter must avoid */
-const overlayKeepouts = (m: MLMap, overlays: OverlaySpec[]): Feature<Polygon>[] => {
-  const S = m.getContainer().clientWidth / 1920;
+const overlayKeepouts = (m: MLMap, overlays: OverlaySpec[], cards: CardSpec[] = []): Feature<Polygon>[] => {
+  const W = m.getContainer().clientWidth, H = m.getContainer().clientHeight;
+  const S = W / 1920;
   const out: Feature<Polygon>[] = [];
+  const rects: [number, number, number, number][] = [];
   for (const o of overlays) {
     const p = m.project([o.lng, o.lat]);
-    const l = p.x - 95 * S, r = p.x + 95 * S, t = p.y - 270 * S, b = p.y + 14 * S;
+    rects.push([p.x - 95 * S, p.y - 270 * S, p.x + 95 * S, p.y + 14 * S]);
+  }
+  for (const c of cards) {
+    const cw = 500 * S, ch = 640 * S, margin = 70 * S;
+    const x0 = c.side === 'right' ? W - cw - margin : margin;
+    const y0 = (H - ch) / 2 + 10 * S;
+    rects.push([x0 - 10 * S, y0 - 10 * S, x0 + cw + 10 * S, y0 + ch + 10 * S]);
+  }
+  for (const [l, t, r, b] of rects) {
     const pts: Position[] = [];
     const N = 6;
     const edge = (x0: number, y0: number, x1: number, y1: number) => {
@@ -221,7 +236,7 @@ const overlayKeepouts = (m: MLMap, overlays: OverlaySpec[]): Feature<Polygon>[] 
   return out;
 };
 
-async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number, measure: (t: string, s: number) => number, overlays: OverlaySpec[] = []) {
+async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fallbackNames: string[], palette: Palette, zoom: number, measure: (t: string, s: number) => number, overlays: OverlaySpec[] = [], cards: CardSpec[] = []) {
   const ohmPieces = m.querySourceFeatures('ohm_admin', {
     sourceLayer: 'boundaries',
     filter: [
@@ -239,7 +254,7 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
   const view = visibleBBox(m, -0.25); // expanded beyond the screen
   const viewPoly = visiblePolygon(m, -0.25);
   const labelPoly = visiblePolygon(m, 0.04); // labels must sit in the visible part
-  const keepouts = overlayKeepouts(m, overlays);
+  const keepouts = overlayKeepouts(m, overlays, cards);
   const tolDeg = (360 / (256 * Math.pow(2, zoom))) * 0.15; // ~0.15 px (union speed only; shapes stay crisp)
   const byName = new Map<string, Feature<Polygon | MultiPolygon>[]>();
   for (const f of ohmPieces) {
@@ -335,7 +350,7 @@ const lerpKey = (a: CameraKey, b: CameraKey, t: number): CameraKey => ({
   bearing: a.bearing + (b.bearing - a.bearing) * t,
 });
 
-export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, cityRenames, extraCities, forceT, overlays}) => {
+export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, cityRenames, extraCities, forceT, overlays, cards, yearTag}) => {
   const ref = useRef<HTMLDivElement>(null);
   const frame = useCurrentFrame();
   const {durationInFrames, width, height} = useVideoConfig();
@@ -372,7 +387,7 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
           await applyCities(m, cityRenames, extraCities);
           const measureBold = await makeMeasurer('GaramondXB', 'fonts/EBGaramond-ExtraBold.ttf', 0.06);
           const measureItalic = await makeMeasurer('GaramondIt', 'fonts/EBGaramond-SemiBoldItalic.ttf', 0.12);
-          await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom, measureBold, overlays);
+          await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom, measureBold, overlays, cards);
           await prepareSeas(m, from.zoom, seaNames.length > 0 ? seaNames : null, measureItalic);
         } catch (e) {
           console.log('FALLBACK_CLIP_ERROR', String(e));
@@ -426,8 +441,8 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
       {/* horizon softening (DoF feel) – top 22% */}
       <div
         style={{
-          position: 'absolute', left: 0, top: 0, width, height: height * 0.22,
-          backdropFilter: 'blur(2.5px)', WebkitBackdropFilter: 'blur(2.5px)',
+          position: 'absolute', left: 0, top: 0, width, height: height * 0.16,
+          backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
           maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
           pointerEvents: 'none',
@@ -455,6 +470,8 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
         if (o.kind === 'signpost') return <Signpost key={o.id} spec={o} x={a[0]} y={a[1]} scale={width / 1920} />;
         return null;
       })}
+      {cards.map((c, i) => <Card key={i} spec={c} />)}
+      {yearTag ? <YearTag year={yearTag} from={0} /> : null}
     </AbsoluteFill>
   );
 };
@@ -500,6 +517,8 @@ export const iberiaDefaults: MapShotProps = {
   extraCities: [],
   forceT: -1,
   overlays: [],
+  cards: [],
+  yearTag: '',
 };
 
 // Scene 1 — Eastern Europe, spring 1241 (Legnica 9 April, Mohi 11 April)
@@ -570,4 +589,20 @@ export const east1241Defaults: MapShotProps = {
   overlays: [
     {kind: 'signpost', id: 'bela', lng: 19.05, lat: 47.5, name: 'King Béla IV\nof Hungary', portrait: 'mongols/portraits/bela4.jpg', crown: true, from: 0, to: 9999, cloth: '#6e1f24'},
   ],
+  cards: [
+    {
+      title: 'The Mongol Army in 1241',
+      image: 'mongols/portraits/mohi_chronicon.jpg',
+      caption: 'Mongol riders pursue King Béla IV – Chronicon Pictum, c. 1360',
+      facts: [
+        ['Strength', 'roughly 40,000 to 70,000 horsemen'],
+        ['Command', 'Batu Khan, with Subutai as strategist'],
+        ['Tactics', 'feigned retreat, encirclement, siege engines'],
+      ],
+      from: 0,
+      to: 9999,
+      side: 'right',
+    },
+  ],
+  yearTag: '1241',
 };

@@ -114,11 +114,11 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       // borders: light rim + crisp dark line
       {
         id: 'realm-rim', type: 'line', source: 'realms', layout: {'line-join': 'round'},
-        paint: {'line-color': 'rgba(255,250,235,0.45)', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 7]},
+        paint: {'line-color': 'rgba(255,252,240,0.85)', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3.2, 7, 6.5]},
       },
       {
         id: 'realm-line', type: 'line', source: 'realms', layout: {'line-join': 'round'},
-        paint: {'line-color': '#261f18', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1.4, 7, 3.2], 'line-opacity': 1},
+        paint: {'line-color': '#1f1811', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1.5, 7, 3.0], 'line-opacity': 1},
       },
       // glossy light/shadow zones over everything (georeferenced, so they stay put during camera moves)
       {id: 'light', type: 'raster', source: 'light', paint: {'raster-opacity': 0.5, 'raster-resampling': 'linear'}},

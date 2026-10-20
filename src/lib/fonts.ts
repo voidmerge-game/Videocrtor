@@ -11,6 +11,9 @@ export const ensureFonts = () => {
       loadFont({family: 'Barlow Condensed', url: staticFile('fonts/BarlowCondensed-Bold.ttf'), weight: '700'}),
       loadFont({family: 'Barlow', url: staticFile('fonts/Barlow-Regular.ttf'), weight: '400'}),
       loadFont({family: 'Montserrat', url: staticFile('fonts/Montserrat.ttf'), weight: '100 900'}),
+      loadFont({family: 'UnifrakturMaguntia', url: staticFile('fonts/UnifrakturMaguntia.ttf'), weight: '400'}),
+      loadFont({family: 'EB Garamond', url: staticFile('fonts/EBGaramond-ExtraBold.ttf'), weight: '800'}),
+      loadFont({family: 'EB Garamond', url: staticFile('fonts/EBGaramond-SemiBoldItalic.ttf'), weight: '600', style: 'italic'}),
       loadFont({family: 'Special Elite', url: staticFile('fonts/SpecialElite.ttf'), weight: '400'}),
     ]).then(() => undefined);
   }
