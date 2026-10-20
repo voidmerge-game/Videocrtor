@@ -99,9 +99,18 @@ def main():
     mask = ocean_mask(clouds.shape[1], clouds.shape[0], a.ocean)
     # wisps: soft white, stronger contrast, only on sea
     wisp = clouds.astype(np.float32)
-    wisp = np.clip((wisp - 40) * 1.6, 0, 255)
+    wisp = np.clip((wisp - 30) * 1.9, 0, 255)
     wisp = (wisp * mask).astype(np.uint8)
     print('clouds', clouds.shape, 'sea frac', mask.mean().round(3), file=sys.stderr)
+    # large-scale light/shadow field (glossy look: some zones darker, some shinier) from heavily blurred clouds
+    from PIL import ImageFilter
+    blur = np.asarray(Image.fromarray(clouds).resize((2048, 1024), Image.BOX).filter(ImageFilter.GaussianBlur(14)).resize((clouds.shape[1], clouds.shape[0]), Image.BILINEAR)).astype(np.float32)
+    f = (blur - blur.mean()) / (blur.std() + 1e-6)  # ~N(0,1)
+    light_a = np.clip(f, 0, 2.5) / 2.5 * 110  # bright zones: white, alpha up to ~0.43
+    dark_a = np.clip(-f, 0, 2.5) / 2.5 * 120  # dark zones: black, alpha up to ~0.47
+    light_rgb = np.where((light_a > 0)[..., None], 255, 0).astype(np.uint8)
+    light_alpha = np.maximum(light_a, dark_a).astype(np.uint8)
+    light = np.dstack([light_rgb, light_rgb, light_rgb, light_alpha])
     lon0, lat0, lon1, lat1 = a.bbox
     n = 0
     for z in range(a.zmin, a.zmax + 1):
@@ -119,6 +128,9 @@ def main():
                     d = os.path.join(a.out, 'wisps', str(z), str(x)); os.makedirs(d, exist_ok=True)
                     rgba = np.dstack([np.full_like(wt, 255), np.full_like(wt, 255), np.full_like(wt, 255), wt])
                     Image.fromarray(rgba, 'RGBA').save(os.path.join(d, f'{y}.png'), optimize=True)
+                lt = sample(light, lon, lat)
+                d = os.path.join(a.out, 'light', str(z), str(x)); os.makedirs(d, exist_ok=True)
+                Image.fromarray(lt, 'RGBA').resize((128, 128), Image.BILINEAR).save(os.path.join(d, f'{y}.png'), optimize=True)
                 n += 1
         print('z', z, 'done', n, file=sys.stderr)
     print('tiles', n)

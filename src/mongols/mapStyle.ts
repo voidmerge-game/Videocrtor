@@ -72,6 +72,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       // Natural Earth hypsometric tints (painterly, like the reference) – local tiles built by scripts/build_ne_tiles.py
       hyp: {type: 'raster', tiles: [staticFile('tiles/hyp') + '/{z}/{x}/{y}.jpg'], tileSize: 256, minzoom: 3, maxzoom: 6, bounds: [-30, 5, 140, 75]},
       wisps: {type: 'raster', tiles: [staticFile('tiles/wisps') + '/{z}/{x}/{y}.png'], tileSize: 256, minzoom: 3, maxzoom: 6, bounds: [-30, 5, 140, 75]},
+      light: {type: 'raster', tiles: [staticFile('tiles/light') + '/{z}/{x}/{y}.png'], tileSize: 256, minzoom: 3, maxzoom: 6, bounds: [-30, 5, 140, 75]},
       cities: {type: 'geojson', data: staticFile('data/cities.json')},
       sea_labels: {type: 'geojson', data: {type: 'FeatureCollection', features: []}},
       dem: {type: 'raster-dem', tiles: [TERRARIUM_TILES], tileSize: 256, encoding: 'terrarium', maxzoom: 12},
@@ -113,7 +114,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       // sea: flat two-tone, drawn above imagery+hillshade so the sea is clean
       {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 0.88}},
       {id: 'deep', type: 'fill', source: 'deep', paint: {'fill-color': SEA_DEEP, 'fill-opacity': 0.86}},
-      {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.42}},
+      {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.55}},
       // light halo on the water side of the coast (reference: pale shelf rim)
       {id: 'coast-glow', type: 'line', source: 'ocean', paint: {'line-color': '#e9f2f4', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-opacity': 0.35}},
       // borders: dark outer edge + light inner rim (reference look)
@@ -122,6 +123,8 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
         filter: dateFilter(year, [lvl, onlyNamed, bigEnough]),
         paint: {'line-color': '#2a2520', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 7, 2.2], 'line-opacity': 0.85},
       },
+      // glossy light/shadow zones over everything (georeferenced, so they stay put during camera moves)
+      {id: 'light', type: 'raster', source: 'light', paint: {'raster-opacity': 0.85, 'raster-resampling': 'linear'}},
       {id: 'coast', type: 'line', source: 'ocean', paint: {'line-color': COAST, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.6, 7, 1.6], 'line-opacity': 0.9}},
       {
         id: 'sea-labels', type: 'symbol', source: 'sea_labels',
