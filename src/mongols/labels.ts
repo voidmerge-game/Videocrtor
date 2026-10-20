@@ -89,7 +89,9 @@ export function fitLabel(
   opts: {maxSize?: number; minSize?: number; pad?: number; charW?: number; measure?: (text: string, size: number) => number} = {},
 ): FittedLabel {
   const maxSize = opts.maxSize ?? 72, minSize = opts.minSize ?? 10, pad = opts.pad ?? 4, CHAR_W = opts.charW ?? CHAR_W_DEFAULT;
-  const polys: Position[][][] = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+  const polysRaw: Position[][][] = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+  const polys = polysRaw.filter((p) => p && p.length > 0 && p[0] && p[0].length >= 4);
+  if (polys.length === 0) return {name, label, lon: 0, lat: 0, angle: 0, size: 0, fit: false, dbg: 'empty geometry'};
   // project to px space
   const pxPolys = polys.map((p) => p.map((ring) => ring.map(([lon, lat]) => toPx(lon, lat, zoom))));
   const biggest = pxPolys.reduce((a, b) => (ringArea(b[0]) > ringArea(a[0]) ? b : a));

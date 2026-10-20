@@ -8,7 +8,7 @@ import {buildStyle, SEA_DEEP, type Palette} from './mapStyle';
 import {fitLabel} from './labels';
 import * as turf from '@turf/turf';
 import {staticFile} from 'remotion';
-import type {Feature, FeatureCollection, MultiPolygon, Polygon} from 'geojson';
+import type {Feature, FeatureCollection, MultiPolygon, Polygon, Position} from 'geojson';
 
 export type CameraKey = {center: [number, number]; zoom: number; pitch: number; bearing: number};
 
@@ -24,6 +24,10 @@ export type MapShotProps = {
   fallbackNames: string[];
   /** which sea names to show (empty = automatic by rank) */
   seaNames: string[];
+  /** period-correct city handling: modern name -> historical name ('' = hide) */
+  cityRenames: Record<string, string>;
+  /** extra (medieval) places: [name, lon, lat, rank] */
+  extraCities: [string, number, number, number][];
   /** 0..1 – how far along the move the frame is forced to (debug/stills). -1 = use frame */
   forceT: number;
 };
@@ -63,6 +67,52 @@ async function makeMeasurer(family: string, file: string, letterSpacingEm: numbe
   };
 }
 
+/** lon/lat bbox of the actually visible screen area (inset a little), robust to pitch */
+const visibleBBox = (m: MLMap, inset = 0.06): [number, number, number, number] => {
+  const c = m.getContainer();
+  const W = c.clientWidth, H = c.clientHeight;
+  const pts = [
+    [W * inset, H * inset], [W * (1 - inset), H * inset], [W * inset, H * (1 - inset)], [W * (1 - inset), H * (1 - inset)],
+    [W / 2, H * inset], [W / 2, H * (1 - inset)], [W * inset, H / 2], [W * (1 - inset), H / 2],
+  ];
+  let w = 180, s = 90, e = -180, n = -90;
+  for (const [x, y] of pts) {
+    const ll = m.unproject([x, y]);
+    if (!isFinite(ll.lng) || !isFinite(ll.lat)) continue;
+    w = Math.min(w, ll.lng); e = Math.max(e, ll.lng); s = Math.min(s, ll.lat); n = Math.max(n, ll.lat);
+  }
+  return [w, s, e, n];
+};
+
+/** polygon (lon/lat) of the visible screen area – with pitch the view is a trapezoid, not a lon/lat box */
+const visiblePolygon = (m: MLMap, inset = 0.05): Feature<Polygon> => {
+  const c = m.getContainer();
+  const W = c.clientWidth, H = c.clientHeight;
+  const ring: Position[] = [];
+  const N = 12;
+  const edge = (x0: number, y0: number, x1: number, y1: number) => {
+    for (let i = 0; i < N; i++) {
+      const t = i / N;
+      const ll = m.unproject([x0 + (x1 - x0) * t, y0 + (y1 - y0) * t]);
+      ring.push([Math.max(-179.9, Math.min(179.9, ll.lng)), Math.max(-85, Math.min(85, ll.lat))]);
+    }
+  };
+  const l = W * inset, r = W * (1 - inset), t = H * inset, b = H * (1 - inset);
+  edge(l, t, r, t); edge(r, t, r, b); edge(r, b, l, b); edge(l, b, l, t);
+  ring.push(ring[0]);
+  return turf.polygon([ring]) as Feature<Polygon>;
+};
+
+const clipToView = (f: Feature<Polygon | MultiPolygon>, viewPoly: Feature<Polygon>): Feature<Polygon | MultiPolygon> | null => {
+  try {
+    const r = turf.intersect(turf.featureCollection([f, viewPoly])) as Feature<Polygon | MultiPolygon> | null;
+    if (!r || !r.geometry || !r.geometry.coordinates || r.geometry.coordinates.length === 0) return null;
+    return r;
+  } catch {
+    return null;
+  }
+};
+
 const makeDiamond = (size = 32): ImageData => {
   const c = document.createElement('canvas');
   c.width = size; c.height = size;
@@ -77,24 +127,32 @@ const makeDiamond = (size = 32): ImageData => {
   return ctx.getImageData(0, 0, size, size);
 };
 
+async function applyCities(m: MLMap, renames: Record<string, string>, extra: [string, number, number, number][]) {
+  const fc = (await (await fetch(staticFile('data/cities.json'))).json()) as FeatureCollection;
+  const feats: Feature[] = [];
+  for (const f of fc.features) {
+    const n = String(f.properties?.name ?? '');
+    if (n in renames) {
+      if (renames[n] === '') continue;
+      f.properties = {...f.properties, name: renames[n]};
+    }
+    feats.push(f);
+  }
+  for (const [name, lon, lat, rank] of extra) feats.push({type: 'Feature', properties: {name, rank, cap: 0}, geometry: {type: 'Point', coordinates: [lon, lat]}});
+  (m.getSource('cities') as maplibregl.GeoJSONSource).setData({type: 'FeatureCollection', features: feats});
+}
+
 async function prepareSeas(m: MLMap, zoom: number, seaNames: string[] | null, measure: (t: string, s: number) => number) {
   const fc = (await (await fetch(staticFile('data/seas.json'))).json()) as FeatureCollection<Polygon | MultiPolygon>;
-  const b = m.getBounds();
-  const pad = 0.5;
-  const view: [number, number, number, number] = [b.getWest() - pad, b.getSouth() - pad, b.getEast() + pad, b.getNorth() + pad];
+  const viewPoly = visiblePolygon(m, 0.06);
   const out = [];
   for (const f of fc.features) {
     const name = String(f.properties?.name ?? '');
     if (!name) continue;
     if (seaNames && !seaNames.includes(name)) continue;
     if (!seaNames && (f.properties?.rank ?? 9) > 4) continue;
-    let g: Feature<Polygon | MultiPolygon>;
-    try {
-      g = turf.bboxClip(f, view) as Feature<Polygon | MultiPolygon>;
-    } catch {
-      continue;
-    }
-    if (!g.geometry || (g.geometry.type === 'Polygon' ? g.geometry.coordinates.length === 0 : g.geometry.coordinates.length === 0)) continue;
+    const g = clipToView(f, viewPoly);
+    if (!g) continue;
     const label = name.replace(/^INDIAN OCEAN$/, 'Indian Ocean');
     const l = fitLabel(g, name, label, zoom, {maxSize: 30, minSize: 12, pad: 10, measure});
     if (l.fit) out.push(l);
@@ -118,13 +176,31 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
       ['>=', ['coalesce', ['get', 'area'], 1e20], 2e10],
     ],
   });
+  const t0 = performance.now();
+  // work only inside the (padded) view: clip + simplify every tile piece first (huge realms like the
+  // Mongol Empire span dozens of tiles – unioning them whole takes minutes)
+  const view = visibleBBox(m, 0.04);
+  const viewPoly = visiblePolygon(m, 0.04);
+  const tolDeg = (360 / (256 * Math.pow(2, zoom))) * 0.4; // ~0.4 px
   const byName = new Map<string, Feature<Polygon | MultiPolygon>[]>();
   for (const f of ohmPieces) {
     const g = f.geometry;
     if (g.type !== 'Polygon' && g.type !== 'MultiPolygon') continue;
     const name = String(f.properties?.name_en ?? f.properties?.name);
+    let piece: Feature<Polygon | MultiPolygon>;
+    try {
+      const pre = turf.bboxClip(turf.feature(g) as Feature<Polygon | MultiPolygon>, view) as Feature<Polygon | MultiPolygon>;
+      if (!pre.geometry || pre.geometry.coordinates.length === 0) continue;
+      const simp = turf.simplify(pre, {tolerance: tolDeg, highQuality: false, mutate: true}) as Feature<Polygon | MultiPolygon>;
+      const cl = clipToView(simp, viewPoly);
+      if (!cl) continue;
+      piece = cl;
+      if (turf.area(piece) < 1e8) continue; // < 100 km² slivers
+    } catch {
+      continue;
+    }
     const arr = byName.get(name) ?? [];
-    arr.push(turf.feature(g) as Feature<Polygon | MultiPolygon>);
+    arr.push(piece);
     byName.set(name, arr);
   }
   const realms: Realm[] = [];
@@ -132,7 +208,10 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
     const u = unionAll(pieces);
     if (u) realms.push({name, feature: u, source: 'ohm'});
   }
+  const t1 = performance.now();
   const cover = unionAll(realms.map((r) => r.feature));
+  const t2 = performance.now();
+  console.log('REALM_TIMING', 'pieces', ohmPieces.length, 'union/realm', Math.round(t1 - t0), 'ms', 'cover', Math.round(t2 - t1), 'ms');
 
   const clipped: Feature[] = [];
   if (fallbackNames.length > 0) {
@@ -140,15 +219,17 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
     for (const f of fc.features) {
       const name = String(f.properties?.name ?? '');
       if (!fallbackNames.includes(name)) continue;
-      let g: Feature<Polygon | MultiPolygon> | null = f;
+      let g: Feature<Polygon | MultiPolygon> | null = clipToView(f, viewPoly);
+      if (!g) continue;
       if (cover) {
         try {
-          g = turf.difference(turf.featureCollection([f, cover])) as Feature<Polygon | MultiPolygon> | null;
+          g = turf.difference(turf.featureCollection([g, cover])) as Feature<Polygon | MultiPolygon> | null;
         } catch {
           g = f;
         }
       }
-      if (!g) continue;
+      if (!g || !g.geometry || !g.geometry.coordinates || g.geometry.coordinates.length === 0) continue;
+      if (turf.area(g) < 5e9) continue; // < 5,000 km² left after clipping → not worth a label/fill
       g.properties = {name};
       clipped.push(g);
       realms.push({name, feature: g, source: 'fallback'});
@@ -156,7 +237,14 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
   }
   (m.getSource('fallback') as maplibregl.GeoJSONSource).setData({type: 'FeatureCollection', features: clipped});
 
-  const labels = realms.map((r) => fitLabel(r.feature, r.name, palette[r.name + '@label'] ?? r.name, zoom, {measure}));
+  const labels = realms.map((r) => {
+    try {
+      return fitLabel(r.feature, r.name, palette[r.name + '@label'] ?? r.name, zoom, {measure});
+    } catch (e) {
+      console.log('FIT_ERROR', r.name, String(e));
+      return {name: r.name, label: r.name, lon: 0, lat: 0, angle: 0, size: 0, fit: false};
+    }
+  });
   // QA gate: a label that cannot be placed fully inside its border is NOT drawn (logged instead)
   (m.getSource('labels') as maplibregl.GeoJSONSource).setData({
     type: 'FeatureCollection',
@@ -173,11 +261,11 @@ const lerpKey = (a: CameraKey, b: CameraKey, t: number): CameraKey => ({
   bearing: a.bearing + (b.bearing - a.bearing) * t,
 });
 
-export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, forceT}) => {
+export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exaggeration, adminLevels, nativeLabels, fallbackNames, seaNames, cityRenames, extraCities, forceT}) => {
   const ref = useRef<HTMLDivElement>(null);
   const frame = useCurrentFrame();
   const {durationInFrames, width, height} = useVideoConfig();
-  const [loadHandle] = useState(() => delayRender('MapLibre load', {timeoutInMilliseconds: 120000}));
+  const [loadHandle] = useState(() => delayRender('MapLibre load', {timeoutInMilliseconds: 600000}));
   const [map, setMap] = useState<MLMap | null>(null);
 
   useEffect(() => {
@@ -202,6 +290,7 @@ export const MapShot: React.FC<MapShotProps> = ({year, from, to, palette, exagge
       m.once('idle', async () => {
         try {
           if (!m.hasImage('diamond')) m.addImage('diamond', makeDiamond(32), {pixelRatio: 2});
+          await applyCities(m, cityRenames, extraCities);
           const measureBold = await makeMeasurer('GaramondXB', 'fonts/EBGaramond-ExtraBold.ttf', 0.06);
           const measureItalic = await makeMeasurer('GaramondIt', 'fonts/EBGaramond-SemiBoldItalic.ttf', 0.12);
           await prepareRealms(m, year, adminLevels, fallbackNames, palette, from.zoom, measureBold);
@@ -314,5 +403,74 @@ export const iberiaDefaults: MapShotProps = {
   nativeLabels: false,
   fallbackNames: ['Portugal', 'Almohad Caliphate'],
   seaNames: ['Bay of Biscay', 'Mediterranean Sea', 'Balearic Sea', 'Alboran Sea', 'North Atlantic Ocean', 'Strait of Gibraltar'],
+  cityRenames: {},
+  extraCities: [],
+  forceT: -1,
+};
+
+// Scene 1 — Eastern Europe, spring 1241 (Legnica 9 April, Mohi 11 April)
+export const EAST_1241_PALETTE: Palette = {
+  'Mongol Empire': '#8b2f33',
+  'Mongol Empire@label': 'Mongol Empire',
+  'Kingdom of Hungary': '#5aa850',
+  'Kingdom of Hungary@label': 'Hungary',
+  Poland: '#c9a93a',
+  'Holy Roman Empire': '#7f7aa6',
+  'Bulgar Khanate': '#b07a3c',
+  'Bulgar Khanate@label': 'Bulgaria',
+  'Principality of Galicia-Volhynia': '#6f8f5a',
+  'Principality of Galicia-Volhynia@label': 'Galicia–Volhynia',
+  'Other Rus Principalities': '#8a9a6a',
+  'Other Rus Principalities@label': "Rus' Principalities",
+  'Principality of Vladimir-Suzdal': '#9aa070',
+  'Principality of Vladimir-Suzdal@label': 'Vladimir-Suzdal',
+  'Novgorod Republic': '#4b7a8a',
+  'Novgorod Republic@label': 'Novgorod',
+  'State of the Teutonic Order': '#d9d3c3',
+  'State of the Teutonic Order@label': 'Teutonic Order',
+  'Empire of Nicaea': '#8e3962',
+  'Empire of Nicaea@label': 'Nicaea',
+  'Latin Empire': '#b8862b',
+  'Kingdom of Sicily': '#6b8e4e',
+  'Kingdom of Sicily@label': 'Sicily',
+  'Papal States': '#d2c48a',
+  'Republic of Venice': '#c26a3d',
+  'Republic of Venice@label': 'Venice',
+  Denmark: '#a0493f',
+  'Kingdom of France': '#4f6ea0',
+  'Kingdom of France@label': 'France',
+  'Kingdom of Sweden': '#c7b04e',
+  'Kingdom of Sweden@label': 'Sweden',
+  'Kingdom of Norway': '#8c6b4e',
+  'Kingdom of Norway@label': 'Norway',
+  'Kingdom of England': '#b04a4a',
+  'Kingdom of England@label': 'England',
+  'Empire of Trebizond': '#7c5a8c',
+  'Empire of Trebizond@label': 'Trebizond',
+  'Abbasid Caliphate': '#3f6d5a',
+  'Abbasid Caliphate@label': 'Abbasids',
+  'Cuman Khanates': '#a89060',
+  'Cuman Khanates@label': 'Cumans',
+  'Empire of Thessalonica': '#a35a7a',
+  'Empire of Thessalonica@label': 'Thessalonica',
+  'Principality of Murom-Ryazan': '#9aa070',
+  'Principality of Murom-Ryazan@label': 'Ryazan',
+};
+
+export const east1241Defaults: MapShotProps = {
+  year: 1241.3,
+  from: {center: [24.5, 48.0], zoom: 4.55, pitch: 42, bearing: -8},
+  to: {center: [25.5, 48.3], zoom: 4.65, pitch: 42, bearing: -5},
+  palette: EAST_1241_PALETTE,
+  exaggeration: 1.6,
+  adminLevels: [2],
+  nativeLabels: false,
+  fallbackNames: ['Holy Roman Empire', 'Poland', 'Bulgar Khanate', 'Principality of Galicia-Volhynia', 'Other Rus Principalities', 'Principality of Vladimir-Suzdal', 'Denmark', 'Kingdom of France', 'Cuman Khanates'],
+  seaNames: ['Black Sea', 'Baltic Sea', 'Adriatic Sea', 'Mediterranean Sea', 'Sea of Azov', 'Aegean Sea'],
+  cityRenames: {Istanbul: 'Constantinople', Amsterdam: '', Berlin: '', Stockholm: '', Geneva: '', Athens: '', Vienna: 'Vienna', Kyiv: 'Kiev'},
+  extraCities: [
+    ['Kraków', 19.94, 50.06, 2], ['Legnica', 16.16, 51.21, 1], ['Mohi', 20.93, 47.98, 1], ['Esztergom', 18.74, 47.79, 2],
+    ['Pest', 19.05, 47.5, 2], ['Vladimir', 40.41, 56.13, 2], ['Sarai', 47.5, 48.2, 2], ['Ryazan', 39.74, 54.63, 3], ['Wrocław', 17.03, 51.11, 2],
+  ],
   forceT: -1,
 };

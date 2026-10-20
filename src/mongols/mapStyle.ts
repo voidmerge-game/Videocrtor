@@ -114,7 +114,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       // sea: flat two-tone, drawn above imagery+hillshade so the sea is clean
       {id: 'ocean', type: 'fill', source: 'ocean', paint: {'fill-color': SEA_SHELF, 'fill-opacity': 0.88}},
       {id: 'deep', type: 'fill', source: 'deep', paint: {'fill-color': SEA_DEEP, 'fill-opacity': 0.86}},
-      {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.55}},
+      {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.45}},
       // light halo on the water side of the coast (reference: pale shelf rim)
       {id: 'coast-glow', type: 'line', source: 'ocean', paint: {'line-color': '#e9f2f4', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-opacity': 0.35}},
       // borders: dark outer edge + light inner rim (reference look)
@@ -124,7 +124,7 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
         paint: {'line-color': '#2a2520', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 7, 2.2], 'line-opacity': 0.85},
       },
       // glossy light/shadow zones over everything (georeferenced, so they stay put during camera moves)
-      {id: 'light', type: 'raster', source: 'light', paint: {'raster-opacity': 0.85, 'raster-resampling': 'linear'}},
+      {id: 'light', type: 'raster', source: 'light', paint: {'raster-opacity': 0.5, 'raster-resampling': 'linear'}},
       {id: 'coast', type: 'line', source: 'ocean', paint: {'line-color': COAST, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.6, 7, 1.6], 'line-opacity': 0.9}},
       {
         id: 'sea-labels', type: 'symbol', source: 'sea_labels',
