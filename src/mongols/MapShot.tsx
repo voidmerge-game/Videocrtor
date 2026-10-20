@@ -113,6 +113,35 @@ const clipToView = (f: Feature<Polygon | MultiPolygon>, viewPoly: Feature<Polygo
   }
 };
 
+/** Chaikin corner cutting – only for coarse polygons (long straight segments), keeps detailed ones intact */
+const smoothCoarse = (f: Feature<Polygon | MultiPolygon>, zoom: number): Feature<Polygon | MultiPolygon> => {
+  const pxPerDeg = (256 * Math.pow(2, zoom)) / 360;
+  const chaikin = (ring: Position[], iters: number): Position[] => {
+    let r = ring.slice(0, -1);
+    for (let k = 0; k < iters; k++) {
+      const out: Position[] = [];
+      for (let i = 0; i < r.length; i++) {
+        const a = r[i], b = r[(i + 1) % r.length];
+        out.push([0.75 * a[0] + 0.25 * b[0], 0.75 * a[1] + 0.25 * b[1]]);
+        out.push([0.25 * a[0] + 0.75 * b[0], 0.25 * a[1] + 0.75 * b[1]]);
+      }
+      r = out;
+    }
+    return [...r, r[0]];
+  };
+  const doRing = (ring: Position[]): Position[] => {
+    if (ring.length < 5) return ring;
+    let len = 0;
+    for (let i = 0; i < ring.length - 1; i++) len += Math.hypot(ring[i + 1][0] - ring[i][0], ring[i + 1][1] - ring[i][1]);
+    const avgSegPx = (len / (ring.length - 1)) * pxPerDeg;
+    if (avgSegPx < 5) return ring; // already detailed
+    return chaikin(ring, avgSegPx > 20 ? 3 : 2);
+  };
+  const g = f.geometry;
+  if (g.type === 'Polygon') return turf.feature({type: 'Polygon', coordinates: g.coordinates.map(doRing)}, f.properties) as Feature<Polygon>;
+  return turf.feature({type: 'MultiPolygon', coordinates: g.coordinates.map((p) => p.map(doRing))}, f.properties) as Feature<MultiPolygon>;
+};
+
 const makeDiamond = (size = 32): ImageData => {
   const c = document.createElement('canvas');
   c.width = size; c.height = size;
@@ -179,9 +208,10 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
   const t0 = performance.now();
   // work only inside the (padded) view: clip + simplify every tile piece first (huge realms like the
   // Mongol Empire span dozens of tiles – unioning them whole takes minutes)
-  const view = visibleBBox(m, 0.04);
-  const viewPoly = visiblePolygon(m, 0.04);
-  const tolDeg = (360 / (256 * Math.pow(2, zoom))) * 0.4; // ~0.4 px
+  const view = visibleBBox(m, -0.25); // expanded beyond the screen
+  const viewPoly = visiblePolygon(m, -0.25);
+  const labelPoly = visiblePolygon(m, 0.04); // labels must sit in the visible part
+  const tolDeg = (360 / (256 * Math.pow(2, zoom))) * 0.15; // ~0.15 px (union speed only; shapes stay crisp)
   const byName = new Map<string, Feature<Polygon | MultiPolygon>[]>();
   for (const f of ohmPieces) {
     const g = f.geometry;
@@ -206,7 +236,7 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
   const realms: Realm[] = [];
   for (const [name, pieces] of byName) {
     const u = unionAll(pieces);
-    if (u) realms.push({name, feature: u, source: 'ohm'});
+    if (u) realms.push({name, feature: smoothCoarse(u, zoom), source: 'ohm'});
   }
   const t1 = performance.now();
   const cover = unionAll(realms.map((r) => r.feature));
@@ -219,7 +249,7 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
     for (const f of fc.features) {
       const name = String(f.properties?.name ?? '');
       if (!fallbackNames.includes(name)) continue;
-      let g: Feature<Polygon | MultiPolygon> | null = clipToView(f, viewPoly);
+      let g: Feature<Polygon | MultiPolygon> | null = clipToView(smoothCoarse(f, zoom), viewPoly);
       if (!g) continue;
       if (cover) {
         try {
@@ -236,10 +266,17 @@ async function prepareRealms(m: MLMap, year: number, adminLevels: number[], fall
     }
   }
   (m.getSource('fallback') as maplibregl.GeoJSONSource).setData({type: 'FeatureCollection', features: clipped});
+  // all realms (OHM + fallback) rendered from one processed source → consistent, smooth, morphable
+  (m.getSource('realms') as maplibregl.GeoJSONSource).setData({
+    type: 'FeatureCollection',
+    features: realms.map((r) => ({type: 'Feature', properties: {name: r.name, src: r.source}, geometry: r.feature.geometry})),
+  });
 
   const labels = realms.map((r) => {
     try {
-      return fitLabel(r.feature, r.name, palette[r.name + '@label'] ?? r.name, zoom, {measure});
+      const vis = clipToView(r.feature, labelPoly);
+      if (!vis) return {name: r.name, label: r.name, lon: 0, lat: 0, angle: 0, size: 0, fit: false};
+      return fitLabel(vis, r.name, palette[r.name + '@label'] ?? r.name, zoom, {measure});
     } catch (e) {
       console.log('FIT_ERROR', r.name, String(e));
       return {name: r.name, label: r.name, lon: 0, lat: 0, angle: 0, size: 0, fit: false};

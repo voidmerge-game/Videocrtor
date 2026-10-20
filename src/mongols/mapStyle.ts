@@ -86,24 +86,18 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       // label anchors for fallback realms (pole of inaccessibility, computed at runtime)
       fallback_labels: {type: 'geojson', data: {type: 'FeatureCollection', features: []}},
       labels: {type: 'geojson', data: {type: 'FeatureCollection', features: []}},
+      realms: {type: 'geojson', data: {type: 'FeatureCollection', features: []}},
     },
     layers: [
       {id: 'bg', type: 'background', paint: {'background-color': SEA_DEEP}},
       ...(opts.satellite
         ? [{id: 'sat', type: 'raster' as const, source: 'gibs', paint: {'raster-saturation': 0.2, 'raster-contrast': 0.1, 'raster-brightness-max': 0.95}}]
         : [{id: 'hyp', type: 'raster' as const, source: 'hyp', paint: {'raster-saturation': 0.25, 'raster-contrast': 0.12, 'raster-brightness-min': 0.02, 'raster-brightness-max': 0.8}}]),
-      // political fills (semi-opaque, flat) – imagery shows through
+      // invisible layer: forces OHM boundary tiles to load so prepareRealms() can query them
+      {id: 'ohm-load', type: 'fill', source: 'ohm_admin', 'source-layer': 'boundaries', filter: dateFilter(year, [lvl]), paint: {'fill-opacity': 0}},
+      // political fills – one processed source (OHM realms + clipped fallbacks, smoothed), see prepareRealms()
       {
-        id: 'fb-fill', type: 'fill', source: 'fallback', filter: fbFilter,
-        paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.95, 'fill-antialias': true},
-      },
-      {
-        id: 'fb-line', type: 'line', source: 'fallback', filter: fbFilter,
-        paint: {'line-color': '#2a2520', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 7, 2.2], 'line-opacity': 0.85},
-      },
-      {
-        id: 'realm-fill', type: 'fill', source: 'ohm_admin', 'source-layer': 'boundaries',
-        filter: dateFilter(year, [lvl, onlyNamed, bigEnough]),
+        id: 'realm-fill', type: 'fill', source: 'realms',
         paint: {'fill-color': fillColorExpr(palette), 'fill-opacity': 0.95, 'fill-antialias': true},
       },
       // relief on top of the fills (reference: fills are flat but relief still reads)
@@ -117,15 +111,18 @@ export const buildStyle = (year: number, palette: Palette, opts: StyleOpts = {})
       {id: 'wisps', type: 'raster', source: 'wisps', paint: {'raster-opacity': 0.45}},
       // light halo on the water side of the coast (reference: pale shelf rim)
       {id: 'coast-glow', type: 'line', source: 'ocean', paint: {'line-color': '#e9f2f4', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 12], 'line-opacity': 0.35}},
-      // borders: dark outer edge + light inner rim (reference look)
+      // borders: light rim + crisp dark line
       {
-        id: 'realm-line', type: 'line', source: 'ohm_admin', 'source-layer': 'boundaries',
-        filter: dateFilter(year, [lvl, onlyNamed, bigEnough]),
-        paint: {'line-color': '#2a2520', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 7, 2.2], 'line-opacity': 0.85},
+        id: 'realm-rim', type: 'line', source: 'realms', layout: {'line-join': 'round'},
+        paint: {'line-color': 'rgba(255,250,235,0.45)', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 7, 7]},
+      },
+      {
+        id: 'realm-line', type: 'line', source: 'realms', layout: {'line-join': 'round'},
+        paint: {'line-color': '#261f18', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1.4, 7, 3.2], 'line-opacity': 1},
       },
       // glossy light/shadow zones over everything (georeferenced, so they stay put during camera moves)
       {id: 'light', type: 'raster', source: 'light', paint: {'raster-opacity': 0.5, 'raster-resampling': 'linear'}},
-      {id: 'coast', type: 'line', source: 'ocean', paint: {'line-color': COAST, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.6, 7, 1.6], 'line-opacity': 0.9}},
+      {id: 'coast', type: 'line', source: 'ocean', paint: {'line-color': COAST, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.9, 7, 2.0], 'line-opacity': 0.95}},
       {
         id: 'sea-labels', type: 'symbol', source: 'sea_labels',
         layout: {
